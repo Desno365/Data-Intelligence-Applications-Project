@@ -1,0 +1,2 @@
+# data_intelligence_applications
+data intelligence applications course project
