@@ -18,8 +18,8 @@ class Node():
 
 class Network():
 
-    def __init__(self, adjacency_matrix, n):
-        self.adjacency_matrix = adjacency_matrix
+    def __init__(self, n):
+        self.adjacency_matrix = np.zeros((n,n))
         self.nodes = []
         self.n = n
 
@@ -35,13 +35,16 @@ class Network():
         self.weight_matrix = np.zeros((len(categories), len(categories)))
         for i in range(len(categories)):
             for ii in range(len(categories)):
-                self.weight_matrix[i][ii] = 0.1
+                self.weight_matrix[i][ii] = 0.5
 
     def generate_live_edge_graph(self):
         live_edge_adjacency_matrix = np.zeros((self.n, self.n))
         probability = 0
         for i in range(self.n):
             for ii in range(self.n):
+                if self.adjacency_matrix[i][ii] == 0:
+                    # If the edge does not exist, skip
+                    continue
                 # Generate a random sample. If the weight of an edge is bigger than the sample, it activates
                 # and becomes a live edge (if it was connected in the first place)
                 # Then, calculate the probability of this live edge graph.
@@ -49,20 +52,18 @@ class Network():
                 # If the edge activates
                 if sample < self.weight_matrix[self.nodes[i].category][self.nodes[ii].category]:
                     live_edge_adjacency_matrix[i][ii] = self.adjacency_matrix[i][ii]
-                    # Update probability only if the edge exists
-                    if self.adjacency_matrix[i][ii] == 1:
-                        if probability == 0:
-                            probability = self.weight_matrix[self.nodes[i].category][self.nodes[ii].category]
-                        else:
-                            probability = probability * self.weight_matrix[self.nodes[i].category][self.nodes[ii].category]
+
+                    if probability == 0:
+                        probability = self.weight_matrix[self.nodes[i].category][self.nodes[ii].category]
+                    else:
+                        probability = probability * self.weight_matrix[self.nodes[i].category][self.nodes[ii].category]
                 # If the edge does not activate
                 else:
-                    if self.adjacency_matrix[i][ii] == 1:
-                        if probability == 0:
-                            probability = 1 - self.weight_matrix[self.nodes[i].category][self.nodes[ii].category]
-                        else:
-                            probability = probability * (1 - self.weight_matrix[self.nodes[i].category][
-                                self.nodes[ii].category])
+                    if probability == 0:
+                        probability = 1 - self.weight_matrix[self.nodes[i].category][self.nodes[ii].category]
+                    else:
+                        probability = probability * (1 - self.weight_matrix[self.nodes[i].category][
+                            self.nodes[ii].category])
 
         return live_edge_adjacency_matrix, probability
 
