@@ -1,5 +1,6 @@
 import numpy as np
 import random
+random.seed(1337)
 
 
 categories = [0, 1, 2, 3, 4]
@@ -67,4 +68,21 @@ class Network():
 
         return live_edge_adjacency_matrix, probability
 
+    #calculate activated nodes in the live edge graph
+    def depth_first_search(root, activated_nodes, live_edge_adjacency_matrix):
+      # print(seeds)
+      for k in range(n):
+        if live_edge_adjacency_matrix[root][k] == 1:
+          if k not in activated_nodes:
+            activated_nodes.append(k)
+            depth_first_search(k, activated_nodes, live_edge_adjacency_matrix)
+      return activated_nodes
+
+    def calculate_activated_nodes(seeds, live_edge_adjacency_matrix):
+      activated_nodes = seeds.copy()
+      # print(seeds)
+      for i in seeds:
+        activated_nodes = depth_first_search(i, activated_nodes, live_edge_adjacency_matrix)
+      # print(seeds)
+      return activated_nodes
 
