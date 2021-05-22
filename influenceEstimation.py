@@ -45,3 +45,35 @@ def calculateActivations(nodes, adjacency_matrix):
     for a in nodes:
       ground_truth_activation_probabilities.append(a.activation_probability)
       print(a.activation_probability)
+
+def monteCarloEstimation(iterations, seeds, ground_truth_activation_probabilities):
+    # monte carlo sampling
+    # iterations = 5
+
+    # seeds = [0]
+    average_active_nodes = 0
+    for i in Network.nodes:
+        i.z = 0
+        i.activation_probability = 0
+    for i in range(iterations):
+        if i % 100000 == 0:
+            print('progress: ', i)
+        # active_nodes = []
+        # print(active_nodes)
+        live, p = Network.generate_live_edge_graph()
+        active_nodes = Network.calculate_activated_nodes(seeds, live)
+        active_nodes.sort()
+        if i == 0:
+            average_active_nodes = len(active_nodes)
+        else:
+            average_active_nodes = (average_active_nodes * (i) + len(active_nodes)) / (i + 1)
+        for nod in active_nodes:
+            Network.nodes[nod].z += 1
+
+    error = 0
+    for asd in range(len(Network.nodes)):
+        print('number of activations: ', Network.nodes[asd].z, '\nactivation probability: ', Network.nodes[asd].z / iterations)
+        if ground_truth_activation_probabilities:
+            error += (ground_truth_activation_probabilities[asd] - Network.nodes[asd].z / iterations) ** 2
+    if ground_truth_activation_probabilities:
+        print('\naverage number of active nodes: ', average_active_nodes, '\ntotal squared error: ', error)
