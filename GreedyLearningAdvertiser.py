@@ -52,7 +52,7 @@ class GreedyLearningAdvertiser(Advertiser):
 
     def improve(self):
         best = self.category_marginal_gain.index(max(self.category_marginal_gain))
-        self.bids[best] += 1
+        self.bids[best].next_elem()
 
         self.category_marginal_gain = [0 for _ in range(5)]
         self.already_increased = [False for _ in range(5)]
