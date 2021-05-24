@@ -23,7 +23,7 @@ class VCGAuction:
         # Check that the slots array has its items sorted by prominence.
         assert all(slate[i].slot_prominence >= slate[i + 1].slot_prominence for i in range(len(slate) - 1))
 
-    # Returns the slate given in input but with an assigned_ad and a price_per_click for every slot
+    # Returns the slate given in input but with an assigned_ad and a price_per_click for every slot.
     def perform_auction(self):
         print(f'Running auction')
 
@@ -44,6 +44,7 @@ class VCGAuction:
             p_a = (1 / (slot_prominence_a * quality_a)) * (x_a - y_a)
             slot.update_price_per_click(price_per_click=p_a)
             print(f'Computed price for ad with id {ad_id}. slot_prominence_a={slot_prominence_a}, quality_a={quality_a}, x_a={x_a}, y_a={y_a}, p_a={p_a}.')
+            assert p_a <= slot.assigned_ad.ad_value  # Price must be lower or equal than the bid.
 
         return self.slate
 
