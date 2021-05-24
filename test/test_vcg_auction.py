@@ -13,10 +13,8 @@ class TestVCGAuction(TestCase):
 
         Utils.print_array(ads)
         vcg_auction = VCGAuction(available_ads=ads, slate=slots)
-        slots_assigned, x_a, y_a = vcg_auction.perform_auction()
+        slots_assigned = vcg_auction.perform_auction()
         Utils.print_array(slots_assigned)
-        print('x_a: ', x_a)
-        print('y_a: ', y_a)
 
     def test_get_total_gain_of_best_allocation(self):
         slots = [
@@ -58,22 +56,22 @@ class TestVCGAuction(TestCase):
         slots[2].update_assigned_ad(Ad(ad_id=7, ad_quality=0.40, ad_value=BidsEnum.SMALL.value))
 
         # Test gain of whole slate.
-        gain = VCGAuction.get_total_gain_of_allocation(allocated_slots=slots, except_ad_id=None)
+        gain = VCGAuction.get_total_gain_of_allocation(allocated_slate=slots, except_ad_id=None)
         expected_gain = (0.80 * 0.50 * BidsEnum.MAX.value) + (0.80 * 0.80 * 0.45 * BidsEnum.MEDIUM.value) + (0.80 * 0.80 * 0.80 * 0.40 * BidsEnum.SMALL.value)
         self.assertAlmostEqual(gain, expected_gain, delta=0.0001)
 
         # Test gain of slate while ignoring ad with id 9.
-        gain = VCGAuction.get_total_gain_of_allocation(allocated_slots=slots, except_ad_id=9)
+        gain = VCGAuction.get_total_gain_of_allocation(allocated_slate=slots, except_ad_id=9)
         expected_gain = (0.80 * 0.80 * 0.45 * BidsEnum.MEDIUM.value) + (0.80 * 0.80 * 0.80 * 0.40 * BidsEnum.SMALL.value)
         self.assertAlmostEqual(gain, expected_gain, delta=0.0001)
 
         # Test gain of slate while ignoring ad with id 8.
-        gain = VCGAuction.get_total_gain_of_allocation(allocated_slots=slots, except_ad_id=8)
+        gain = VCGAuction.get_total_gain_of_allocation(allocated_slate=slots, except_ad_id=8)
         expected_gain = (0.80 * 0.50 * BidsEnum.MAX.value) + (0.80 * 0.80 * 0.80 * 0.40 * BidsEnum.SMALL.value)
         self.assertAlmostEqual(gain, expected_gain, delta=0.0001)
 
         # Test gain of slate while ignoring ad with id 7.
-        gain = VCGAuction.get_total_gain_of_allocation(allocated_slots=slots, except_ad_id=7)
+        gain = VCGAuction.get_total_gain_of_allocation(allocated_slate=slots, except_ad_id=7)
         expected_gain = (0.80 * 0.50 * BidsEnum.MAX.value) + (0.80 * 0.80 * 0.45 * BidsEnum.MEDIUM.value)
         self.assertAlmostEqual(gain, expected_gain, delta=0.0001)
 
