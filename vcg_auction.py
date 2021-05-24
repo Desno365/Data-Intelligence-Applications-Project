@@ -1,3 +1,4 @@
+import copy
 from typing import List
 
 from ad import Ad
@@ -65,11 +66,15 @@ class VCGAuction:
 
     @staticmethod
     def get_total_gain_of_best_allocation(ads: List[Ad], slate: List[Slot]):
-        num_of_slots = len(slate)
+        # This method will modify the assignments of the slate.
+        # So to avoid modifying the original slate we make a deep copy.
+        slate_copy = copy.deepcopy(slate)
+
+        num_of_slots = len(slate_copy)
         best_ads = VCGAuction.get_best_ads(ads=ads)
         for i in range(num_of_slots):
-            slate[i].update_assigned_ad(assigned_ad=best_ads[i])
-        return VCGAuction.get_total_gain_of_allocation(allocated_slate=slate, except_ad_id=None)
+            slate_copy[i].update_assigned_ad(assigned_ad=best_ads[i])
+        return VCGAuction.get_total_gain_of_allocation(allocated_slate=slate_copy, except_ad_id=None)
 
     @staticmethod
     def get_best_ads(ads: List[Ad]):
