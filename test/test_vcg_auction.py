@@ -20,9 +20,9 @@ class TestVCGAuction(TestCase):
 
     def test_get_total_gain_of_best_allocation(self):
         slots = [
-            Slot(slot_id=0, slot_prominence=0.80, price_per_click=0.0),
-            Slot(slot_id=1, slot_prominence=0.80 * 0.80, price_per_click=0.0),
-            Slot(slot_id=2, slot_prominence=0.80 * 0.80 * 0.80, price_per_click=0.0),
+            Slot(slot_id=0, slot_prominence=0.80),
+            Slot(slot_id=1, slot_prominence=0.80 * 0.80),
+            Slot(slot_id=2, slot_prominence=0.80 * 0.80 * 0.80),
         ]
         ads = [
             Ad(ad_id=0, ad_quality=0.05, ad_value=BidsEnum.VERY_SMALL.value),
@@ -49,9 +49,9 @@ class TestVCGAuction(TestCase):
 
     def test_get_total_gain_of_allocation(self):
         slots = [
-            Slot(slot_id=0, slot_prominence=0.80, price_per_click=0.0),
-            Slot(slot_id=1, slot_prominence=0.80 * 0.80, price_per_click=0.0),
-            Slot(slot_id=2, slot_prominence=0.80 * 0.80 * 0.80, price_per_click=0.0),
+            Slot(slot_id=0, slot_prominence=0.80),
+            Slot(slot_id=1, slot_prominence=0.80 * 0.80),
+            Slot(slot_id=2, slot_prominence=0.80 * 0.80 * 0.80),
         ]
         slots[0].update_assigned_ad(Ad(ad_id=9, ad_quality=0.50, ad_value=BidsEnum.MAX.value))
         slots[1].update_assigned_ad(Ad(ad_id=8, ad_quality=0.45, ad_value=BidsEnum.MEDIUM.value))
@@ -80,12 +80,12 @@ class TestVCGAuction(TestCase):
     @staticmethod
     def get_example_slots_array():
         slots = [
-            Slot(slot_id=0, slot_prominence=0.80, price_per_click=0.0),
-            Slot(slot_id=1, slot_prominence=0.80 * 0.80, price_per_click=0.0),
-            Slot(slot_id=2, slot_prominence=0.80 * 0.80 * 0.80, price_per_click=0.0),
-            Slot(slot_id=3, slot_prominence=0.80 * 0.80 * 0.80 * 0.80, price_per_click=0.0),
-            Slot(slot_id=4, slot_prominence=0.80 * 0.80 * 0.80 * 0.80 * 0.80, price_per_click=0.0),
-            Slot(slot_id=5, slot_prominence=0.80 * 0.80 * 0.80 * 0.80 * 0.80 * 0.80, price_per_click=0.0),
+            Slot(slot_id=0, slot_prominence=0.80),
+            Slot(slot_id=1, slot_prominence=0.80 * 0.80),
+            Slot(slot_id=2, slot_prominence=0.80 * 0.80 * 0.80),
+            Slot(slot_id=3, slot_prominence=0.80 * 0.80 * 0.80 * 0.80),
+            Slot(slot_id=4, slot_prominence=0.80 * 0.80 * 0.80 * 0.80 * 0.80),
+            Slot(slot_id=5, slot_prominence=0.80 * 0.80 * 0.80 * 0.80 * 0.80 * 0.80),
         ]
         assert len(slots) == 6  # Specified in the project requirements that there are 6 slots
         return slots
