@@ -15,14 +15,16 @@ class Node():
 
     def show_ad(self):
         # Decide if the node will turn into a seed after being shown the ad
+        # Per il momento assunto che ritorni il clicked slot, altrimenti modificare il publisher
         print("todo")
 
 class Network():
 
     def __init__(self, n):
-        self.adjacency_matrix = np.zeros((n,n))
+        self.adjacency_matrix = np.zeros((n, n))
         self.nodes = []
         self.n = n
+        self.click_probabilities = np.zeros((n, n))
 
         # Create n nodes
         for i in range (self.n):

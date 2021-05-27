@@ -2,4 +2,8 @@
 class Auction():
 
     def __init__(self):
+        self.category = None
         print("todo")
+
+    def perform_auction(self):
+       print("todo return the slate")
