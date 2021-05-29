@@ -1,5 +1,6 @@
 import Network
 from vcg_auction import VCGAuction
+import influenceEstimation
 
 
 class Publisher:
@@ -21,9 +22,8 @@ class Publisher:
                 if 0 <= clicked_slot <= len(self.slate)-1:
                     seeds[clicked_slot].append(node)
 
-        # todo fix the right method to get the activated nodes
         for ad in range(len(self.slate)):
-            activated_nodes[ad] = self.network.calculate_activated_nodes(seeds=seeds[ad])
+            activated_nodes[ad] = influenceEstimation.calculateActivations(seeds=seeds[ad])
 
         return seeds, activated_nodes
 
