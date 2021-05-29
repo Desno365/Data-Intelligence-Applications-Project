@@ -54,21 +54,21 @@ class GreedyLearningAdvertiser(Advertiser):
     Function to notify the advertiser how many nodes became seeds (or became active at some point)
     Alternative to notify_results. Might merge the two if needed.
     """
-
     def network_results(self, nodes):
         self.waiting_results = False
-        
-        for node in nodes:
-            # TODO: Take the node category in some way
-            category = node.category
-            self.category_marginal_gain[category] += self.advalue - self.incr_bids[category].value
+
+        self.category_marginal_gain[self.to_increment] = nodes
+        print(f"Results: improved bid of {self.to_increment} and noted a gain of {nodes}")
 
         if self.already_increased.count(True) == 5:
             self.improve()
 
+
     def improve(self):
         best = self.category_marginal_gain.index(max(self.category_marginal_gain))
         self.bids[best].next_elem()
+
+        print(f"Improvement: gains are {self.category_marginal_gain}, the best is {best}.")
 
         self.category_marginal_gain = [0 for _ in range(5)]
         self.already_increased = [False for _ in range(5)]
