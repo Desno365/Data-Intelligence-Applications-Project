@@ -50,6 +50,22 @@ class GreedyLearningAdvertiser(Advertiser):
                 True) == 5:  # If every category bid has already been increased, then improve the algorithm
             self.improve()
 
+    """
+    Function to notify the advertiser how many nodes became seeds (or became active at some point)
+    Alternative to notify_results. Might merge the two if needed.
+    """
+
+    def network_results(self, nodes):
+        self.waiting_results = False
+        
+        for node in nodes:
+            # TODO: Take the node category in some way
+            category = node.category
+            self.category_marginal_gain[category] += self.advalue - self.incr_bids[category].value
+
+        if self.already_increased.count(True) == 5:
+            self.improve()
+
     def improve(self):
         best = self.category_marginal_gain.index(max(self.category_marginal_gain))
         self.bids[best].next_elem()
