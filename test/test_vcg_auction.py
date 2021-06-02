@@ -3,7 +3,7 @@ from ad import Ad
 from bids_enum import BidsEnum
 from slot import Slot
 from utils import Utils
-from vcg_auction import VCGAuction
+from auction.vcg_auction import VCGAuction
 
 
 class TestVCGAuction(TestCase):

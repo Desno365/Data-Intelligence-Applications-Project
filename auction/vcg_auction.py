@@ -2,29 +2,19 @@ import copy
 from typing import List
 
 from ad import Ad
+from auction.auction import Auction
 from slot import Slot
 
 
-class VCGAuction:
+class VCGAuction(Auction):
     # available_ads = the available ads.
     # slate = the available slots. The array must be ordered by slot_prominence.
     # For the algorithms implemented here see https://i.imgur.com/6z0SSwj.jpg and https://i.imgur.com/0kWZa7E.jpg
     def __init__(self, available_ads: List[Ad], slate: List[Slot]):
-        self.available_ads = available_ads
-        self.slate = slate
-        self.num_of_slots = len(slate)
-
-        print(f'Initializing auction. Received ads with length {len(available_ads)}, slate with length {len(slate)}')
-
-        # Check that we have the minimum number of available ads to cover the slate.
-        # Note: uses ">" and not ">=" because for calculating the price of an ad we need the existence of another ad that could substitute it.
-        assert len(available_ads) > self.num_of_slots
-
-        # Check that the slots array has its items sorted by prominence.
-        assert all(slate[i].slot_prominence >= slate[i + 1].slot_prominence for i in range(len(slate) - 1))
+        super().__init__(available_ads=available_ads, slate=slate)
 
     # Returns the slate given in input but with an assigned_ad and a price_per_click for every slot.
-    def perform_auction(self):
+    def perform_auction(self) -> List[Slot]:
         print(f'Running auction')
 
         # Compute best assignment. This basically implements what is written here https://i.imgur.com/6z0SSwj.jpg
