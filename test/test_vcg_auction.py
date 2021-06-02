@@ -1,9 +1,11 @@
+from typing import List
 from unittest import TestCase
+
 from ad import Ad
+from auction.vcg_auction import VCGAuction
 from bids_enum import BidsEnum
 from slot import Slot
 from utils import Utils
-from auction.vcg_auction import VCGAuction
 
 
 class TestVCGAuction(TestCase):
@@ -76,7 +78,7 @@ class TestVCGAuction(TestCase):
         self.assertAlmostEqual(gain, expected_gain, delta=0.0001)
 
     @staticmethod
-    def get_example_slots_array():
+    def get_example_slots_array() -> List[Slot]:
         slots = [
             Slot(slot_id=0, slot_prominence=0.80),
             Slot(slot_id=1, slot_prominence=0.80 * 0.80),
@@ -89,7 +91,7 @@ class TestVCGAuction(TestCase):
         return slots
 
     @staticmethod
-    def get_example_ads_array():
+    def get_example_ads_array() -> List[Ad]:
         #random_bid = random.choice(list(BidsEnum)).value
         ads = [
             Ad(ad_id=0, ad_quality=0.05, ad_value=BidsEnum.OFF.value),

@@ -8,5 +8,5 @@ class Ad:
         self.ad_value = ad_value
         self.ad_value_per_quality = ad_quality * ad_value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'Ad{id=' + str(self.ad_id) + ';q=' + str(self.ad_quality) + ';v=' + str(self.ad_value) + ';v_per_q=' + str(self.ad_value_per_quality) + ';}'
