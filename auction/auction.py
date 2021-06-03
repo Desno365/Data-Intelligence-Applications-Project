@@ -27,4 +27,4 @@ class Auction(metaclass=abc.ABCMeta):
     # Must return the slate given in input but with an assigned_ad and a price_per_click for every slot.
     @abc.abstractmethod
     def perform_auction(self) -> List[Slot]:
-        return self.slate
+        pass

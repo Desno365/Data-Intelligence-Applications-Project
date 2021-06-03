@@ -6,14 +6,14 @@ from bandit_algorithms.thompson_sampling_learner import ThompsonSamplingLearner
 class SlidingWindowThompsonSamplingLearner(ThompsonSamplingLearner):
     # n_arms = number of arms the learner can pull.
     # window_size = size of the sliding window.
-    def __init__(self, n_arms, window_size):
+    def __init__(self, n_arms: int, window_size: int):
         super().__init__(n_arms)
         self.window_size = window_size
         self.pulled_arms = np.array([])
 
     # pulled_arm = arm pulled.
     # reward = reward of arm pulled.
-    def update(self, pulled_arm, reward):
+    def update(self, pulled_arm: int, reward: float) -> None:
         # Increment round.
         self.t += 1
 

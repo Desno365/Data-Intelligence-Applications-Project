@@ -5,13 +5,13 @@ from bandit_algorithms.bandit_learner import BanditLearner
 
 class GreedyLearner(BanditLearner):
     # n_arms = number of arms the learner can pull.
-    def __init__(self, n_arms):
+    def __init__(self, n_arms: int):
         super().__init__(n_arms)
         self.expected_rewards = np.zeros(n_arms)
 
     # Select which arm to pull by maximizing the expected reward,
     # but we want that each arm is pulled at leats once.
-    def pull_arm(self):
+    def pull_arm(self) -> int:
         if self.t < self.n_arms:
             return self.t  # Guarantees that each arm is pulled once.
 
@@ -24,7 +24,7 @@ class GreedyLearner(BanditLearner):
 
     # pulled_arm = arm pulled.
     # reward = reward of arm pulled.
-    def update(self, pulled_arm, reward):
+    def update(self, pulled_arm: int, reward: float) -> None:
         # Increment round.
         self.t += 1
 

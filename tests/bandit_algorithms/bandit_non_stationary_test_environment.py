@@ -1,4 +1,5 @@
 import numpy as np
+from numpy import ndarray
 
 from bandit_test_environment import BanditTestEnvironment
 
@@ -8,7 +9,7 @@ class BanditNonStationaryTestEnvironment(BanditTestEnvironment):
     # n_arms = number of arms.
     # probabilities = probability distributions of the arms for every phase.
     # horizon = horizon of environment (for phases)
-    def __init__(self, n_arms, probabilities, horizon):
+    def __init__(self, n_arms: int, probabilities: ndarray, horizon: int):
         super().__init__(n_arms, probabilities)
         self.t = 0  # Current round (to understand current phase)
         n_phases = len(self.probabilities)
@@ -18,7 +19,7 @@ class BanditNonStationaryTestEnvironment(BanditTestEnvironment):
     # pulled_arm = arm chosen.
     # Returns stochastic reward.
     # Note: binomial distribution with param 1 it's bernoulli.
-    def round(self, pulled_arm):
+    def round(self, pulled_arm: int) -> float:
         current_phase = int(self.t / self.phase_size)
         p = self.probabilities[current_phase][pulled_arm]
         self.t += 1

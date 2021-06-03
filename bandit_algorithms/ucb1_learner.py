@@ -4,13 +4,13 @@ from bandit_algorithms.bandit_learner import BanditLearner
 
 
 class UCB1Learner(BanditLearner):
-    def __init__(self, n_arms):
+    def __init__(self, n_arms: int):
         super().__init__(n_arms)
         self.empirical_means = np.zeros(n_arms)
         # self.confidence = np.zeros(n_arms)  # Code used by professor in pricing part.
         self.confidence = np.array([np.inf] * n_arms)  # Code used by professor in matching part.
 
-    def pull_arm(self):
+    def pull_arm(self) -> int:
         if self.t < self.n_arms:
             arm = self.t
         else:
@@ -18,7 +18,7 @@ class UCB1Learner(BanditLearner):
             arm = np.random.choice(np.where(upper_bound == upper_bound.max())[0])
         return arm
 
-    def update(self, pulled_arm, reward):
+    def update(self, pulled_arm: int, reward: float) -> None:
         # Increment round.
         self.t += 1
 
