@@ -4,12 +4,11 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from bandit_algorithms.thompson_sampling_learner import ThompsonSamplingLearner
-from bandit_algorithms.ucb1_learner import UCB1Learner
-from bandit_test_environment import BanditTestEnvironment
-from greedy_learner import GreedyLearner
+from src.tests.bandit_algorithms.environments.bandit_test_environment import BanditTestEnvironment
+from src.tests.bandit_algorithms.greedy_learner import GreedyLearner
 
 
-class TestThompsonSamplingVsUCB1VsGreedyExperiment(TestCase):
+class TestThompsonSamplingVsGreedyExperiment(TestCase):
     def test_perform_experiment(self):
 
         # ################ Setup experiment. ################ #
@@ -20,14 +19,12 @@ class TestThompsonSamplingVsUCB1VsGreedyExperiment(TestCase):
         opt = np.max(p)  # Real optimal.
 
         # Horizon.
-        # Note: we needed to increase the horizon to see effect of UCB1.
-        time_horizon = 2000
+        time_horizon = 300
 
         # Experiment variables.
-        n_experiments = 200
+        n_experiments = 1000
         ts_rewards_per_experiment = []
         gr_rewards_per_experiment = []
-        ucb1_rewards_per_experiment = []
 
         # ################ Run experiment. ################ #
 
@@ -36,7 +33,6 @@ class TestThompsonSamplingVsUCB1VsGreedyExperiment(TestCase):
             env = BanditTestEnvironment(n_arms=n_arms, probabilities=p)
             ts_learner = ThompsonSamplingLearner(n_arms=n_arms)
             gr_learner = GreedyLearner(n_arms=n_arms)
-            ucb1_learner = UCB1Learner(n_arms=n_arms)
 
             for i in range(time_horizon):
                 # Simulate interaction between environment and thompson sampling learner.
@@ -49,22 +45,15 @@ class TestThompsonSamplingVsUCB1VsGreedyExperiment(TestCase):
                 reward = env.round(pulled_arm)
                 gr_learner.update(pulled_arm, reward)
 
-                # Simulate interaction between environment and UCB1 learner.
-                pulled_arm = ucb1_learner.pull_arm()
-                reward = env.round(pulled_arm)
-                ucb1_learner.update(pulled_arm, reward)
-
             # Store rewards of the experiment.
             ts_rewards_per_experiment.append(ts_learner.collected_rewards)
             gr_rewards_per_experiment.append(gr_learner.collected_rewards)
-            ucb1_rewards_per_experiment.append(ucb1_learner.collected_rewards)
 
         # ################ Preprocess result. ################ #
 
-        # Mean over the regret of all n_experiments experiments, for TS, Greedy and UCB1.
+        # Mean over the regret of all n_experiments experiments, for both TS and Greedy.
         ts_mean_regrets = np.mean(opt - ts_rewards_per_experiment, axis=0)
         gr_mean_regrets = np.mean(opt - gr_rewards_per_experiment, axis=0)
-        ucb1_mean_regrets = np.mean(opt - ucb1_rewards_per_experiment, axis=0)
 
         # ################ Plot result. ################ #
 
@@ -73,10 +62,9 @@ class TestThompsonSamplingVsUCB1VsGreedyExperiment(TestCase):
         plt.ylabel("Regret")
         plt.plot(np.cumsum(ts_mean_regrets), 'r')
         plt.plot(np.cumsum(gr_mean_regrets), 'g')
-        plt.plot(np.cumsum(ucb1_mean_regrets), 'b')
-        plt.legend(["TS", "Greedy", "UCB1"])
+        plt.legend(["TS", "Greedy"])
         plt.show()
 
-        # We can see that:
+        # We can see on the plot that:
         # Regret of greedy increase linearly.
         # While instantaneous regret of TS decreases as the number of rounds increases.

@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 
 from bandit_algorithms.sliding_window_thompson_sampling_learner import SlidingWindowThompsonSamplingLearner
 from bandit_algorithms.thompson_sampling_learner import ThompsonSamplingLearner
-from bandit_non_stationary_test_environment import BanditNonStationaryTestEnvironment
+from src.tests.bandit_algorithms.environments.bandit_non_stationary_test_environment import BanditNonStationaryTestEnvironment
 
 
 class TestThompsonSamplingVsSlidingWindowThompsonSamplingExperiment(TestCase):
