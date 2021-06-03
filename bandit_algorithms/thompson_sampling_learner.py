@@ -1,5 +1,4 @@
 import numpy as np
-from numpy import array
 
 from bandit_algorithms.bandit_learner import BanditLearner
 

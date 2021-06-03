@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import ndarray
 
-from bandit_test_environment import BanditTestEnvironment
+from src.tests.bandit_algorithms.environments.bandit_test_environment import BanditTestEnvironment
 
 
 # It uses phases (so Abrupt Changes).

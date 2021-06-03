@@ -14,5 +14,4 @@ class BanditTestEnvironment:
     # Note: binomial distribution with param 1 it's bernoulli.
     def round(self, pulled_arm: int) -> float:
         p = self.probabilities[pulled_arm]
-        reward = np.random.binomial(1, p)
-        return reward
+        return np.random.binomial(1, p)

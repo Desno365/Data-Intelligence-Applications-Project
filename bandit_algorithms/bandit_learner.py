@@ -3,6 +3,7 @@ import abc
 import numpy as np
 
 
+# This is an abstract class that specifies how a concrete implementation of a bandit algorithm should behave.
 class BanditLearner(metaclass=abc.ABCMeta):
     # n_arms = number of arms the learner can pull.
     def __init__(self, n_arms: int):
