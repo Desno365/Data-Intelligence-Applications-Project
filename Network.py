@@ -85,6 +85,9 @@ class Network():
             self.depth_first_search(k, activated_nodes, live_edge_adjacency_matrix)
       return activated_nodes
 
+    # input seeds (nodes that start the cascade)
+    # input live_edge_adjacency_matrix (definition of the active edges in the graph)
+    # output activated_nodes (list of int indicating the activated nodes)
     def calculate_activated_nodes(self, seeds, live_edge_adjacency_matrix):
       activated_nodes = seeds.copy()
       # print(seeds)
@@ -203,7 +206,9 @@ class Network():
             # generate live edge graph and calculate activated nodes
             live, p = self.generate_live_edge_graph()
             active_nodes = self.calculate_activated_nodes(seeds, live)
+            # print(active_nodes)
             active_nodes.sort()
+            # print(active_nodes)
             # update average number of activated nodes
             if i == 0:
                 average_active_nodes = len(active_nodes)
@@ -213,7 +218,7 @@ class Network():
             for nod in active_nodes:
                 self.nodes[nod].z += 1
             # progress print for very long calculations
-            if i % 100000 == 0:
+            if i % 100000 == 0 and i != 0:
                 print('progress: ', i)
         estimated_activation_probabilities = []
         for i in range(self.n):
