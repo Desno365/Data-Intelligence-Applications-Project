@@ -13,10 +13,11 @@ class Node():
         self.z = 0
         self.activation_probability = 0
 
-    def show_ad(self):
-        # Decide if the node will turn into a seed after being shown the ad
-        # Per il momento assunto che ritorni il clicked slot, altrimenti modificare il publisher
-        print("todo")
+    def show_ad(self, slate):
+        for ad in range(len(slate)):
+            if random.random() < self.activation_probability:
+                return ad
+        return -1
 
 class Network():
 
