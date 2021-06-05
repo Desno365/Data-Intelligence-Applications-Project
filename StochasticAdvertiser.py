@@ -29,6 +29,5 @@ class StochasticAdvertiser(Advertiser):
         self.bids = [random.choice(list(BidsEnum)) for _ in range(5)]
 
 
-StochasticAdvertiser()
-print(list(BidsEnum)[2])
-print(BidsEnum.MEDIUM.next_elem().next_elem())
+stoc = StochasticAdvertiser()
+print(stoc.bids)

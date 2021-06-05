@@ -5,7 +5,7 @@ from bids_enum import BidsEnum
 class GreedyLearningAdvertiser(Advertiser):
     """This whole class is not thread safe."""
 
-    def __init__(self, quality, value):
+    def __init__(self, quality=0.5, value=0.5):
         super().__init__(quality, value)
         self.already_increased = [False for _ in range(5)]  # This list will keep track of which bid has already been
         # increased
@@ -28,6 +28,7 @@ class GreedyLearningAdvertiser(Advertiser):
         else:  # If all bids have not been increased
             self.to_increment = self.already_increased.index(False)  # Find the first category bid not already
             # increased
+            print(f"Chosen category {self.to_increment} with the vector being {self.already_increased}")
             if self.incr_bids[self.to_increment].value != BidsEnum.MAX.value:  # If the bid has not yet reached the
                 # maximum value possible
                 self.incr_bids[self.to_increment].next_elem()
@@ -46,6 +47,7 @@ class GreedyLearningAdvertiser(Advertiser):
         for category in category_won:
             self.category_marginal_gain[category] += self.advalue - self.incr_bids[category].value
 
+        self.already_increased[self.to_increment] = True
         if self.already_increased.count(
                 True) == 5:  # If every category bid has already been increased, then improve the algorithm
             self.improve()
@@ -62,18 +64,22 @@ class GreedyLearningAdvertiser(Advertiser):
 
         for seed in seeds:
             self.category_marginal_gain[self.to_increment] -= cost_per_category[seed.category]
-
+        self.already_increased[self.to_increment] = True
         # print(f"Results: improved bid of {self.to_increment} and noted a gain of {activated_nodes}")
-        print(f"Results: improved bid of {self.to_increment} and noted a gain of {self.category_marginal_gain[self.to_increment]}")
+        print(f"Greedyadv results: improved bid of {self.to_increment} and noted a gain of {self.category_marginal_gain[self.to_increment]}")
 
         if self.already_increased.count(True) == 5:
             self.improve()
 
     def improve(self):
+        # TODO: don't improve if not better than preceding
         best = self.category_marginal_gain.index(max(self.category_marginal_gain))
-        self.bids[best].next_elem()
+        self.bids[best] = self.bids[best].next_elem()
 
         print(f"Improvement: gains are {self.category_marginal_gain}, the best is {best}.")
-
+        print(f"Now bids are: {self.bids}")
         self.category_marginal_gain = [0 for _ in range(5)]
         self.already_increased = [False for _ in range(5)]
+
+
+
