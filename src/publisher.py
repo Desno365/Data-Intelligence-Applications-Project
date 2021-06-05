@@ -1,5 +1,5 @@
 import network
-from src import constants as const
+from src import constants as const, influence_estimation
 from src.auction.vcg_auction import VCGAuction
 from typing import List
 from src.ad import Ad
@@ -57,7 +57,7 @@ class Publisher:
                     clicked_slot = node.show_ad(self.slates[category])
                     if clicked_slot >= 0 and self.slates[category][clicked_slot].assinged_ad == advertiser:
                         seeds.append(node)
-            activated_nodes, node_activation_probabilities = influenceEstimation.monteCarloEstimation(
+            activated_nodes, node_activation_probabilities = influence_estimation.monteCarloEstimation(
                 seeds=seeds, iterations=iterations)
 
             avg_seeds += len(seeds)
