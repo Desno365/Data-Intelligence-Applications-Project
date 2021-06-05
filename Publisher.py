@@ -14,7 +14,6 @@ class Publisher:
         self.auctions = []
         self.slates = [[] for _ in range(const.CATEGORIES)]
         # todo set the id and the prominence
-
         for i in range(const.CATEGORIES):
             for id in range(const.SLATE_DIMENSION):
                 self.slates[i].append(Slot(id, 0.5))
@@ -59,7 +58,8 @@ class Publisher:
                     clicked_slot = node.show_ad(self.slates[category])
                     if clicked_slot >= 0 and self.slates[category][clicked_slot].assinged_ad == advertiser:
                         seeds.append(node)
-            activated_nodes, node_activation_probabilities = self.network.monteCarloEstimation(seeds=seeds, iterations=25)
+            activated_nodes, node_activation_probabilities = influenceEstimation.monteCarloEstimation(
+                seeds=seeds, iterations=iterations)
 
             avg_seeds += len(seeds)
             avg_activated_nodes += activated_nodes
