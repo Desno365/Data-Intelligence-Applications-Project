@@ -1,8 +1,8 @@
 import abc
 from typing import List
 
-from ad import Ad
-from slot import Slot
+from src.ad import Ad
+from src.slot import Slot
 
 
 # This is an abstract class that specifies how a concrete implementation of an auction should behave.

@@ -1,4 +1,4 @@
-from Advertiser import Advertiser
+from advertiser import Advertiser
 from bids_enum import BidsEnum
 
 

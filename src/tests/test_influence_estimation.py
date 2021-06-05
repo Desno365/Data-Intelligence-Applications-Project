@@ -1,21 +1,18 @@
-import Network
 import time
 from matplotlib import pyplot as plt
-import Publisher
-import ad
-import auction.vcg_auction
+from src import ad, network, publisher, slot
+import src.auction.vcg_auction
 
 
 
 # input n_nodes (number of nodes in the network)
 # fc (the network is fully connected (self loops excluded))
-import slot
 
 
 def test_enumeration_estimation(n_nodes=3, fc=True, seeds=[0]):
     start_time = time.time()
     print('Run full enumeration and monte carlo, calculate error of estimation\n')
-    network = Network.Network(n_nodes, fc)
+    network = network.Network(n_nodes, fc)
     average_active_nodes, ground_truth_activations = network.calculateActivations(seeds)
     print('Network adjacency matrix:\n', network.adjacency_matrix)
     print('Average number of activated nodes and node activation probabilities (true values):\n', average_active_nodes, ground_truth_activations)
@@ -34,7 +31,7 @@ def test_monte_carlo_speed():
     t = []
     for n_nodes in range(1, 1000, 10):
         print('testing with ', n_nodes, ' nodes')
-        network = Network.Network(n_nodes, True)
+        network = network.Network(n_nodes, True)
         start_time = time.time()
         estimated_average_active_nodes, estimated_activation_probabilities = network.monteCarloEstimation(iterations=10)
         run_time = time.time() - start_time
@@ -46,15 +43,15 @@ def test_monte_carlo_speed():
 
 
 def test_monte_carlo():
-    network = Network.Network(1, True)
+    network = network.Network(1, True)
     print(network.adjacency_matrix)
     _ = network.monteCarloEstimation(iterations=1)
     # for nod in active_nodes:
     #     network.nodes[nod].z += 1
 
 def test_monte_carlo_with_publisher():
-    network = Network.Network(100, False)
-    publisher = Publisher.Publisher(network)
+    network = network.Network(100, False)
+    publisher = publisher.Publisher(network)
 
     ad_list = [ad.Ad(ad_id=i, ad_quality=0.5, ad_value=1) for i in range(10)]
     # print(len(ad_list))
@@ -72,7 +69,7 @@ test_monte_carlo_with_publisher()
 def test_best_ads():
     ad_list = [ad.Ad(ad_id=i, ad_quality=0.5, ad_value=1) for i in range(10)]
     slate = [slot.Slot(i, 0.5) for i in range(6)]
-    a = auction.vcg_auction.VCGAuction(ad_list, slate)
+    a = src.auction.vcg_auction.VCGAuction(ad_list, slate)
     print(a.get_best_ads(a.available_ads))
     # a.compute_x_a(a.available_ads, slate, 1)
 

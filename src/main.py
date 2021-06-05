@@ -1,4 +1,4 @@
-from Network import *
+from network import *
 import numpy as np
 
 n = 50

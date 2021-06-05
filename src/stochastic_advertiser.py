@@ -1,7 +1,7 @@
 import random
 
-from Advertiser import Advertiser
-from bids_enum import BidsEnum
+from src.advertiser import Advertiser
+from src.bids_enum import BidsEnum
 
 """
 An advertiser that every n auctions changes its bids.

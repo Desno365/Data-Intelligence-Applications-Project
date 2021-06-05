@@ -1,6 +1,6 @@
 import numpy as np
 
-from bandit_algorithms.thompson_sampling_learner import ThompsonSamplingLearner
+from src.bandit_algorithms.thompson_sampling_learner import ThompsonSamplingLearner
 
 
 class SlidingWindowThompsonSamplingLearner(ThompsonSamplingLearner):

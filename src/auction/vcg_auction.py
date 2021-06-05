@@ -1,9 +1,9 @@
 import copy
 from typing import List
 
-from ad import Ad
-from auction.auction import Auction
-from slot import Slot
+from src.ad import Ad
+from src.auction.auction import Auction
+from src.slot import Slot
 
 
 class VCGAuction(Auction):

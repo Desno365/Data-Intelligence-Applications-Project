@@ -4,8 +4,8 @@ from unittest import TestCase
 import numpy as np
 from matplotlib import pyplot as plt
 
-from bandit_algorithms.sliding_window_ucb1_learner import SlidingWindowUCB1Learner
-from bandit_algorithms.ucb1_learner import UCB1Learner
+from src.bandit_algorithms.sliding_window_ucb1_learner import SlidingWindowUCB1Learner
+from src.bandit_algorithms.ucb1_learner import UCB1Learner
 from src.tests.bandit_algorithms.environments.bandit_non_stationary_test_environment import \
     BanditNonStationaryTestEnvironment
 

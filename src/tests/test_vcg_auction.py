@@ -1,11 +1,11 @@
 from typing import List
 from unittest import TestCase
 
-from ad import Ad
-from auction.vcg_auction import VCGAuction
-from bids_enum import BidsEnum
-from slot import Slot
-from utils import Utils
+from src.ad import Ad
+from src.auction.vcg_auction import VCGAuction
+from src.bids_enum import BidsEnum
+from src.slot import Slot
+from src.utils import Utils
 
 
 class TestVCGAuction(TestCase):

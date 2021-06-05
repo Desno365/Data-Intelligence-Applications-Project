@@ -1,4 +1,4 @@
-from ad import Ad
+from src.ad import Ad
 
 
 class Slot:

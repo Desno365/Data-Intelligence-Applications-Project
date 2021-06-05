@@ -2,7 +2,7 @@ import statistics
 
 import numpy as np
 
-from bandit_algorithms.ucb1_learner import UCB1Learner
+from src.bandit_algorithms.ucb1_learner import UCB1Learner
 
 
 class SlidingWindowUCB1Learner(UCB1Learner):

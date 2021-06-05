@@ -1,6 +1,6 @@
 import numpy as np
 
-from bandit_algorithms.bandit_learner import BanditLearner
+from src.bandit_algorithms.bandit_learner import BanditLearner
 
 
 class GreedyLearner(BanditLearner):

@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 from matplotlib import pyplot as plt
 
-from bandit_algorithms.thompson_sampling_learner import ThompsonSamplingLearner
+from src.bandit_algorithms.thompson_sampling_learner import ThompsonSamplingLearner
 from src.tests.bandit_algorithms.environments.bandit_test_environment import BanditTestEnvironment
 from src.tests.bandit_algorithms.greedy_learner import GreedyLearner
 

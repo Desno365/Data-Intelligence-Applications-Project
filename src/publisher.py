@@ -1,15 +1,14 @@
-import Network
-import influenceEstimation
-import constants as const
-from auction.vcg_auction import VCGAuction
+import network
+from src import constants as const
+from src.auction.vcg_auction import VCGAuction
 from typing import List
-from ad import Ad
+from src.ad import Ad
 from slot import Slot
 
 
 class Publisher:
 
-    def __init__(self, network: Network):
+    def __init__(self, network: network):
         self.network = network
         self.auctions = []
         self.slates = [[] for _ in range(const.CATEGORIES)]
