@@ -13,8 +13,10 @@ class GreedyLearningAdvertiser(Advertiser):
         # increase.
         self.waiting_results = False  # Indicates whether the advertiser is currently waiting for the results of the
         # auction
-        self.category_marginal_gain = [0 for _ in
-                                       range(5)]  # The marginal gain after having increased that category bid
+        self.category_gain = [0 for _ in
+                              range(5)]  # The marginal gain after having increased that category bid
+        self.previous_category_gain = [0 for _ in
+                                       range(5)]
 
     def participate_auction(self, category):
         if self.waiting_results:
@@ -23,6 +25,7 @@ class GreedyLearningAdvertiser(Advertiser):
 
         if self.already_increased.count(True) == 5:  # All bids have been increased, I think the control should not
             # normally go here.
+            # TODO: the control can go here if bids are almost all at maximum and the last to increment is 5
             raise ValueError(f"The value next_to_increment should not be {self.to_increment}.")
 
         else:  # If all bids have not been increased
@@ -45,7 +48,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.waiting_results = False
 
         for category in category_won:
-            self.category_marginal_gain[category] += self.advalue - self.incr_bids[category].value
+            self.category_gain[category] += self.advalue - self.incr_bids[category].value
 
         self.already_increased[self.to_increment] = True
         if self.already_increased.count(
@@ -60,26 +63,29 @@ class GreedyLearningAdvertiser(Advertiser):
     def network_results(self, activated_nodes, seeds, cost_per_category):
         self.waiting_results = False
 
-        self.category_marginal_gain[self.to_increment] = activated_nodes * self.advalue
+        self.category_gain[self.to_increment] = activated_nodes * self.advalue
 
         for seed in seeds:
-            self.category_marginal_gain[self.to_increment] -= cost_per_category[seed.category]
+            self.category_gain[self.to_increment] -= cost_per_category[seed.category]
         self.already_increased[self.to_increment] = True
         # print(f"Results: improved bid of {self.to_increment} and noted a gain of {activated_nodes}")
-        print(f"Greedyadv results: improved bid of {self.to_increment} and noted a gain of {self.category_marginal_gain[self.to_increment]}")
+        print(
+            f"Greedyadv results: improved bid of {self.to_increment} and noted a gain of {self.category_gain[self.to_increment]}")
 
         if self.already_increased.count(True) == 5:
             self.improve()
 
     def improve(self):
-        # TODO: don't improve if not better than preceding
-        best = self.category_marginal_gain.index(max(self.category_marginal_gain))
-        self.bids[best] = self.bids[best].next_elem()
+        best = self.category_gain.index(max(self.category_gain))
+        if self.category_gain[best] > self.previous_category_gain[best]:
+            # If it is better than preceding gain
+            self.bids[best] = self.bids[best].next_elem()
+            self.previous_category_gain[best] = self.category_gain[best]
+        else:
+            print("Chose not to improve because gain is smaller than before.")
 
-        print(f"Improvement: gains are {self.category_marginal_gain}, the best is {best}.")
+
+        print(f"Improvement: gains are {self.category_gain}, the best is {best}.")
         print(f"Now bids are: {self.bids}")
-        self.category_marginal_gain = [0 for _ in range(5)]
+        self.category_gain = [0 for _ in range(5)]
         self.already_increased = [False for _ in range(5)]
-
-
-

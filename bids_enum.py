@@ -12,5 +12,6 @@ class BidsEnum(Enum):
 
     def next_elem(self) -> 'BidsEnum':
         if self == BidsEnum.MAX:
-            raise Exception("Cannot increment a max bid")
+            print("Cannot increment a max bid")
+            return BidsEnum.MAX
         return list(BidsEnum)[list(BidsEnum).index(self) + 1]
