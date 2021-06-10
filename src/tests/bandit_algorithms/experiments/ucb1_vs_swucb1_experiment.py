@@ -18,28 +18,28 @@ class TestUCB1VsSlidingWindowUCB1Experiment(TestCase):
         # Environment.
         n_arms = 4
         p = np.array([[0.15, 0.1, 0.2, 0.35],
-                      [0.45, 0.21, 0.2, 0.25],
-                      [0.1, 0.1, 0.5, 0.15],
-                      [0.1, 0.25, 0.1, 0.15],
-                      [0.40, 0.1, 0.15, 0.1],
-                      [0.1, 0.2, 0.50, 0.1],
-                      [0.1, 0.45, 0.2, 0.30],
-                      [0.1, 0.1, 0.15, 0.50],
-                      [0.15, 0.1, 0.2, 0.35],
-                      [0.45, 0.21, 0.2, 0.25],
-                      [0.1, 0.1, 0.5, 0.15],
-                      [0.1, 0.25, 0.1, 0.15],
-                      [0.40, 0.1, 0.15, 0.1],
-                      [0.1, 0.2, 0.50, 0.1],
-                      [0.1, 0.45, 0.2, 0.30],
+                      # [0.45, 0.21, 0.2, 0.25],
+                      # [0.1, 0.1, 0.5, 0.15],
+                      # [0.1, 0.25, 0.1, 0.15],
+                      # [0.40, 0.1, 0.15, 0.1],
+                      # [0.1, 0.2, 0.50, 0.1],
+                      # [0.1, 0.45, 0.2, 0.30],
+                      # [0.1, 0.1, 0.15, 0.50],
+                      # [0.15, 0.1, 0.2, 0.35],
+                      # [0.45, 0.21, 0.2, 0.25],
+                      # [0.1, 0.1, 0.5, 0.15],
+                      # [0.1, 0.25, 0.1, 0.15],
+                      # [0.40, 0.1, 0.15, 0.1],
+                      # [0.1, 0.2, 0.50, 0.1],
+                      # [0.1, 0.45, 0.2, 0.30],
                       [0.1, 0.1, 0.15, 0.50]]
         )
 
         # Horizon.
-        time_horizon = 640
+        time_horizon = 200
 
         # Experiment variables.
-        n_experiments = 1000
+        n_experiments = 2000
         ucb1_rewards_per_experiment = []
         swucb1_rewards_per_experiment = []
         ucb1_pulled_arms_per_time_step = [[] for _ in range(time_horizon)]
@@ -47,7 +47,7 @@ class TestUCB1VsSlidingWindowUCB1Experiment(TestCase):
 
         # Window size calibrated by trial and error.
         # window_size = 3 * int(time_horizon ** 0.5)
-        window_size = int((time_horizon / len(p)) * 1.50)
+        window_size = 100#int((time_horizon / len(p)) * 1.50)
 
         # ################ Run experiment. ################ #
 

@@ -4,6 +4,7 @@ random.seed(1337)
 
 
 categories = [0, 1, 2, 3, 4]
+click_propensities = [1, 1, 1, 1, 1]
 
 
 class Node():
@@ -12,6 +13,9 @@ class Node():
         self.category = category
         self.z = 0
         self.activation_probability = 0
+        # value goes between 0 and infinity, 0 means the user never clicks anything
+        # infinity means the user clicks all ads with p = ad quality
+        self.click_propensity = click_propensities[category]
 
     def show_ad(self, slate):
         for ad in range(len(slate)):
@@ -239,4 +243,22 @@ class Network():
             error += (ground_truth_activation_probabilities[asd] - estimated_activation_probabilities[asd]) ** 2
         return error
 
-
+    # input ad_quality (the likelihood of clicking the ad once it is observed)
+    # input iterations (the number of monte carlo iterations to perform)
+    # output seeds (the nodes that clicked the ads and became seeds)
+    # output activated_nodes (the average number of nodes that have been activated by the seeds)
+    # output activation_probabilities (the probability that a node from a given category is activated given the seeds)
+    def monte_carlo_with_pseudo_nodes(self, ad_quality, iterations=100):
+        # combine click propensity with ad quality
+        # determine seeds
+        seeds = []
+        for node in self.nodes:
+            # ad quality goes between 0 and 1
+            # 0 means the ad is not clickable
+            # 1 means users are forced to click the ad
+            activation_probability = ad_quality ** (1 / node.click_propensity)
+            sample = random.random()
+            if sample < activation_probability:
+                seeds.append(node)
+        activated_nodes, activation_probalities = self.monteCarloEstimation(seeds, iterations)
+        return seeds, activated_nodes, activation_probalities

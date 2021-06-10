@@ -70,7 +70,8 @@ def test_best_ads():
     ad_list = [ad.Ad(ad_id=i, ad_quality=0.5, ad_value=1) for i in range(10)]
     slate = [slot.Slot(i, 0.5) for i in range(6)]
     a = src.auction.vcg_auction.VCGAuction(ad_list, slate)
-    print(a.get_best_ads(a.available_ads))
+    # print(a.get_best_ads(a.available_ads))
     # a.compute_x_a(a.available_ads, slate, 1)
+
 
 # test_best_ads()
