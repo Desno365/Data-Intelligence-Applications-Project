@@ -248,7 +248,7 @@ class Network():
     # output seeds (the nodes that clicked the ads and became seeds)
     # output activated_nodes (the average number of nodes that have been activated by the seeds)
     # output activation_probabilities (the probability that a node from a given category is activated given the seeds)
-    def monte_carlo_with_pseudo_nodes(self, ad_quality, iterations=100):
+    def monte_carlo_with_pseudo_nodes_1(self, ad_quality, iterations=100):
         # combine click propensity with ad quality
         # determine seeds
         seeds = []
@@ -257,6 +257,36 @@ class Network():
             # 0 means the ad is not clickable
             # 1 means users are forced to click the ad
             activation_probability = ad_quality ** (1 / node.click_propensity)
+            sample = random.random()
+            if sample < activation_probability:
+                seeds.append(node)
+        activated_nodes, activation_probalities = self.monteCarloEstimation(seeds, iterations)
+        return seeds, activated_nodes, activation_probalities
+
+    def monte_carlo_with_pseudo_nodes_2(self, ad_quality, iterations=100):
+        # combine click propensity with ad quality
+        # determine seeds
+        seeds = []
+        for node in self.nodes:
+            # ad quality goes between 0 and 1
+            # 0 means the ad is not clickable
+            # 1 means users are forced to click the ad
+            activation_probability = ad_quality * node.click_propensity
+            sample = random.random()
+            if sample < activation_probability:
+                seeds.append(node)
+        activated_nodes, activation_probalities = self.monteCarloEstimation(seeds, iterations)
+        return seeds, activated_nodes, activation_probalities
+
+    def monte_carlo_with_pseudo_nodes_3(self, activation_probability, iterations=100):
+        # combine click propensity with ad quality
+        # determine seeds
+        seeds = []
+        for node in self.nodes:
+            # ad quality goes between 0 and 1
+            # 0 means the ad is not clickable
+            # 1 means users are forced to click the ad
+            # activation_probability = ad_quality_table[advertiser, category]
             sample = random.random()
             if sample < activation_probability:
                 seeds.append(node)
