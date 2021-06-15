@@ -18,7 +18,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.previous_category_gain = [0 for _ in
                                        range(5)]
 
-    def participate_auction(self, category):
+    def participate_auction(self):
         if self.waiting_results:
             raise Exception("Greedy learner is waiting for results.")
         self.incr_bids = self.bids.copy()  # Reset the bids to the original value
@@ -38,7 +38,7 @@ class GreedyLearningAdvertiser(Advertiser):
                 self.waiting_results = True
             else:  # This category bid has reached the maximum value possible, trying the next value
                 self.already_increased[self.to_increment] = True
-                return self.participate_auction(category)
+                return self.participate_auction()
                 # This is not an endless recursion because finally the list already_increase should be all True
 
         return self.adquality, self.advalue, self.incr_bids

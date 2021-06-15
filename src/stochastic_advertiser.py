@@ -1,4 +1,5 @@
 import random
+from typing import List
 
 from src.advertiser import Advertiser
 from src.bids_enum import BidsEnum
@@ -10,14 +11,13 @@ An advertiser that every n auctions changes its bids.
 
 class StochasticAdvertiser(Advertiser):
 
-    def __init__(self, quality=0.5, value=0.5, n=15):
+    def __init__(self, quality=None, value=0.5, n=15):
         super().__init__(quality, value)
-        self.bids = [random.choice(list(BidsEnum)) for _ in range(5)]
-        print(self.bids)
+        self.change_bids()
         self.n = n
         self.k = 0
 
-    def participate_auction(self, category):
+    def participate_auction(self):
         if self.k == self.n:
             self.change_bids()
             self.k = 0
@@ -27,6 +27,7 @@ class StochasticAdvertiser(Advertiser):
 
     def change_bids(self):
         self.bids = [random.choice(list(BidsEnum)) for _ in range(5)]
+        self.ad.setbids(self.bids)
 
 
 stoc = StochasticAdvertiser()

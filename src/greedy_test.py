@@ -9,7 +9,7 @@ greedy = GreedyLearningAdvertiser()
 
 
 for j in range(10000):
-    greedy.participate_auction(1)
+    greedy.participate_auction()
     nodes = [Node(random.randint(0, 4)) for _ in range(10)]
     bids_per_category = [random.choice(list(BidsEnum)) for _ in range(5)]
     cost_per_category = [bids_per_category[i].value for i in range(5)]
