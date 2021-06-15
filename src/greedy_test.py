@@ -1,8 +1,8 @@
 import random
 
-from greedy_learning_advertiser import GreedyLearningAdvertiser
-from network import Node
-from bids_enum import BidsEnum
+from src.greedy_learning_advertiser import GreedyLearningAdvertiser
+from src.network import Node
+from src.bids_enum import BidsEnum
 
 greedy = GreedyLearningAdvertiser()
 

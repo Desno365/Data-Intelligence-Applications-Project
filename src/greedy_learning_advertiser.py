@@ -5,7 +5,7 @@ from bids_enum import BidsEnum
 class GreedyLearningAdvertiser(Advertiser):
     """This whole class is not thread safe."""
 
-    def __init__(self, quality=0.5, value=0.5):
+    def __init__(self, quality=None, value=0.5):
         super().__init__(quality, value)
         self.already_increased = [False for _ in range(5)]  # This list will keep track of which bid has already been
         # increased
@@ -41,7 +41,8 @@ class GreedyLearningAdvertiser(Advertiser):
                 return self.participate_auction()
                 # This is not an endless recursion because finally the list already_increase should be all True
 
-        return self.adquality, self.advalue, self.incr_bids
+        self.ad.setbids(self.incr_bids)
+        return self.ad
 
     def notify_results(self, category_won):
         print(f"Greedy learner won in categories {category_won}")
