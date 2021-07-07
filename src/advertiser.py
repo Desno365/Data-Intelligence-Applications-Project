@@ -26,3 +26,6 @@ class Advertiser():
     def notify_results(self, category):
         # The advertiser won an auction in this category with this bid.
         print("thank you")
+
+    def set_random_bids(self):
+        [random.choice(list(BidsEnum)) for _ in range(5)]

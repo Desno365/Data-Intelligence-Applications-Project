@@ -1,21 +1,21 @@
 import numpy as np
 import random
-random.seed(1337)
+import constants
+# random.seed(1337)
 
 
-categories = [0, 1, 2, 3, 4]
-click_propensities = [1, 1, 1, 1, 1]
 
 
-class Node():
 
+class Node:
     def __init__(self, category):
+        self.id = -1
         self.category = category
         self.z = 0
         self.activation_probability = 0
         # value goes between 0 and infinity, 0 means the user never clicks anything
         # infinity means the user clicks all ads with p = ad quality
-        self.click_propensity = click_propensities[category]
+        self.click_propensity = constants.click_propensities[category]
 
     def show_ad(self, slate):
         for ad in range(len(slate)):
@@ -23,8 +23,8 @@ class Node():
                 return ad
         return -1
 
-class Network():
 
+class Network:
     def __init__(self, n, fc):
         self.adjacency_matrix = np.zeros((n, n))
         self.nodes = []
@@ -33,7 +33,9 @@ class Network():
 
         # Create n nodes
         for i in range (self.n):
-            self.nodes.append(Node(random.choice(categories)))
+            newNode = Node(random.choice(constants.categories))
+            newNode.id = i
+            self.nodes.append(newNode)
 
         # Create adj matrix
         if fc:
@@ -45,10 +47,10 @@ class Network():
         for i in range(n):
             self.adjacency_matrix[i][i] = 0
 
-        self.weight_matrix = np.zeros((len(categories), len(categories)))
-        for i in range(len(categories)):
-            for ii in range(len(categories)):
-                self.weight_matrix[i][ii] = 0.5
+        self.weight_matrix = np.zeros((len(constants.categories), len(constants.categories)))
+        for i in range(len(constants.categories)):
+            for ii in range(len(constants.categories)):
+                self.weight_matrix[i][ii] = 0.1
 
     def generate_live_edge_graph(self):
         live_edge_adjacency_matrix = np.zeros((self.n, self.n))
@@ -259,7 +261,7 @@ class Network():
             activation_probability = ad_quality ** (1 / node.click_propensity)
             sample = random.random()
             if sample < activation_probability:
-                seeds.append(node)
+                seeds.append(node.id)
         activated_nodes, activation_probalities = self.monteCarloEstimation(seeds, iterations)
         return seeds, activated_nodes, activation_probalities
 
@@ -274,7 +276,7 @@ class Network():
             activation_probability = ad_quality * node.click_propensity
             sample = random.random()
             if sample < activation_probability:
-                seeds.append(node)
+                seeds.append(node.id)
         activated_nodes, activation_probalities = self.monteCarloEstimation(seeds, iterations)
         return seeds, activated_nodes, activation_probalities
 
@@ -289,6 +291,25 @@ class Network():
             # activation_probability = ad_quality_table[advertiser, category]
             sample = random.random()
             if sample < activation_probability:
-                seeds.append(node)
+                seeds.append(node.id)
         activated_nodes, activation_probalities = self.monteCarloEstimation(seeds, iterations)
         return seeds, activated_nodes, activation_probalities
+
+
+    def MC_pseudoNodes_freshSeeds(self, ad_quality, iterations=100):
+        avg_active_nodes = 0
+        for i in range(iterations):
+            seeds = []
+            for node in self.nodes:
+                # ad quality goes between 0 and 1
+                # 0 means the ad is not clickable
+                # 1 means users are forced to click the ad
+                activation_probability = ad_quality * node.click_propensity
+                sample = random.random()
+                if sample < activation_probability:
+                    seeds.append(node.id)
+            print(seeds)
+            activated_nodes, activation_probalities = self.monteCarloEstimation(seeds, 1)
+            avg_active_nodes += activated_nodes
+        avg_active_nodes = avg_active_nodes / iterations
+        return avg_active_nodes
