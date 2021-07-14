@@ -4,9 +4,6 @@ import constants
 # random.seed(1337)
 
 
-
-
-
 class Node:
     def __init__(self, category):
         self.id = -1
@@ -32,7 +29,7 @@ class Network:
         self.click_probabilities = np.zeros((n, n))
 
         # Create n nodes
-        for i in range (self.n):
+        for i in range(self.n):
             newNode = Node(random.choice(constants.categories))
             newNode.id = i
             self.nodes.append(newNode)
@@ -41,9 +38,9 @@ class Network:
         if fc:
             self.adjacency_matrix = np.ones((n, n), dtype=int)
         else:
-            for i in range (self.n):
+            for i in range(self.n):
                 for ii in range(self.n):
-                    self.adjacency_matrix[i][ii] = random.getrandbits(1)
+                    self.adjacency_matrix[i][ii] = 1 if random.random() < constants.network_connectivity else 0
         for i in range(n):
             self.adjacency_matrix[i][i] = 0
 
@@ -298,18 +295,21 @@ class Network:
 
     def MC_pseudoNodes_freshSeeds(self, ad_quality, iterations=100):
         avg_active_nodes = 0
+        avg_n_seeds = 0
         for i in range(iterations):
             seeds = []
             for node in self.nodes:
                 # ad quality goes between 0 and 1
                 # 0 means the ad is not clickable
                 # 1 means users are forced to click the ad
-                activation_probability = ad_quality * node.click_propensity
+                activation_probability = ad_quality[node.category]
                 sample = random.random()
                 if sample < activation_probability:
                     seeds.append(node.id)
-            print(seeds)
+            print('these are the seeds: ', seeds, len(seeds))
+            avg_n_seeds += len(seeds)
             activated_nodes, activation_probalities = self.monteCarloEstimation(seeds, 1)
             avg_active_nodes += activated_nodes
+        avg_n_seeds = avg_n_seeds / iterations
         avg_active_nodes = avg_active_nodes / iterations
-        return avg_active_nodes
+        return avg_active_nodes, avg_n_seeds

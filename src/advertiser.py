@@ -28,4 +28,4 @@ class Advertiser():
         print("thank you")
 
     def set_random_bids(self):
-        [random.choice(list(BidsEnum)) for _ in range(5)]
+        self.bids = [random.choice(list(BidsEnum)) for _ in range(5)]
