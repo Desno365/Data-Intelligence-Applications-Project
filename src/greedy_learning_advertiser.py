@@ -15,8 +15,7 @@ class GreedyLearningAdvertiser(Advertiser):
         # auction
         self.category_gain = [0 for _ in
                               range(5)]  # The marginal gain after having increased that category bid
-        self.previous_category_gain = [0 for _ in
-                                       range(5)]
+        self.previous_gain = 0
 
     def participate_auction(self):
         if self.waiting_results:
@@ -77,16 +76,19 @@ class GreedyLearningAdvertiser(Advertiser):
             self.improve()
 
     def improve(self):
-        best = self.category_gain.index(max(self.category_gain))
-        if self.category_gain[best] > self.previous_category_gain[best]:
-            # If it is better than preceding gain
-            self.bids[best] = self.bids[best].next_elem()
-            self.previous_category_gain[best] = self.category_gain[best]
+        marginal_gains = [elem - self.previous_gain for elem in self.category_gain]
+
+        if all(marg < 0 for marg in marginal_gains):
+            # TODO: STOP ALGORITHM?
+            print(f"ALL MARGINAL GAINS ARE NEGATIVE. Marginal gains: {marginal_gains}")
+
         else:
-            print("Chose not to improve because gain is smaller than before.")
+            # Improve, since there is at least one positive marginal gain.
+            best_arm = marginal_gains.index(max(marginal_gains))
+            self.bids[best_arm] = self.bids[best_arm].next_elem()
+            self.previous_gain = self.category_gain[best_arm]
 
-
-        print(f"Improvement: gains are {self.category_gain}, the best is {best}.")
-        print(f"Now bids are: {self.bids}")
-        self.category_gain = [0 for _ in range(5)]
-        self.already_increased = [False for _ in range(5)]
+            print(f"Improvement: marginal gains are {marginal_gains}, the best is {best_arm} with gain {self.previous_gain}.")
+            print(f"Now bids are: {self.bids}")
+            self.category_gain = [0 for _ in range(5)]
+            self.already_increased = [False for _ in range(5)]
