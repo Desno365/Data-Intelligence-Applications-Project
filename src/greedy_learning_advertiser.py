@@ -68,7 +68,6 @@ class GreedyLearningAdvertiser(Advertiser):
         for seed in seeds:
             self.category_gain[self.to_increment] -= cost_per_category[seed.category]
         self.already_increased[self.to_increment] = True
-        # print(f"Results: improved bid of {self.to_increment} and noted a gain of {activated_nodes}")
         print(
             f"Greedyadv results: improved bid of {self.to_increment} and noted a gain of {self.category_gain[self.to_increment]}")
 
@@ -80,7 +79,14 @@ class GreedyLearningAdvertiser(Advertiser):
 
         if all(marg < 0 for marg in marginal_gains):
             # TODO: STOP ALGORITHM?
+            print("\n")
             print(f"ALL MARGINAL GAINS ARE NEGATIVE. Marginal gains: {marginal_gains}")
+            print(f"Previous gain is {self.previous_gain}")
+            print(f"Bids are {self.bids}")
+            print(f"Continuing anyway...")
+            print("\n")
+            self.category_gain = [0 for _ in range(5)]
+            self.already_increased = [False for _ in range(5)]
 
         else:
             # Improve, since there is at least one positive marginal gain.
