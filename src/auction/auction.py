@@ -1,7 +1,7 @@
 import abc
 from typing import List
 
-from src.ad import Ad
+from src.auction.auction_ad import AuctionAd
 from src.slot import Slot
 
 
@@ -10,7 +10,7 @@ class Auction(metaclass=abc.ABCMeta):
 
     # available_ads = the available ads.
     # slate = the available slots. The array must be ordered by slot_prominence.
-    def __init__(self, available_ads: List[Ad], slate: List[Slot]):
+    def __init__(self, available_ads: List[AuctionAd], slate: List[Slot]):
         self.available_ads = available_ads
         self.slate = slate
         self.num_of_slots = len(slate)

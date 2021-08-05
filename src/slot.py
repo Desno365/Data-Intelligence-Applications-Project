@@ -1,4 +1,5 @@
 from src.ad import Ad
+from src.auction.auction_ad import AuctionAd
 
 
 class Slot:
@@ -11,7 +12,7 @@ class Slot:
         self.assigned_ad = None
         self.price_per_click = None
 
-    def update_assigned_ad(self, assigned_ad: Ad) -> None:
+    def update_assigned_ad(self, assigned_ad: AuctionAd) -> None:
         self.assigned_ad = assigned_ad
         self.price_per_click = 0.0
 

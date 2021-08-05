@@ -1,8 +1,8 @@
 import copy
 from typing import List
 
-from src.ad import Ad
 from src.auction.auction import Auction
+from src.auction.auction_ad import AuctionAd
 from src.slot import Slot
 
 
@@ -10,7 +10,7 @@ class VCGAuction(Auction):
     # available_ads = the available ads.
     # slate = the available slots. The array must be ordered by slot_prominence.
     # For the algorithms implemented here see https://i.imgur.com/6z0SSwj.jpg and https://i.imgur.com/0kWZa7E.jpg
-    def __init__(self, available_ads: List[Ad], slate: List[Slot]):
+    def __init__(self, available_ads: List[AuctionAd], slate: List[Slot]):
         super().__init__(available_ads=available_ads, slate=slate)
 
     # Returns the slate given in input but with an assigned_ad and a price_per_click for every slot.
@@ -54,13 +54,13 @@ class VCGAuction(Auction):
     # Returns x_a that is basically the total gain that other ads produce to the publisher if ad "a" does not exist.
     # Formally x_a is: using the best assignment without ad a: sum on every ad a' different than a: slot_prominence of ad a' in assignment * quality of ad a' * value of ad a'
     # WARNING: this method modifies the slate by assigning the best ads. If this is not wanted make a deep copy of the slate!
-    def compute_x_a(ads: List[Ad], slate: List[Slot], a_id: int) -> float:
+    def compute_x_a(ads: List[AuctionAd], slate: List[Slot], a_id: int) -> float:
         available_ads_without_a = [ad1 for ad1 in ads if ad1.ad_id != a_id]
         return VCGAuction.get_total_gain_of_best_allocation(ads=available_ads_without_a, slate=slate)
 
     @staticmethod
     # WARNING: this method modifies the slate by assigning the best ads. If this is not wanted make a deep copy of the slate!
-    def get_total_gain_of_best_allocation(ads: List[Ad], slate: List[Slot]) -> float:
+    def get_total_gain_of_best_allocation(ads: List[AuctionAd], slate: List[Slot]) -> float:
         num_of_slots = len(slate)
         best_ads = VCGAuction.get_best_ads(ads=ads)
         for i in range(num_of_slots):
@@ -68,7 +68,7 @@ class VCGAuction(Auction):
         return VCGAuction.get_total_gain_of_allocation(allocated_slate=slate, except_ad_id=None)
 
     @staticmethod
-    def get_best_ads(ads: List[Ad]) -> List[Ad]:
+    def get_best_ads(ads: List[AuctionAd]) -> List[AuctionAd]:
         available_ads_sorted = sorted(ads, key=lambda x: x.ad_value_per_quality, reverse=True)
         return available_ads_sorted
 
