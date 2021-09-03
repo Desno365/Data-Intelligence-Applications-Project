@@ -353,7 +353,7 @@ class Network:
                 for ii in seeds[a]:
                     cumulated_seeds.append(ii)
             nodes, probabilities = self.monteCarloEstimation(cumulated_seeds, 1)
-            for a in range(len(ad_quality)):
+            for a in range(len(seeds.keys())):
                 if a not in avg_n_seeds.keys():
                     avg_n_seeds[a] = 0
                 avg_n_seeds[a] += len(seeds[list(seeds.keys())[a]])
