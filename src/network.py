@@ -300,12 +300,12 @@ class Network:
     # TODO ad quality depends on advertiser
     def MC_pseudoNodes_freshSeeds(self, ad_quality, iterations=100, slates=[]):
         avg_active_nodes = 0
-        avg_n_seeds = 0
+        avg_n_seeds = {}
         avg_n_seeds_per_campaign = {}
         avg_active_nodes_per_campaign = {}
         for i in range(iterations):
             seeds_for_capmaign = {}
-            seeds = []
+            seeds = {}
             activation_probalities_per_campaign = {}
             for node in self.nodes:
                 # ad quality goes between 0 and 1
@@ -316,7 +316,9 @@ class Network:
                     activation_probability = ad_quality[node.category]
                     sample = random.random()
                     if sample < activation_probability:
-                        seeds.append(node.id)
+                        if node.category not in seeds.keys():
+                            seeds[node.category] = []
+                        seeds[node.category].append(node.id)
                 # node category determines slate / ad relevance
                 # extract samples in order and determine seeds for each campaign
                 # take slates from publisher, passed as input (slates)
@@ -346,15 +348,23 @@ class Network:
                 else:
                     avg_active_nodes_per_campaign[campaign] += activated_nodes
             # without slates
-            nodes, probabilities = self.monteCarloEstimation(seeds, 1)
-            avg_n_seeds += len(seeds)
+            cumulated_seeds = []
+            for a in seeds.keys():
+                for ii in seeds[a]:
+                    cumulated_seeds.append(ii)
+            nodes, probabilities = self.monteCarloEstimation(cumulated_seeds, 1)
+            for a in range(len(ad_quality)):
+                if a not in avg_n_seeds.keys():
+                    avg_n_seeds[a] = 0
+                avg_n_seeds[a] += len(seeds[list(seeds.keys())[a]])
             avg_active_nodes += nodes
         # with slates
         for campaign in seeds_for_capmaign.keys():
             avg_n_seeds_per_campaign[campaign] = avg_n_seeds_per_campaign[campaign] / iterations
             avg_active_nodes_per_campaign[campaign] = avg_active_nodes_per_campaign[campaign] / iterations
         # without slates
-        avg_n_seeds = avg_n_seeds / iterations
+        for i in avg_n_seeds.keys():
+            avg_n_seeds[i] = avg_n_seeds[i] / iterations
         avg_active_nodes = avg_active_nodes / iterations
         if slates:
             return avg_active_nodes_per_campaign, avg_n_seeds_per_campaign
