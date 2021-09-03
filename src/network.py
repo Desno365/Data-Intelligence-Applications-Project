@@ -297,6 +297,7 @@ class Network:
         return seeds, activated_nodes, activation_probalities
 
 
+    # TODO ad quality depends on advertiser
     def MC_pseudoNodes_freshSeeds(self, ad_quality, iterations=100, slates=[]):
         avg_active_nodes = 0
         avg_n_seeds = 0
@@ -304,6 +305,7 @@ class Network:
         avg_active_nodes_per_campaign = {}
         for i in range(iterations):
             seeds_for_capmaign = {}
+            seeds = []
             activation_probalities_per_campaign = {}
             for node in self.nodes:
                 # ad quality goes between 0 and 1
@@ -330,7 +332,7 @@ class Network:
                             seeds_for_capmaign[position.assigned_ad.ad_id].append(node.id)
                             is_seed = True
                             break
-
+            # with slates
             # print('these are the seeds: ', seeds_for_capmaign)
             for campaign in seeds_for_capmaign.keys():
                 print(campaign)
@@ -343,8 +345,18 @@ class Network:
                     avg_active_nodes_per_campaign[campaign] = 0
                 else:
                     avg_active_nodes_per_campaign[campaign] += activated_nodes
-
+            # without slates
+            nodes, probabilities = self.monteCarloEstimation(seeds, 1)
+            avg_n_seeds += len(seeds)
+            avg_active_nodes += nodes
+        # with slates
         for campaign in seeds_for_capmaign.keys():
             avg_n_seeds_per_campaign[campaign] = avg_n_seeds_per_campaign[campaign] / iterations
             avg_active_nodes_per_campaign[campaign] = avg_active_nodes_per_campaign[campaign] / iterations
-        return avg_active_nodes_per_campaign, avg_n_seeds_per_campaign
+        # without slates
+        avg_n_seeds = avg_n_seeds / iterations
+        avg_active_nodes = avg_active_nodes / iterations
+        if slates:
+            return avg_active_nodes_per_campaign, avg_n_seeds_per_campaign
+        else:
+            return avg_n_seeds, avg_active_nodes
