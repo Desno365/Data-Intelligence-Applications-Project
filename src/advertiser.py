@@ -16,10 +16,12 @@ class Advertiser():
     def __init__(self, network, quality=None, value=0.5):
         if quality is None:
             quality = [random.uniform(0, 1) for _ in range(5)]
+        #print(f"quality: {quality}")
         self.adquality = quality
         self.id = random.randint(a=1, b=9999999999999)
         self.advalue = value
         self.bids = [BidsEnum.OFF for _ in range(5)]
+        #print(f"creating ad with quality: {self.adquality}")
         self.ad = Ad(self.id, self.adquality, self.advalue, self.bids)
         self.network = network
 

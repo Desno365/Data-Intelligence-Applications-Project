@@ -6,8 +6,8 @@ from src import network
 class GreedyLearningAdvertiser(Advertiser):
     """This whole class is not thread safe."""
 
-    def __init__(self, quality=None, value=0.5):
-        super().__init__(quality, value)
+    def __init__(self, network, quality=None, value=0.5):
+        super().__init__(network, quality, value)
         self.stop_improving = False
         self.already_increased = [False for _ in range(5)]  # This list will keep track of which bid has already been
         # increased
@@ -32,6 +32,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.improved_bids = self.bids.copy()
 
         while not self.stop_improving:
+
 
             for i in range(len(self.bids)):
                 if not self.already_increased[i] and self.bids[i].value == BidsEnum.MAX.value:

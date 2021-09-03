@@ -1,10 +1,13 @@
 import random
 
 from src.greedy_learning_advertiser import GreedyLearningAdvertiser
-from src.network import Node
+from src.network import Node, Network
 from src.bids_enum import BidsEnum
 
-greedy = GreedyLearningAdvertiser()
+quality = [random.uniform(0, 1) for _ in range(5)]
+#print(quality)
+network = Network(50, False)
+greedy = GreedyLearningAdvertiser(network)
 
 for j in range(10000):
     greedy.participate_auction()

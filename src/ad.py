@@ -11,6 +11,7 @@ class Ad:
         self.ad_id = ad_id
         self.ad_quality = ad_quality
         self.ad_value = ad_value
+        #print(f"ad value: {ad_value}, ad quality: {ad_quality}")
         self.ad_value_per_quality = [qual * ad_value for qual in ad_quality]
         self.bids = bids
         print(f"Create Ad with id {self.ad_id}, quality {self.ad_quality}, value {self.ad_value}, bids {self.bids}, value per quality {self.ad_value_per_quality}")
