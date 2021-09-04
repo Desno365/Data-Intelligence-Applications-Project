@@ -1,5 +1,6 @@
 import network
-import advertiser
+from src.advertiser import advertiser
+
 isFullyConnected = False
 numberOfNodes = 100
 network = network.Network(numberOfNodes, isFullyConnected)

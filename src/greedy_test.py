@@ -1,6 +1,6 @@
 import random
 
-from src.greedy_learning_advertiser import GreedyLearningAdvertiser
+from src.advertiser.greedy_learning_advertiser import GreedyLearningAdvertiser
 from src.network import Node, Network
 from src.bids_enum import BidsEnum
 

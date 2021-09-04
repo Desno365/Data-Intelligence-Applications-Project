@@ -1,6 +1,6 @@
 import random
 
-from src.advertiser import Advertiser
+from src.advertiser.advertiser import Advertiser
 from src.bids_enum import BidsEnum
 
 """

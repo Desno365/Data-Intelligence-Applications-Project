@@ -1,6 +1,5 @@
-from advertiser import Advertiser
-from bids_enum import BidsEnum
-from src import network
+from src.advertiser.advertiser import Advertiser
+from src.bids_enum import BidsEnum
 
 
 class GreedyLearningAdvertiser(Advertiser):

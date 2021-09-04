@@ -1,15 +1,10 @@
-## Abstract advertiser class
 import random
-from typing import List
 
-from ad import Ad
-# BIDS CAN TAKE ONE OF 5 VALUES, INCLUDING 0
-from bids_enum import BidsEnum
-
-from src import network
+from src.ad import Ad
+from src.bids_enum import BidsEnum
 
 
-class Advertiser():
+class Advertiser:
     """Bids are instances of BidsEnum, not values. It's easier this way to compare bid values without comparing
     floats """
 
