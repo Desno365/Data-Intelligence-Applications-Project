@@ -1,34 +1,26 @@
-import random
-from typing import List
-
 import numpy as np
 from matplotlib import pyplot as plt
 
-from src import ad, slot, constants, network
+from src import slot, constants, network
 from src.ad_placement_simulator import AdPlacementSimulator
-from src.bids_enum import BidsEnum
+from src.advertiser.stochastic_stationary_advertiser import StochasticStationaryAdvertiser
 from src.utils import Utils
-
-
-def get_random_bids() -> List[BidsEnum]:
-    return [random.choice(list(BidsEnum)) for _ in range(5)]
-
 
 # ################ Prepare experiment. ################ #
 
-network_instance = network.Network(100, False)
+NUMBER_OF_ADVERTISERS = constants.SLATE_DIMENSION + 1
+
+network_instance = network.Network(40, False)
 
 print("Ads:")
-advertisements = [ad.Ad(0, [0.5, 0.1, 0.1, 0.1, 0.1], 1, get_random_bids()),
-                  ad.Ad(1, [0.1, 0.5, 0.1, 0.1, 0.1], 1, get_random_bids()),
-                  ad.Ad(2, [0.1, 0.1, 0.5, 0.1, 0.1], 1, get_random_bids())]
+advertisers = [StochasticStationaryAdvertiser(quality=None) for _ in range(NUMBER_OF_ADVERTISERS)]
+advertisements = [adv.participate_auction() for adv in advertisers]
 Utils.print_array(advertisements)
 
 print("Slates:")
 slates = []
 for current_category in range(constants.CATEGORIES):
-    slate = [slot.Slot(0, 0.80),
-             slot.Slot(1, 0.80 * 0.80)]
+    slate = [slot.Slot(slot_id, 0.80 ** (slot_id + 1)) for slot_id in range(constants.SLATE_DIMENSION)]
     slates.append(slate)
 Utils.print_array(slates)
 
@@ -43,10 +35,10 @@ print("Using these values as possible iterations:")
 print(log_range)
 
 for iterations in log_range:
-    print("Running with iterations " + str(iterations))
+    print("#################### Running with iterations " + str(iterations))
     list_iterations.append(iterations)
-    r = AdPlacementSimulator.simulate_ad_placement(network=network_instance, ads=advertisements, slates=slates, iterations=iterations)
-    number_of_activated_nodes_per_experiment.append(r[0]['activatedNodes'])
+    social_influence = AdPlacementSimulator.simulate_ad_placement(network=network_instance, ads=advertisements, slates=slates, iterations=iterations)
+    number_of_activated_nodes_per_experiment.append(social_influence[advertisers[0].id]['activatedNodes'])
 best_perfomance = number_of_activated_nodes_per_experiment[-1]
 
 

@@ -27,7 +27,7 @@ class AdPlacementSimulator:
             # The auction then will return the slate itself but with an ad and price assigned to every slot.
             auction_ads_for_the_category = []
             for ad in ads:
-                new_auction_ad = AuctionAd(ad_id=ad.ad_id, ad_quality=ad.ad_quality[current_category], ad_bid=ad.ad_value)
+                new_auction_ad = AuctionAd(ad_id=ad.ad_id, ad_quality=ad.ad_quality[current_category], ad_bid=ad.bids[current_category].value)
                 auction_ads_for_the_category.append(new_auction_ad)
 
             slate_of_the_category = slates[current_category]
@@ -46,3 +46,11 @@ class AdPlacementSimulator:
         # Note: having the division by ad_id is equivalent as dividing by advertiser since every advertiser has one ad.
         social_influence = network.estimateSocialInfluence(iterations=iterations, slates=slates)
         return social_influence
+
+
+        # Social influence:
+        # { ad_id,
+        #   { slots: int,
+        #     activatedNodes: int
+        #   }
+        # }
