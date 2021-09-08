@@ -1,37 +1,48 @@
+from typing import List
+
+from src.ad import Ad
+from src.ad_placement_simulator import AdPlacementSimulator
 from src.advertiser.advertiser import Advertiser
 from src.bids_enum import BidsEnum
+from src.slot import Slot
 
 
 class GreedyLearningAdvertiser(Advertiser):
     """This whole class is not thread safe."""
 
-    def __init__(self, network, quality=None, value=0.5):
-        super().__init__(network, quality, value)
+    def __init__(self, quality=None, value=0.5, network=None):
+        super().__init__(quality, value)
         self.stop_improving = False
         self.already_increased = [False for _ in range(5)]  # This list will keep track of which bid has already been
         # increased
         self.to_increment = 0  # This will keep track of the category bid that the learner should try to
         # increase.
-        self.waiting_results = False  # Indicates whether the advertiser is currently waiting for the results of the
-        # auction
         self.category_gain = [0 for _ in
                               range(5)]  # The marginal gain after having increased that category bid
         self.previous_gain = 0
+        self.network = network
+        self.rival_ads = None
+        self.slates = None
 
     def participate_auction(self):
+        # Reset learner
         self.stop_improving = False
-        self.category_gain = [0 for _ in
-                              range(5)]
+        self.category_gain = [0 for _ in range(5)]
         self.previous_gain = 0
+        self.bids = [BidsEnum.OFF for _ in range(5)]  # Reset the bids to zero
 
-        if self.waiting_results:
-            raise Exception("Greedy learner is waiting for results.")
         self.find_optimal_bids()
         self.ad.setbids(self.bids)
+
         return self.ad
 
+    def set_rival_ads(self, rival_ads: List[Ad]) -> None:
+        self.rival_ads = rival_ads
+
+    def set_slates(self, slates: List[List[Slot]]) -> None:
+        self.slates = slates
+
     def find_optimal_bids(self):
-        self.bids = [BidsEnum.OFF for _ in range(5)]  # Reset the bids to zero
         self.improved_bids = self.bids.copy()
 
         while not self.stop_improving:
@@ -39,15 +50,21 @@ class GreedyLearningAdvertiser(Advertiser):
             for i in range(len(self.bids)):
                 if not self.already_increased[i] and not self.bids[i].value == BidsEnum.MAX.value:
                     # Found the first non increased element
-                    #print(f"Chosen category {self.to_increment} with the vector being {self.already_increased}")
+                    # print(f"Chosen category {self.to_increment} with the vector being {self.already_increased}")
                     self.improved_bids = self.bids.copy()
                     self.improved_bids[i].next_elem()
-                    # Montecarlo simulation
 
-                    activated_nodes, seeds = self.network.estimateSocialInfluence(self.ad.ad_quality)
+                    # Take a copy of the rival ads, append a copy of its ad with improved bids.
+                    ads = self.rival_ads.copy()
+                    copy_ad = self.ad.copy()
+                    copy_ad.set_bids(self.improved_bids)
+                    ads.append(copy_ad)
+
+                    social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads, slates=self.slates)
+                    seeds, activated_nodes = social_influence[self.id]
                     print(f"Simulated the network. Nodes activated: {activated_nodes}. Seeds: {seeds}")
 
-                    self.category_gain[i] = activated_nodes * self.ad.ad_bid
+                    self.category_gain[i] = activated_nodes * self.advalue
                     print(f"Gain from activated nodes: {self.category_gain[i]}")
 
                     # The price the advertiser must pay. Seeds are returned in a dictionary indexed by category.
@@ -58,7 +75,6 @@ class GreedyLearningAdvertiser(Advertiser):
                         self.category_gain[i] -= self.improved_bids[category].value * seeds[category]
                     self.already_increased[i] = True
                     print(f"Gain after payment: {self.category_gain[i]}")
-
 
             # Here all the bids have been improved one time and the gain is noted.
 
@@ -71,6 +87,8 @@ class GreedyLearningAdvertiser(Advertiser):
         # TODO: Here I update each marginal gain with current gain - previous gain. Current gain depends on category,
         # but previous gain is the maximum gain of the preceding step. This often results in marginal gains being all
         # negative and the improvement stops after one step. Consider reworking this.
+        # BUT my gain is the total gain computed on all categories. If the marginal gain is negative then I have
+        # no incentive to take my most recent tentative.
         marginal_gains = [elem - self.previous_gain for elem in self.category_gain]
 
         if all(marg < 0 for marg in marginal_gains):
@@ -78,7 +96,7 @@ class GreedyLearningAdvertiser(Advertiser):
             print(f"ALL MARGINAL GAINS ARE NEGATIVE. Marginal gains: {marginal_gains}")
             print(f"Previous gain is {self.previous_gain}")
             print(f"Bids are {self.bids}")
-            #print(f"Continuing anyway...")
+            # print(f"Continuing anyway...")
             print("\n")
             self.stop_improving = True
 

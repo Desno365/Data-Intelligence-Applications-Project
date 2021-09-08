@@ -49,8 +49,23 @@ class AdPlacementSimulator:
 
 
         # Social influence:
-        # { ad_id,
-        #   { slots: int,
-        #     activatedNodes: int
+        # {
+        #   ad_id: {
+        #       seeds: float,
+        #       activatedNodes: float
         #   }
         # }
+
+        # What we need:
+
+        # Social influence:
+        # {
+        #   ad_id: {
+        #       category_id: {
+        #           price: float
+        #           seeds: float,
+        #           activatedNodes: float
+        #       }
+        #   }
+        # }
+
