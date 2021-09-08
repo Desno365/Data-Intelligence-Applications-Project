@@ -13,7 +13,8 @@ class AdPlacementSimulator:
     @staticmethod
     # ads = the list of ads available, every ad comes from an advertiser.
     # slates = the list of slates, one slate per category (a slate is a list of slots).
-    def simulate_ad_placement(ads: List[Ad], slates: List[List[Slot]], iterations: int):
+    # iterations = number of iterations for the Monte Carlo simulation
+    def simulate_ad_placement(network: Network, ads: List[Ad], slates: List[List[Slot]], iterations: int):
 
         # The auction must be simulated for each category.
         for current_category in range(CATEGORIES):
@@ -42,3 +43,8 @@ class AdPlacementSimulator:
         # Ouput: dictionary che per ogni ad_id (univoco per advertiser) specifica numero medio di seed e nodi attivati.
         # Nota quindi: dividere per ad_id è equivalente a dividere per advertiser.
         # return dictionary
+        # Monte Carlo simulation:
+
+        social_influence = network.estimateSocialInfluence(iterations=iterations, slates=slates)
+
+        return social_influence
