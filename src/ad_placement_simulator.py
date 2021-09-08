@@ -4,6 +4,7 @@ from src.ad import Ad
 from src.auction.auction_ad import AuctionAd
 from src.auction.vcg_auction import VCGAuction
 from src.constants import CATEGORIES
+from src.network import Network
 from src.slot import Slot
 from src.utils import Utils
 
@@ -11,6 +12,7 @@ from src.utils import Utils
 class AdPlacementSimulator:
 
     @staticmethod
+    # network = the network of nodes.
     # ads = the list of ads available, every ad comes from an advertiser.
     # slates = the list of slates, one slate per category (a slate is a list of slots).
     # iterations = number of iterations for the Monte Carlo simulation
@@ -37,14 +39,10 @@ class AdPlacementSimulator:
             # Now we have ready the slate of the current category with all the information needed.
             slates[current_category] = slate_with_assigned_ads
 
-        # TODO: for monte carlo use the "slates" variable
-        # Monte Carlo:
-        # Input: lista di slate con pubblicità assegnate e prezzi.
-        # Ouput: dictionary che per ogni ad_id (univoco per advertiser) specifica numero medio di seed e nodi attivati.
-        # Nota quindi: dividere per ad_id è equivalente a dividere per advertiser.
-        # return dictionary
         # Monte Carlo simulation:
-
+        # Input: all the slates (one slate per category) with the assigned ads.
+        # Output: dictionary with ad_id keys (uniquely identifies advertiser) specifying the average number of seeds
+        # and activated nodes
+        # Note: having the division by ad_id is equivalent as dividing by advertiser since every advertiser has one ad.
         social_influence = network.estimateSocialInfluence(iterations=iterations, slates=slates)
-
         return social_influence
