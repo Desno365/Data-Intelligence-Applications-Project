@@ -6,7 +6,7 @@ n = 50
 iter = []
 
 for j in range (5):
-    network = Network(n)
+    network = Network(n, False)
     probs = []
     for i in range (10000):
         live_graph, prob = network.generate_live_edge_graph()
