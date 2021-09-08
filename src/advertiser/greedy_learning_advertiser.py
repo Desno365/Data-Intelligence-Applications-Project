@@ -5,6 +5,7 @@ from src.ad_placement_simulator import AdPlacementSimulator
 from src.advertiser.advertiser import Advertiser
 from src.bids_enum import BidsEnum
 from src.slot import Slot
+from matplotlib import pyplot as plt
 
 
 class GreedyLearningAdvertiser(Advertiser):
@@ -23,6 +24,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.network = network
         self.rival_ads = None
         self.slates = None
+        self.gain_history = []
 
     def participate_auction(self):
         # Reset learner
@@ -103,6 +105,8 @@ class GreedyLearningAdvertiser(Advertiser):
         else:
             # Improve, since there is at least one positive marginal gain.
             best_arm = marginal_gains.index(max(marginal_gains))
+            self.gain_history.append(max(self.category_gain))
+
             self.bids[best_arm] = self.bids[best_arm].next_elem()
             self.previous_gain = self.category_gain[best_arm]
 
@@ -112,3 +116,12 @@ class GreedyLearningAdvertiser(Advertiser):
 
         self.category_gain = [0 for _ in range(5)]
         self.already_increased = [False for _ in range(5)]
+
+    def plot_history(self):
+        # TODO: UNTESTED I don't know if it works.
+        plt.figure(0)
+        plt.xlabel("Day")
+        plt.ylabel("Gain")
+        plt.plot(self.gain_history, range(1, self.gain_history), 'r')
+        #plt.ylim(ymin=0)
+        plt.show()
