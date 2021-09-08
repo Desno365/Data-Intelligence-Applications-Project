@@ -34,7 +34,7 @@ class VCGAuction(Auction):
             p_a = (1 / (slot_prominence_a * quality_a)) * (x_a - y_a)
             slot.update_price_per_click(price_per_click=p_a)
             print(f'Computed price for ad with id {ad_id}. slot_prominence_a={slot_prominence_a}, quality_a={quality_a}, x_a={x_a}, y_a={y_a}, p_a={p_a}.')
-            assert p_a <= slot.assigned_ad.ad_value  # Price must be lower or equal than the bid.
+            assert p_a <= slot.assigned_ad.ad_bid  # Price must be lower or equal than the bid.
 
         return self.slate
 
@@ -69,7 +69,7 @@ class VCGAuction(Auction):
 
     @staticmethod
     def get_best_ads(ads: List[AuctionAd]) -> List[AuctionAd]:
-        available_ads_sorted = sorted(ads, key=lambda x: x.ad_value_per_quality, reverse=True)
+        available_ads_sorted = sorted(ads, key=lambda x: x.ad_bid_per_quality, reverse=True)
         return available_ads_sorted
 
     @staticmethod
@@ -78,7 +78,7 @@ class VCGAuction(Auction):
         gain = 0.0
         for slot in allocated_slate:
             if slot.assigned_ad.ad_id != except_ad_id:
-                gain += (slot.slot_prominence * slot.assigned_ad.ad_value_per_quality)
+                gain += (slot.slot_prominence * slot.assigned_ad.ad_bid_per_quality)
         return gain
 
     @staticmethod

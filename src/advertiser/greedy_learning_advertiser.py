@@ -47,7 +47,7 @@ class GreedyLearningAdvertiser(Advertiser):
                     activated_nodes, seeds = self.network.MC_pseudoNodes_freshSeeds(self.ad.ad_quality)
                     print(f"Simulated the network. Nodes activated: {activated_nodes}. Seeds: {seeds}")
 
-                    self.category_gain[i] = activated_nodes * self.ad.ad_value
+                    self.category_gain[i] = activated_nodes * self.ad.ad_bid
                     print(f"Gain from activated nodes: {self.category_gain[i]}")
 
                     # The price the advertiser must pay. Seeds are returned in a dictionary indexed by category.

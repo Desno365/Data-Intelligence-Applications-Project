@@ -1,4 +1,3 @@
-from src.ad import Ad
 from src.auction.auction_ad import AuctionAd
 
 
