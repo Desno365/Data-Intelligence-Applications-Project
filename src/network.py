@@ -298,75 +298,61 @@ class Network:
 
 
     # TODO ad quality depends on advertiser
-    def MC_pseudoNodes_freshSeeds(self, ad_quality, iterations=100, slates=[]):
+    def estimateSocialInfluence(self, iterations=100, slates=[]):
         avg_active_nodes = 0
+        # average number of seeds throughout all the iterations
         avg_n_seeds = {}
-        avg_n_seeds_per_campaign = {}
-        avg_active_nodes_per_campaign = {}
+        avg_n_seeds_per_ad_id = {}
+        avg_active_nodes_per_ad_id = {}
+        # built return dictionary
+        r = {}
+        for slate in slates:
+            for slot in slate:
+                if slot.assigned_ad.ad_id not in r.keys():
+                    r[slot.assigned_ad.ad_id] = {}
+                    r[slot.assigned_ad.ad_id]['seeds'] = 0
+                    r[slot.assigned_ad.ad_id]['activatedNodes'] = 0
+
         for i in range(iterations):
-            seeds_for_capmaign = {}
+            # calculate seed activation (users that click on ads)
+            seeds_per_ad_id = {}  # seeds for ad_id, seeds for advertiser, dictionary with ad_id -> seed list
             seeds = {}
-            activation_probalities_per_campaign = {}
+            activation_probabilities_per_campaign = {}
             for node in self.nodes:
                 # ad quality goes between 0 and 1
                 # 0 means the ad is not clickable
                 # 1 means users are forced to click the ad
-                # by this implementation all ads are shown to everybody with effectively the same relevance
-                if not slates:
-                    activation_probability = ad_quality[node.category]
+                slate = slates[node.category]
+                is_seed = False
+                for position in slate:
+                    # activation_probability = ad_quality[node.category] * position.slot_prominence
+                    current_ad = position.assigned_ad
+                    activation_probability = current_ad.ad_quality
                     sample = random.random()
-                    if sample < activation_probability:
-                        if node.category not in seeds.keys():
-                            seeds[node.category] = []
-                        seeds[node.category].append(node.id)
-                # node category determines slate / ad relevance
-                # extract samples in order and determine seeds for each campaign
-                # take slates from publisher, passed as input (slates)
-                else:
-                    slate = slates[node.category]
-                    is_seed = False
-                    for position in slate:
-                        activation_probability = ad_quality[node.category]*position.slot_prominence
-                        sample = random.random()
-                        if sample < activation_probability:
-                            if position.assigned_ad.ad_id not in seeds_for_capmaign.keys():
-                                seeds_for_capmaign[position.assigned_ad.ad_id] = []
-                            seeds_for_capmaign[position.assigned_ad.ad_id].append(node.id)
-                            is_seed = True
-                            break
-            # with slates
-            # print('these are the seeds: ', seeds_for_capmaign)
-            for campaign in seeds_for_capmaign.keys():
-                print(campaign)
-                activated_nodes, activation_probalities = self.monteCarloEstimation(seeds_for_capmaign[campaign], 1)
-                if campaign not in avg_n_seeds_per_campaign.keys():
-                    avg_n_seeds_per_campaign[campaign] = 0
-                else:
-                    avg_n_seeds_per_campaign[campaign] += len(seeds_for_capmaign[campaign])
-                if campaign not in avg_active_nodes_per_campaign.keys():
-                    avg_active_nodes_per_campaign[campaign] = 0
-                else:
-                    avg_active_nodes_per_campaign[campaign] += activated_nodes
-            # without slates
-            cumulated_seeds = []
-            for a in seeds.keys():
-                for ii in seeds[a]:
-                    cumulated_seeds.append(ii)
-            nodes, probabilities = self.monteCarloEstimation(cumulated_seeds, 1)
-            for a in range(len(seeds.keys())):
-                if a not in avg_n_seeds.keys():
-                    avg_n_seeds[a] = 0
-                avg_n_seeds[a] += len(seeds[list(seeds.keys())[a]])
-            avg_active_nodes += nodes
-        # with slates
-        for campaign in seeds_for_capmaign.keys():
-            avg_n_seeds_per_campaign[campaign] = avg_n_seeds_per_campaign[campaign] / iterations
-            avg_active_nodes_per_campaign[campaign] = avg_active_nodes_per_campaign[campaign] / iterations
-        # without slates
-        for i in avg_n_seeds.keys():
-            avg_n_seeds[i] = avg_n_seeds[i] / iterations
-        avg_active_nodes = avg_active_nodes / iterations
-        if slates:
-            return avg_active_nodes_per_campaign, avg_n_seeds_per_campaign
-        else:
-            return avg_n_seeds, avg_active_nodes
+                    if sample < activation_probability:  # if the node clicks the ad
+                        # add this node as seed for the ad it clicked on
+                        if position.assigned_ad.ad_id not in seeds_per_ad_id.keys():
+                            seeds_per_ad_id[position.assigned_ad.ad_id] = []
+                        seeds_per_ad_id[position.assigned_ad.ad_id].append(node.id)
+                        is_seed = True
+                        break
+            for ad_id in seeds_per_ad_id.keys():  # keys are ad_ids
+                # calculate how many nodes are activated by the given seeds
+                activated_nodes, activation_probabilities = self.monteCarloEstimation(seeds_per_ad_id[ad_id], 1)
+                # calculate average number of seeds and of activated nodes for every ad_id
+                if ad_id not in avg_n_seeds_per_ad_id.keys():
+                    avg_n_seeds_per_ad_id[ad_id] = 0
+                avg_n_seeds_per_ad_id[ad_id] += len(seeds_per_ad_id[ad_id])
+                if ad_id not in avg_active_nodes_per_ad_id.keys():
+                    avg_active_nodes_per_ad_id[ad_id] = 0
+                avg_active_nodes_per_ad_id[ad_id] += activated_nodes
+        for ad_id in seeds_per_ad_id.keys():
+            avg_n_seeds_per_ad_id[ad_id] = avg_n_seeds_per_ad_id[ad_id] / iterations
+            avg_active_nodes_per_ad_id[ad_id] = avg_active_nodes_per_ad_id[ad_id] / iterations
+
+        for ad_id in seeds_per_ad_id.keys():
+            r[ad_id]['seeds'] = avg_n_seeds_per_ad_id[ad_id]
+            r[ad_id]['activatedNodes'] = avg_active_nodes_per_ad_id[ad_id]
+        return r
+
+

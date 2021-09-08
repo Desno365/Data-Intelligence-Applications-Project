@@ -10,5 +10,5 @@ for advertiser in advertisers:
     advertiser.set_random_bids()
     print('bids: ', advertiser.bids)
 
-result = network.MC_pseudoNodes_freshSeeds(advertisers[0].adquality, 10)
+result = network.estimateSocialInfluence(advertisers[0].adquality, 10)
 print('average activated nodes, seeds: ', result, ' / ', numberOfNodes)

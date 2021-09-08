@@ -44,7 +44,7 @@ class GreedyLearningAdvertiser(Advertiser):
                     self.improved_bids[i].next_elem()
                     # Montecarlo simulation
 
-                    activated_nodes, seeds = self.network.MC_pseudoNodes_freshSeeds(self.ad.ad_quality)
+                    activated_nodes, seeds = self.network.estimateSocialInfluence(self.ad.ad_quality)
                     print(f"Simulated the network. Nodes activated: {activated_nodes}. Seeds: {seeds}")
 
                     self.category_gain[i] = activated_nodes * self.ad.ad_bid
