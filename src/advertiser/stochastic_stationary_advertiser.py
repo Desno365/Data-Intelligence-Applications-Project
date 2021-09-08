@@ -11,7 +11,7 @@ An advertiser that has its bids set randomly.
 class StochasticStationaryAdvertiser(Advertiser):
 
     def __init__(self, quality=None, value=0.5):
-        super().__init__(quality, value)
+        super().__init__(quality=quality, value=value)
         self.change_bids()
 
     def participate_auction(self):
