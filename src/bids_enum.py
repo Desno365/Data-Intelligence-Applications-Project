@@ -14,4 +14,5 @@ class BidsEnum(Enum):
         if self == BidsEnum.MAX:
             print("Cannot increment a max bid")
             return BidsEnum.MAX
+        print('debug bids enum: current bid', list(BidsEnum)[list(BidsEnum).index(self)], 'next one',list(BidsEnum)[list(BidsEnum).index(self)+1])
         return list(BidsEnum)[list(BidsEnum).index(self) + 1]

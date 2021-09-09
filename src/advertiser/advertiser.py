@@ -14,7 +14,7 @@ class Advertiser:
         if quality is None:
             quality = [random.uniform(0.05, 1) for _ in range(constants.CATEGORIES)]
         self.adquality = quality
-        self.id = random.randint(a=1, b=999999999999999)
+        self.id = random.randint(a=1, b=999)
         self.advalue = value
         self.bids = [BidsEnum.OFF for _ in range(constants.CATEGORIES)]
         #print(f"creating ad with quality: {self.adquality}")

@@ -21,6 +21,16 @@ class Node:
 
 
 class Network:
+    @staticmethod
+    def prettyPrintSocialInfluence(socialInfluence):
+        print("### social influence report ###")
+        print('### start ###')
+        for ad in socialInfluence.keys():
+            print('ad id: ', ad)
+            for category in socialInfluence[ad].keys():
+                print('category: ', category, 'seeds: ', socialInfluence[ad][category]['seeds'], ' activatedNodes: ', socialInfluence[ad][category]['activatedNodes'])
+        print('### end ###')
+
     def __init__(self, n, fc):
         self.adjacency_matrix = np.zeros((n, n))
         self.nodes = []

@@ -1,6 +1,7 @@
 import copy
 from typing import List
 
+from src import constants
 from src.auction.auction import Auction
 from src.auction.auction_ad import AuctionAd
 from src.slot import Slot
@@ -34,7 +35,8 @@ class VCGAuction(Auction):
             p_a = (1 / (slot_prominence_a * quality_a)) * (x_a - y_a)
             slot.update_price_per_click(price_per_click=p_a)
             #print(f'Computed price for ad with id {ad_id}. slot_prominence_a={slot_prominence_a}, quality_a={quality_a}, x_a={x_a}, y_a={y_a}, p_a={p_a}.')
-            assert p_a <= slot.assigned_ad.ad_bid  # Price must be lower or equal than the bid.
+            print('debug price and bid', p_a, slot.assigned_ad.ad_bid)
+            assert p_a <= slot.assigned_ad.ad_bid + constants.floatingPointMargin # Price must be lower or equal than the bid.
 
         return self.slate
 

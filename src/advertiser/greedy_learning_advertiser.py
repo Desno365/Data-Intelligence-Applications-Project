@@ -9,6 +9,8 @@ from src.bids_enum import BidsEnum
 from src.slot import Slot
 from matplotlib import pyplot as plt
 
+from src.utils import Utils
+
 
 class GreedyLearningAdvertiser(Advertiser):
 
@@ -49,13 +51,16 @@ class GreedyLearningAdvertiser(Advertiser):
         self.improved_bids = self.bids.copy()
 
         while not self.stop_improving:
+            print('debug already_increased before improvement', self.already_increased)
 
             for i in range(len(self.bids)):
                 if not self.already_increased[i] and not self.bids[i].value == BidsEnum.MAX.value:
                     # Found the first non increased element
                     # print(f"Chosen category {self.to_increment} with the vector being {self.already_increased}")
                     self.improved_bids = self.bids.copy()
-                    self.improved_bids[i].next_elem()
+                    print('debug improved bids before improvement', self.improved_bids)
+                    self.improved_bids[i] = self.improved_bids[i].next_elem()
+                    print('debug improved bids after improvement', self.improved_bids)
 
                     # Take a copy of the rival ads, append a copy of its ad with improved bids.
                     ads = self.rival_ads.copy()
@@ -63,7 +68,17 @@ class GreedyLearningAdvertiser(Advertiser):
                     copy_ad.set_bids(self.improved_bids)
                     ads.append(copy_ad)
 
-                    social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads, slates=self.slates, iterations=60)
+                    print('debug print slates before auction')
+                    for slate in self.slates:
+                        print('slate start')
+                        for slot in slate:
+                            print(slot)
+                    social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads, slates=self.slates, iterations=10)
+                    print('debug print slates after auction')
+                    for slate in self.slates:
+                        print('slate start')
+                        for slot in slate:
+                            print(slot)
                     activated_nodes = 0
                     seeds = {}
                     prices = {}
@@ -73,6 +88,9 @@ class GreedyLearningAdvertiser(Advertiser):
                             activated_nodes += social_influence[self.id][category]['activatedNodes']
                             seeds[category] = social_influence[self.id][category]["seeds"]
                             prices[category] = social_influence[self.id][category]["price"]
+                    else:
+                        print('greedy advertiser ad is not in the slate')
+                        print(self.id, social_influence.keys())
 
                     print(f"Simulated the network. Nodes activated: {activated_nodes}. Seeds: {seeds}")
 
@@ -88,8 +106,10 @@ class GreedyLearningAdvertiser(Advertiser):
                     print(f"Gain after payment: {self.category_gain[i]}")
 
             # Here all the bids have been improved one time and the gain is noted.
+            print('debug already_increased after improvement', self.already_increased)
 
             if not self.already_increased.count(True) == 5:
+                print('not enough true values', self.already_increased)
                 raise ValueError(f"Control should not go here.")
 
             self.improve()

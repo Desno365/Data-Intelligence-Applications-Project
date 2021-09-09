@@ -21,5 +21,7 @@ class StochasticStationaryAdvertiser(Advertiser):
         return super().participate_auction()
 
     def change_bids(self) -> None:
-        self.bids = [random.choice(list(BidsEnum)) for _ in range(constants.CATEGORIES)]
+        # self.bids = [random.choice(list(BidsEnum)) for _ in range(constants.CATEGORIES)]
+        self.bids = [list(BidsEnum)[1], list(BidsEnum)[0], list(BidsEnum)[0], list(BidsEnum)[0], list(BidsEnum)[0]]
         self.ad.set_bids(self.bids)
+

@@ -31,7 +31,6 @@ class AdPlacementSimulator:
                 new_auction_ad = AuctionAd(ad_id=ad.ad_id, ad_quality=ad.ad_quality[current_category], ad_bid=ad.bids[current_category].value)
                 auction_ads_for_the_category.append(new_auction_ad)
 
-
             slate_of_the_category = slates[current_category]
             vcg_auction = VCGAuction(available_ads=auction_ads_for_the_category, slate=slate_of_the_category)
             slate_with_assigned_ads = vcg_auction.perform_auction()
@@ -47,6 +46,7 @@ class AdPlacementSimulator:
         # and activated nodes
         # Note: having the division by ad_id is equivalent as dividing by advertiser since every advertiser has one ad.
         social_influence = network.estimateSocialInfluence(iterations=iterations, slates=slates)
+        network.prettyPrintSocialInfluence(social_influence)
 
         # Set price to zero for all:
         for ad_id in social_influence.keys():
