@@ -26,7 +26,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.slates = None
         self.gain_history = []
 
-    def participate_auction(self):
+    def participate_auction(self) -> Ad:
         # Reset learner
         self.stop_improving = False
         self.category_gain = [0 for _ in range(5)]
@@ -44,7 +44,7 @@ class GreedyLearningAdvertiser(Advertiser):
     def set_slates(self, slates: List[List[Slot]]) -> None:
         self.slates = slates
 
-    def find_optimal_bids(self):
+    def find_optimal_bids(self) -> None:
         self.improved_bids = self.bids.copy()
 
         while not self.stop_improving:
@@ -85,7 +85,7 @@ class GreedyLearningAdvertiser(Advertiser):
 
             self.improve()
 
-    def improve(self):
+    def improve(self) -> None:
         # TODO: Here I update each marginal gain with current gain - previous gain. Current gain depends on category,
         # but previous gain is the maximum gain of the preceding step. This often results in marginal gains being all
         # negative and the improvement stops after one step. Consider reworking this.
@@ -117,7 +117,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.category_gain = [0 for _ in range(5)]
         self.already_increased = [False for _ in range(5)]
 
-    def plot_history(self):
+    def plot_history(self) -> None:
         # TODO: UNTESTED I don't know if it works.
         plt.figure(0)
         plt.xlabel("Day")
