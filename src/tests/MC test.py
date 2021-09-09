@@ -7,7 +7,7 @@ bid2 = bids_enum.BidsEnum.OFF.value
 # advertisements = [ad.Ad(0, [0.2,0.1,0.1,0.1,0.1], 1, [bid]),
 #                   ad.Ad(1, [0.1,0.1,0.1,0.1,0.1], 1, [bid]),
 #                   ad.Ad(2, [0.1,0.1,0.1,0.1,0.1], 1, [bid])]
-auction_ads = [auction_ad.AuctionAd(0, 0.2, bid),
+auction_ads = [auction_ad.AuctionAd(0, 1, bid),
                auction_ad.AuctionAd(1, 0.1, bid),
                auction_ad.AuctionAd(2, 0.3, bid)]
 slate = [slot.Slot(0, 0.5),

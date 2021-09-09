@@ -9,7 +9,7 @@ from src.utils import Utils
 
 NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION
 
-network_instance = network.Network(40, False)
+network_instance = network.Network(50, False)
 
 print("Slates:")
 slates = []

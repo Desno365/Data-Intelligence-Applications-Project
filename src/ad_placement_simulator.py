@@ -16,7 +16,8 @@ class AdPlacementSimulator:
     # ads = the list of ads available, every ad comes from an advertiser.
     # slates = the list of slates, one slate per category (a slate is a list of slots).
     # iterations = number of iterations for the Monte Carlo simulation
-    def simulate_ad_placement(network: Network, ads: List[Ad], slates: List[List[Slot]], iterations: int):
+    def simulate_ad_placement(network: Network, ads: List[Ad], slates: List[List[Slot]], iterations: int = 100):
+        price_dictionary = {}
 
         # The auction must be simulated for each category.
         for current_category in range(CATEGORIES):

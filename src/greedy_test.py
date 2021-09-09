@@ -7,7 +7,7 @@ from src.bids_enum import BidsEnum
 quality = [random.uniform(0, 1) for _ in range(5)]
 #print(quality)
 network = Network(50, False)
-greedy = GreedyLearningAdvertiser(network)
+greedy = GreedyLearningAdvertiser(network=network)
 
 for j in range(10000):
     greedy.participate_auction()
