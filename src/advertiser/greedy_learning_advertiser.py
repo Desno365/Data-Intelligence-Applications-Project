@@ -1,5 +1,7 @@
+import copy
 from typing import List
 
+from src import constants
 from src.ad import Ad
 from src.ad_placement_simulator import AdPlacementSimulator
 from src.advertiser.advertiser import Advertiser
@@ -9,7 +11,6 @@ from matplotlib import pyplot as plt
 
 
 class GreedyLearningAdvertiser(Advertiser):
-    """This whole class is not thread safe."""
 
     def __init__(self, quality=None, value=0.5, network=None):
         super().__init__(quality, value)
@@ -34,7 +35,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.bids = [BidsEnum.OFF for _ in range(5)]  # Reset the bids to zero
 
         self.find_optimal_bids()
-        self.ad.setbids(self.bids)
+        self.ad.set_bids(self.bids)
 
         return self.ad
 
@@ -58,23 +59,31 @@ class GreedyLearningAdvertiser(Advertiser):
 
                     # Take a copy of the rival ads, append a copy of its ad with improved bids.
                     ads = self.rival_ads.copy()
-                    copy_ad = self.ad.copy()
+                    copy_ad = copy.deepcopy(self.ad)
                     copy_ad.set_bids(self.improved_bids)
                     ads.append(copy_ad)
 
-                    social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads, slates=self.slates)
-                    seeds, activated_nodes = social_influence[self.id]
+                    social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads, slates=self.slates, iterations=60)
+                    activated_nodes = 0
+                    seeds = {}
+                    prices = {}
+
+                    if self.id in social_influence.keys():
+                        for category in social_influence[self.id].keys():
+                            activated_nodes += social_influence[self.id][category]['activatedNodes']
+                            seeds[category] = social_influence[self.id][category]["seeds"]
+                            prices[category] = social_influence[self.id][category]["price"]
+
                     print(f"Simulated the network. Nodes activated: {activated_nodes}. Seeds: {seeds}")
 
                     self.category_gain[i] = activated_nodes * self.advalue
                     print(f"Gain from activated nodes: {self.category_gain[i]}")
 
                     # The price the advertiser must pay. Seeds are returned in a dictionary indexed by category.
-                    # To calculate the payment, for each category take its bid and multiply it by the number of seeds
-                    # in that category.
-                    # TODO: the price should be determined by the auction. This however is just a simulation.
+                    # To calculate the payment, for each category take its price per click and multiply it by the number
+                    # of seeds in that category.
                     for category in seeds.keys():
-                        self.category_gain[i] -= self.improved_bids[category].value * seeds[category]
+                        self.category_gain[i] -= (prices[category] * seeds[category])
                     self.already_increased[i] = True
                     print(f"Gain after payment: {self.category_gain[i]}")
 

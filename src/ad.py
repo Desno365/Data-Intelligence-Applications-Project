@@ -14,7 +14,7 @@ class Ad:
         self.bids = bids
         print(f"Create Ad with id {self.ad_id}, quality {self.ad_quality}, value {self.ad_value}, bids {self.bids}")
 
-    def setbids(self, bids: List[BidsEnum]):
+    def set_bids(self, bids: List[BidsEnum]):
         self.bids = bids
         print(f"New bids: {bids}")
 

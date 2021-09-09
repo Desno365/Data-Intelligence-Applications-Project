@@ -10,7 +10,7 @@ class Advertiser:
     """Bids are instances of BidsEnum, not values. It's easier this way to compare bid values without comparing
     floats """
 
-    def __init__(self, quality: float=None, value=0.5):
+    def __init__(self, quality: List[float] = None, value: float = 0.5):
         if quality is None:
             quality = [random.uniform(0.05, 1) for _ in range(constants.CATEGORIES)]
         self.adquality = quality
@@ -18,7 +18,7 @@ class Advertiser:
         self.advalue = value
         self.bids = [BidsEnum.OFF for _ in range(constants.CATEGORIES)]
         #print(f"creating ad with quality: {self.adquality}")
-        self.ad = Ad(self.id, self.adquality, self.advalue, self.bids)
+        self.ad = Ad(ad_id=self.id, ad_quality=self.adquality, ad_value=self.advalue, bids=self.bids)
 
     def participate_auction(self) -> Ad:
         return self.ad

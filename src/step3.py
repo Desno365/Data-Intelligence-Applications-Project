@@ -20,7 +20,7 @@ Utils.print_array(slates)
 
 print("Ads:")
 advertisers = [StochasticStationaryAdvertiser(quality=None) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
-greedy_learner = GreedyLearningAdvertiser(quality=None, value=0.5, network=network_instance)
+greedy_learner = GreedyLearningAdvertiser(quality=[1.0 for _ in range(5)], value=0.9, network=network_instance)
 greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in advertisers])
 greedy_learner.set_slates(slates=slates)
 advertisers.append(greedy_learner)
