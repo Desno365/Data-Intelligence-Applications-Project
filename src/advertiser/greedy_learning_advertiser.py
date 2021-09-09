@@ -1,5 +1,8 @@
 import copy
+import random
 from typing import List
+
+import numpy as np
 
 from src import constants
 from src.ad import Ad
@@ -73,7 +76,7 @@ class GreedyLearningAdvertiser(Advertiser):
                     #     print('slate start')
                     #     for slot in slate:
                     #         print(slot)
-                    social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads, slates=self.slates, iterations=10)
+                    social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads, slates=self.slates, iterations=50)
                     # print('debug print slates after auction')
                     # for slate in self.slates:
                     #     print('slate start')

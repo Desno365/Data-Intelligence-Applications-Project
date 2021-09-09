@@ -7,7 +7,7 @@ from src.advertiser.stochastic_stationary_advertiser import StochasticStationary
 from src.advertiser.greedy_learning_advertiser import GreedyLearningAdvertiser
 from src.utils import Utils
 
-NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION
+NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 10
 
 network_instance = network.Network(50, False)
 
@@ -19,7 +19,7 @@ for current_category in range(constants.CATEGORIES):
 Utils.print_array(slates)
 
 print("Ads:")
-advertisers = [StochasticStationaryAdvertiser(quality=None) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
+advertisers = [StochasticStationaryAdvertiser(quality=[1 for _ in range(5)]) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
 for advertiser in advertisers:
     print('ad id', advertiser.id, 'bids', advertiser.bids)
 greedy_learner = GreedyLearningAdvertiser(quality=[1 for _ in range(5)], value=1, network=network_instance)
