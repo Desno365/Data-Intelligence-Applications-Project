@@ -28,4 +28,6 @@ greedy_learner.set_slates(slates=slates)
 advertisers.append(greedy_learner)
 greedy_ad = greedy_learner.participate_auction()
 
-# TODO: make graphs
+greedy_learner.plot_history()
+
+
