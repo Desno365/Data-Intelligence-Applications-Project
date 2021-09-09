@@ -343,7 +343,7 @@ class Network:
                 for position in slate:
                     # activation_probability = ad_quality[node.category] * position.slot_prominence
                     current_ad = position.assigned_ad
-                    activation_probability = current_ad.ad_quality
+                    activation_probability = current_ad.ad_quality * position.slot_prominence
                     sample = random.random()
                     if sample < activation_probability:  # if the node clicks the ad
                         # add this node as seed for the ad it clicked on
