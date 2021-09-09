@@ -146,10 +146,15 @@ class GreedyLearningAdvertiser(Advertiser):
         self.already_increased = [False for _ in range(5)]
 
     def plot_history(self) -> None:
-        # TODO: UNTESTED I don't know if it works.
         plt.figure(0)
-        plt.xlabel("Day")
+        plt.xlabel("Step")
         plt.ylabel("Gain")
-        plt.plot(self.gain_history, range(1, self.gain_history), 'r')
-        #plt.ylim(ymin=0)
+        plt.plot(self.gain_history, 'r')
         plt.show()
+
+        plt.figure(1)
+        plt.xlabel("Step")
+        plt.ylabel("Marginal Gain")
+        plt.plot([self.gain_history[i] - self.gain_history[i - 1] for i in range(1, len(self.gain_history))], 'r')
+        plt.show()
+
