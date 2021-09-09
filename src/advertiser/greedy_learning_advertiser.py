@@ -68,17 +68,17 @@ class GreedyLearningAdvertiser(Advertiser):
                     copy_ad.set_bids(self.improved_bids)
                     ads.append(copy_ad)
 
-                    print('debug print slates before auction')
-                    for slate in self.slates:
-                        print('slate start')
-                        for slot in slate:
-                            print(slot)
+                    # print('debug print slates before auction')
+                    # for slate in self.slates:
+                    #     print('slate start')
+                    #     for slot in slate:
+                    #         print(slot)
                     social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads, slates=self.slates, iterations=10)
-                    print('debug print slates after auction')
-                    for slate in self.slates:
-                        print('slate start')
-                        for slot in slate:
-                            print(slot)
+                    # print('debug print slates after auction')
+                    # for slate in self.slates:
+                    #     print('slate start')
+                    #     for slot in slate:
+                    #         print(slot)
                     activated_nodes = 0
                     seeds = {}
                     prices = {}
@@ -106,7 +106,6 @@ class GreedyLearningAdvertiser(Advertiser):
                     print(f"Gain after payment: {self.category_gain[i]}")
 
             # Here all the bids have been improved one time and the gain is noted.
-            print('debug already_increased after improvement', self.already_increased)
 
             if not self.already_increased.count(True) == 5:
                 print('not enough true values', self.already_increased)
