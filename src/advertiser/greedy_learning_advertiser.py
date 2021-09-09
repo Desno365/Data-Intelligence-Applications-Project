@@ -132,7 +132,14 @@ class GreedyLearningAdvertiser(Advertiser):
 
         else:
             # Improve, since there is at least one positive marginal gain.
-            best_arm = marginal_gains.index(max(marginal_gains))
+            # (randomly choose an arm with the maximum value)
+            indices = []
+            max_value = max(marginal_gains)
+            for i in range(len(marginal_gains)):
+                if marginal_gains[i] == max_value:
+                    indices.append(i)
+            best_arm = random.choice(indices)
+            # best_arm = marginal_gains.index(max(marginal_gains))
             self.gain_history.append(max(self.category_gain))
 
             self.bids[best_arm] = self.bids[best_arm].next_elem()
