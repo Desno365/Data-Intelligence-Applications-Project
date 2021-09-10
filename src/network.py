@@ -415,4 +415,7 @@ class Network:
                     break
         return seeds_per_ad_id
 
+    # def network_report(self):
+
+
 

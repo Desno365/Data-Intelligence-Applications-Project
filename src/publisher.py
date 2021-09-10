@@ -11,11 +11,21 @@ class Publisher:
     def __init__(self, network: Network):
         self.network = network
         self.auctions = []
-        self.slates = [[] for _ in range(const.CATEGORIES)]
-        # todo set the id and the prominence
-        for i in range(const.CATEGORIES):
-            for id in range(const.SLATE_DIMENSION):
-                self.slates[i].append(Slot(id, 0.5))
+        self.slates = constants.get_slates()
+
+        self.bandits = {}
+        # bandits: {
+        #   ad_id: {
+        #       category: {
+        #           'bandit': BanditLearner
+        #           'last_arm_pulled': int
+        #       }
+        #   }
+        # }
+        for advertiser in self.advertisers:
+            for category in range(constants.CATEGORIES):
+                bandit_learner = bandit_type.instantiate_bandit(n_arms=10, window_size=window_size)
+                self.bandits[advertiser.ad.ad_id][category]['bandit'] = bandit_learner
 
     # Create an auction for each category and get the relative slate
     def generate_auctions(self, available_ads: List[Ad]):
@@ -74,6 +84,23 @@ class Publisher:
 
 
 
+    # rewards = measured click probabilities for each category and for each ad.
+    def update_bandits(self, rewards):
+        # rewards:
+        # {
+        #   ad_id:
+        #   {
+        #       category:
+        #       {
+        #           value: number of seeds / number of nodes
+        #       }
+        #   }
+        # }
+        for advertiser in self.advertisers:
+            for category in range(constants.categories):
+                bandit = self.bandits[advertiser.id][category]['bandit']
+                last_pulled_arm = self.bandits[advertiser.id][category]['last_pulled_arm']
+                bandit.update(last_pulled_arm, rewards[advertiser.id][category])
 
 
 
