@@ -3,8 +3,11 @@
 # len(qualities) = len(ads) * constants.CATEGORIES
 
 # does the publisher know the slot prominence values and ad placements so that we estimate only qualities?
-# ad quality is constant, but slot prominence depends on ad placement and advertiser bids so it could in the worst case
-# be different every time
+# ad quality is constant
+# slot prominence depends on ad placement and advertiser bids so it could in the worst case be different every time
+# "Adopt a classical bandit algorithm in which one can learn the click probability (quality) of an ad"
+# we have two scenarios: get feedback only when the ad is in the first slot
+# get feedback every time the ad is clicked even if not in the first slot
 
 # one bandit with many arms
 # one bandit with arm = [[quality for _ in range(constants.CATEGORIES)] for _ in range(len(ads)]
@@ -22,3 +25,5 @@
 # if click probability = None then
 # MC would use activation_probability = current_ad.ad_quality * position.slot_prominence
 # otherwise use activation_probability = click probability input argument
+# seeds_per_ad_is = network.calculateSeeds(slates, qualities)
+# quality = qualities[ad_id][category]
