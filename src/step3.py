@@ -12,10 +12,7 @@ NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 10
 network_instance = network.Network(50, False)
 
 print("Slates:")
-slates = []
-for current_category in range(constants.CATEGORIES):
-    slate = [slot.Slot(slot_id, 0.80 ** (slot_id + 1)) for slot_id in range(constants.SLATE_DIMENSION)]
-    slates.append(slate)
+slates = constants.get_slates()
 Utils.print_array(slates)
 
 print("Ads:")

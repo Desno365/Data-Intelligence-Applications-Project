@@ -1,3 +1,7 @@
+from typing import List
+
+from src.slot import Slot
+
 # Definition of the project constants
 
 CATEGORIES = 5

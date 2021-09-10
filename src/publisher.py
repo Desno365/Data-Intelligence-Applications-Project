@@ -1,8 +1,8 @@
-from src import constants as const, influence_estimation
-from src.auction.vcg_auction import VCGAuction
 from typing import List
-from src.ad import Ad
-from slot import Slot
+
+from src import constants
+from src.advertiser.advertiser import Advertiser
+from src.bandit_algorithms.bandit_type_enum import BanditTypeEnum
 from src.network import Network
 
 
@@ -10,6 +10,7 @@ class Publisher:
 
     def __init__(self, network: Network, advertisers: List[Advertiser], bandit_type: BanditTypeEnum, window_size: int or None):
         self.network = network
+        self.advertisers = advertisers
         self.auctions = []
         self.slates = constants.get_slates()
 
