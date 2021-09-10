@@ -8,7 +8,7 @@ from src.network import Network
 
 class Publisher:
 
-    def __init__(self, network: Network):
+    def __init__(self, network: Network, advertisers: List[Advertiser], bandit_type: BanditTypeEnum, window_size: int or None):
         self.network = network
         self.auctions = []
         self.slates = constants.get_slates()
@@ -82,6 +82,21 @@ class Publisher:
                 return slot.price_per_click * number_of_seeds
 
 
+    def get_bandit_qualities(self):
+        qualities = {}
+        # qualities: {
+        #   ad_id: {
+        #       category: pulled_quality_value
+        #   }
+        # }
+        # do bandit round
+        for advertiser in self.advertisers:
+            ad_id = advertiser.ad.ad_id
+            for category in range(constants.categories):
+                # do bandit for single ad
+                pulled_arm = self.bandits[ad_id][category].pull_arm()
+                qualities[ad_id][category] = constants.bandit_quality_values[pulled_arm]
+        return qualities
 
 
     # rewards = measured click probabilities for each category and for each ad.
@@ -103,4 +118,30 @@ class Publisher:
                 bandit.update(last_pulled_arm, rewards[advertiser.id][category])
 
 
+    # do real network sample
+    def real_network_sample(self, slates):
+        # seeds:
+        # {ad_id:
+        #   {category:
+        #       {list of node_ids}
+        #   }
+        # }
+        seeds = self.network.calculateSeeds(slates)
+
+        # rewards:
+        # {
+        #   ad_id:
+        #   {
+        #       category:
+        #       {
+        #           value: number of seeds / number of nodes
+        #       }
+        #   }
+        # }
+        rewards = {}
+        for advertiser in self.advertisers:
+            rewards[advertiser] = {}
+            for category in range(constants.categories):
+                rewards[advertiser][category] = 0
+        return rewards
 
