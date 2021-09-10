@@ -1,6 +1,7 @@
 import abc
 from typing import List
 
+from src import constants
 from src.auction.auction_ad import AuctionAd
 from src.slot import Slot
 
@@ -15,7 +16,8 @@ class Auction(metaclass=abc.ABCMeta):
         self.slate = slate
         self.num_of_slots = len(slate)
 
-        print(f'Initializing auction. Received ads with length {len(available_ads)}, slate with length {len(slate)}')
+        if(constants.settings['auctionPrint']):
+            print(f'Initializing auction. Received ads with length {len(available_ads)}, slate with length {len(slate)}')
 
         # Check that we have the minimum number of available ads to cover the slate.
         # Note: uses "+ 1" because for calculating the price of an ad we need the existence of another ad that could substitute it.

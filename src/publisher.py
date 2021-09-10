@@ -24,7 +24,10 @@ class Publisher:
         #   }
         # }
         for advertiser in self.advertisers:
+            self.bandits[advertiser.ad.ad_id] = {}
             for category in range(constants.CATEGORIES):
+                if category not in self.bandits[advertiser.ad.ad_id].keys():
+                    self.bandits[advertiser.ad.ad_id][category] = {}
                 bandit_learner = bandit_type.instantiate_bandit(n_arms=10, window_size=window_size)
                 self.bandits[advertiser.ad.ad_id][category]['bandit'] = bandit_learner
 
@@ -92,9 +95,11 @@ class Publisher:
         # do bandit round
         for advertiser in self.advertisers:
             ad_id = advertiser.ad.ad_id
-            for category in range(constants.categories):
+            qualities[advertiser.id] = {}
+            for category in range(constants.CATEGORIES):
                 # do bandit for single ad
-                pulled_arm = self.bandits[ad_id][category].pull_arm()
+                pulled_arm = self.bandits[ad_id][category]['bandit'].pull_arm()
+                self.bandits[ad_id][category]['last_pulled_arm'] = pulled_arm
                 qualities[ad_id][category] = constants.bandit_quality_values[pulled_arm]
         return qualities
 
@@ -112,13 +117,15 @@ class Publisher:
         #   }
         # }
         for advertiser in self.advertisers:
-            for category in range(constants.categories):
+            for category in range(constants.CATEGORIES):
                 bandit = self.bandits[advertiser.id][category]['bandit']
                 last_pulled_arm = self.bandits[advertiser.id][category]['last_pulled_arm']
                 bandit.update(last_pulled_arm, rewards[advertiser.id][category])
 
-
     # do real network sample
+    # input slates
+    # output rewards for updating bandits
+    # find better method name
     def real_network_sample(self, slates):
         # seeds:
         # {ad_id:
@@ -139,9 +146,15 @@ class Publisher:
         #   }
         # }
         rewards = {}
+        # nodes_per_category:
+        # {
+        #   category:
+        #       {number}
+        # }
+        nodes_per_category = self.network.network_report()
         for advertiser in self.advertisers:
             rewards[advertiser] = {}
             for category in range(constants.categories):
-                rewards[advertiser][category] = 0
+                rewards[advertiser][category] = seeds[advertiser.id][category] / nodes_per_category[category]
         return rewards
 

@@ -16,7 +16,8 @@ class VCGAuction(Auction):
 
     # Returns the slate given in input but with an assigned_ad and a price_per_click for every slot.
     def perform_auction(self) -> List[Slot]:
-        print(f'Running auction')
+        if(constants.settings['auctionPrint']):
+            print(f'Running auction')
 
         # Compute best assignment. This basically implements what is written here https://i.imgur.com/6z0SSwj.jpg
         best_ads = VCGAuction.get_best_ads(ads=self.available_ads)

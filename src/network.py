@@ -310,7 +310,7 @@ class Network:
 
 
     # TODO ad quality depends on advertiser
-    def estimateSocialInfluence(self, iterations=100, slates=[]):
+    def estimateSocialInfluence(self, iterations=100, slates=[], qualities=None):
         categories = [0, 1, 2, 3, 4]
         avg_active_nodes = 0
         # average number of seeds throughout all the iterations
@@ -334,27 +334,28 @@ class Network:
             seeds_per_ad_id = {}  # seeds for ad_id, seeds for advertiser, dictionary with ad_id -> seed list
             seeds = {}
             activation_probabilities_per_campaign = {}
-            for node in self.nodes:
-                # ad quality goes between 0 and 1
-                # 0 means the ad is not clickable
-                # 1 means users are forced to click the ad
-                slate = slates[node.category]
-                is_seed = False
-                for position in slate:
-                    # activation_probability = ad_quality[node.category] * position.slot_prominence
-                    current_ad = position.assigned_ad
-                    activation_probability = current_ad.ad_quality * position.slot_prominence
-                    sample = random.random()
-                    if sample < activation_probability:  # if the node clicks the ad
-                        # add this node as seed for the ad it clicked on
-                        if position.assigned_ad.ad_id not in seeds_per_ad_id.keys():
-                            seeds_per_ad_id[position.assigned_ad.ad_id] = {}
-                        for category in categories:
-                            if category not in seeds_per_ad_id[position.assigned_ad.ad_id].keys():
-                                seeds_per_ad_id[position.assigned_ad.ad_id][category] = []
-                        seeds_per_ad_id[position.assigned_ad.ad_id][node.category].append(node.id)
-                        is_seed = True
-                        break
+            # for node in self.nodes:
+            #     # ad quality goes between 0 and 1
+            #     # 0 means the ad is not clickable
+            #     # 1 means users are forced to click the ad
+            #     slate = slates[node.category]
+            #     is_seed = False
+            #     for position in slate:
+            #         # activation_probability = ad_quality[node.category] * position.slot_prominence
+            #         current_ad = position.assigned_ad
+            #         activation_probability = current_ad.ad_quality * position.slot_prominence
+            #         sample = random.random()
+            #         if sample < activation_probability:  # if the node clicks the ad
+            #             # add this node as seed for the ad it clicked on
+            #             if position.assigned_ad.ad_id not in seeds_per_ad_id.keys():
+            #                 seeds_per_ad_id[position.assigned_ad.ad_id] = {}
+            #             for category in categories:
+            #                 if category not in seeds_per_ad_id[position.assigned_ad.ad_id].keys():
+            #                     seeds_per_ad_id[position.assigned_ad.ad_id][category] = []
+            #             seeds_per_ad_id[position.assigned_ad.ad_id][node.category].append(node.id)
+            #             is_seed = True
+            #             break
+            seeds_per_ad_id = self.calculateSeeds(slates=slates, qualities=qualities)
             for ad_id in seeds_per_ad_id.keys():  # keys are ad_ids
                 # calculate how many nodes are activated by the given seeds
                 total_seeds = []
@@ -401,7 +402,7 @@ class Network:
                 if qualities is None:
                     activation_probability = current_ad.ad_quality * position.slot_prominence
                 else:
-                    activation_probability = qualities[position.assigned_ad][node.category] * position.slot_prominence
+                    activation_probability = qualities[position.assigned_ad.ad_id][node.category] * position.slot_prominence
                 sample = random.random()
                 if sample < activation_probability:  # if the node clicks the ad
                     # add this node as seed for the ad it clicked on
@@ -415,7 +416,13 @@ class Network:
                     break
         return seeds_per_ad_id
 
-    # def network_report(self):
+    def network_report(self):
+        nodes_per_category = {}
+        for category in range(constants.CATEGORIES):
+            nodes_per_category[category] = 0
+        for node in self.nodes:
+            nodes_per_category[node.category] += 1
+        return nodes_per_category
 
 
 

@@ -16,7 +16,7 @@ class AdPlacementSimulator:
     # ads = the list of ads available, every ad comes from an advertiser.
     # slates = the list of slates, one slate per category (a slate is a list of slots).
     # iterations = number of iterations for the Monte Carlo simulation
-    def simulate_ad_placement(network: Network, ads: List[Ad], slates: List[List[Slot]], iterations: int = 100):
+    def simulate_ad_placement(network: Network, ads: List[Ad], slates: List[List[Slot]], iterations: int = 100, qualities=None):
         price_dictionary = {}
 
         # The auction must be simulated for each category.
@@ -34,7 +34,7 @@ class AdPlacementSimulator:
             slate_of_the_category = slates[current_category]
             vcg_auction = VCGAuction(available_ads=auction_ads_for_the_category, slate=slate_of_the_category)
             slate_with_assigned_ads = vcg_auction.perform_auction()
-            Utils.print_array(slate_with_assigned_ads)
+            # Utils.print_array(slate_with_assigned_ads)
 
             # Overwrite information of the slate with the new assigned slate.
             # Now we have ready the slate of the current category with all the information needed.
@@ -45,7 +45,7 @@ class AdPlacementSimulator:
         # Output: dictionary with ad_id keys (uniquely identifies advertiser) specifying the average number of seeds
         # and activated nodes
         # Note: having the division by ad_id is equivalent as dividing by advertiser since every advertiser has one ad.
-        social_influence = network.estimateSocialInfluence(iterations=iterations, slates=slates)
+        social_influence = network.estimateSocialInfluence(iterations=iterations, slates=slates, qualities=qualities)
 
         #network.prettyPrintSocialInfluence(social_influence)
 

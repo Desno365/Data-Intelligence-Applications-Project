@@ -31,6 +31,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.rival_ads = None
         self.slates = None
         self.gain_history = []
+        self.qualities = None
 
     def participate_auction(self) -> Ad:
         # Reset learner
@@ -54,7 +55,8 @@ class GreedyLearningAdvertiser(Advertiser):
         self.improved_bids = self.bids.copy()
 
         while not self.stop_improving:
-            print('debug already_increased before improvement', self.already_increased)
+            if constants.settings['advertiserPrint']:
+                print('debug already_increased before improvement', self.already_increased)
 
             for i in range(len(self.bids)):
                 if not self.already_increased[i]:
@@ -66,9 +68,11 @@ class GreedyLearningAdvertiser(Advertiser):
                     # Found the first non increased element
                     # print(f"Chosen category {self.to_increment} with the vector being {self.already_increased}")
                     self.improved_bids = self.bids.copy()
-                    print('debug improved bids before improvement', self.improved_bids)
+                    if constants.settings['advertiserPrint']:
+                        print('debug improved bids before improvement', self.improved_bids)
                     self.improved_bids[i] = self.improved_bids[i].next_elem()
-                    print('debug improved bids after improvement', self.improved_bids)
+                    if constants.settings['advertiserPrint']:
+                        print('debug improved bids after improvement', self.improved_bids)
 
                     # Take a copy of the rival ads, append a copy of its ad with improved bids.
                     ads = self.rival_ads.copy()
@@ -82,7 +86,8 @@ class GreedyLearningAdvertiser(Advertiser):
                     #     for slot in slate:
                     #         print(slot)
                     social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads,
-                                                                                  slates=self.slates, iterations=10)
+                                                                                  slates=self.slates, iterations=10,
+                                                                                  qualities=self.qualities)
                     # print('debug print slates after auction')
                     # for slate in self.slates:
                     #     print('slate start')
@@ -98,13 +103,16 @@ class GreedyLearningAdvertiser(Advertiser):
                             seeds[category] = social_influence[self.id][category]["seeds"]
                             prices[category] = social_influence[self.id][category]["price"]
                     else:
-                        print('greedy advertiser ad is not in the slate')
-                        print(self.id, social_influence.keys())
+                        if constants.settings['advertiserPrint']:
+                            print('greedy advertiser ad is not in the slate')
+                            print(self.id, social_influence.keys())
 
-                    print(f"Simulated the network. Nodes activated: {activated_nodes}. Seeds: {seeds}")
+                    if constants.settings['advertiserPrint']:
+                        print(f"Simulated the network. Nodes activated: {activated_nodes}. Seeds: {seeds}")
 
                     self.category_gain[i] = activated_nodes * self.advalue
-                    print(f"Gain from activated nodes: {self.category_gain[i]}")
+                    if constants.settings['advertiserPrint']:
+                        print(f"Gain from activated nodes: {self.category_gain[i]}")
 
                     # The price the advertiser must pay. Seeds are returned in a dictionary indexed by category.
                     # To calculate the payment, for each category take its price per click and multiply it by the number
@@ -112,7 +120,8 @@ class GreedyLearningAdvertiser(Advertiser):
                     for category in seeds.keys():
                         self.category_gain[i] -= (prices[category] * seeds[category])
                     self.already_increased[i] = True
-                    print(f"Gain after payment: {self.category_gain[i]}")
+                    if constants.settings['advertiserPrint']:
+                        print(f"Gain after payment: {self.category_gain[i]}")
 
             # Here all the bids have been improved one time and the gain is noted.
 
@@ -154,9 +163,10 @@ class GreedyLearningAdvertiser(Advertiser):
             self.bids[best_arm] = self.bids[best_arm].next_elem()
             self.previous_gain = self.category_gain[best_arm]
 
-            print(
-                f"Improvement: marginal gains are {marginal_gains}, the best is {best_arm} with gain {self.previous_gain}.")
-            print(f"Now bids are: {self.bids}")
+            if constants.settings['advertiserPrint']:
+                print(
+                    f"Improvement: marginal gains are {marginal_gains}, the best is {best_arm} with gain {self.previous_gain}.")
+                print(f"Now bids are: {self.bids}")
 
         self.category_gain = [0 for _ in range(5)]
         self.already_increased = [False for _ in range(5)]

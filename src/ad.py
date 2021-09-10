@@ -1,5 +1,6 @@
 from typing import List
 
+from src import constants
 from src.bids_enum import BidsEnum
 
 
@@ -12,11 +13,13 @@ class Ad:
         self.ad_quality = ad_quality
         self.ad_value = ad_value
         self.bids = bids
-        print(f"Create Ad with id {self.ad_id}, quality {self.ad_quality}, value {self.ad_value}, bids {self.bids}")
+        if constants.settings['adPrint']:
+            print(f"Create Ad with id {self.ad_id}, quality {self.ad_quality}, value {self.ad_value}, bids {self.bids}")
 
     def set_bids(self, bids: List[BidsEnum]):
         self.bids = bids
-        print(f"New bids: {bids}")
+        if constants.settings['adPrint']:
+            print(f"New bids: {bids}")
 
     def __str__(self) -> str:
         return 'Ad{id=' + str(self.ad_id) + ';q=' + str(self.ad_quality) + ';v=' + str(self.ad_value) + ';}'

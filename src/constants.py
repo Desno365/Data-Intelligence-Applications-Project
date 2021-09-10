@@ -3,6 +3,10 @@ from typing import List
 from src.slot import Slot
 
 # Definition of the project constants
+settings = {'auctionPrint': False,
+            'adPrint': False,
+            'advertiserPrint': False}
+
 
 CATEGORIES = 5
 SLATE_DIMENSION = 6
