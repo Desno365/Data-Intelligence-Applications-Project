@@ -46,7 +46,8 @@ class AdPlacementSimulator:
         # and activated nodes
         # Note: having the division by ad_id is equivalent as dividing by advertiser since every advertiser has one ad.
         social_influence = network.estimateSocialInfluence(iterations=iterations, slates=slates)
-        network.prettyPrintSocialInfluence(social_influence)
+
+        #network.prettyPrintSocialInfluence(social_influence)
 
         # Set price to zero for all:
         for ad_id in social_influence.keys():

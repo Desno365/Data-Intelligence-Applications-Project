@@ -57,7 +57,11 @@ class GreedyLearningAdvertiser(Advertiser):
             print('debug already_increased before improvement', self.already_increased)
 
             for i in range(len(self.bids)):
-                if not self.already_increased[i] and not self.bids[i].value == BidsEnum.MAX.value:
+                if not self.already_increased[i]:
+                    if self.bids[i].value == BidsEnum.MAX.value:
+                        #Bid is already maximum value. No gain is possible
+                        self.already_increased[i] = True
+                        self.category_gain[i] = 0
                     # Found the first non increased element
                     # print(f"Chosen category {self.to_increment} with the vector being {self.already_increased}")
                     self.improved_bids = self.bids.copy()
@@ -76,7 +80,7 @@ class GreedyLearningAdvertiser(Advertiser):
                     #     print('slate start')
                     #     for slot in slate:
                     #         print(slot)
-                    social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads, slates=self.slates, iterations=50)
+                    social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads, slates=self.slates, iterations=10)
                     # print('debug print slates after auction')
                     # for slate in self.slates:
                     #     print('slate start')
