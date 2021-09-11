@@ -36,7 +36,7 @@ from src.publisher import Publisher
 
 # create context
 network_instance = network.Network(50, False)
-advertisers = [StochasticStationaryAdvertiser(quality=[1 for _ in range(5)]) for _ in range(7)]
+advertisers = [StochasticStationaryAdvertiser(quality=None) for _ in range(7)]
 greedy_learner = GreedyLearningAdvertiser(quality=[1 for _ in range(5)], value=1, network=network_instance)
 advertisers.append(greedy_learner)
 publisher = Publisher(network=network, advertisers=advertisers, bandit_type=BanditTypeEnum.UCB1, window_size=None)
@@ -54,7 +54,11 @@ greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in advertis
 slates = constants.get_slates()
 greedy_learner.set_slates(slates=slates)
 print('calculating bids ...')
+print('first auction')
 greedy_ad = greedy_learner.participate_auction()
+print('second auction')
+greedy_ad = greedy_learner.participate_auction()
+
 
 # advertisers pass bids to publisher
 # publisher makes real auctions to get real slates
@@ -79,8 +83,11 @@ for ad_id in social_influence.keys():
     rewards[ad_id] = {}
     for category in range(constants.CATEGORIES):
         estimate_error = (qualities[ad_id][category] - (social_influence[ad_id][category]['seeds'] / nodes_per_category[category]))**2
+        if estimate_error == 0:
+            estimate_error = 0.0001
         rewards[ad_id][category] = 1 / estimate_error
     print('ad_id: ', ad_id, 'reward: ', rewards[ad_id])
+
 # update bandits with rewards
 publisher.update_bandits(rewards=rewards)
 
@@ -88,3 +95,43 @@ print('qualities after one step of improvement')
 qualities = publisher.get_bandit_qualities()
 for ad_id in qualities.keys():
     print('ad_id: ', ad_id, 'qualities: ', qualities[ad_id])
+
+# for day in range(10):
+#     print('#######################day', day)
+#     greedy_learner.qualities = qualities
+#     # # calculate bids by simulation
+#     # greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in advertisers])
+#     # slates = constants.get_slates()
+#     # greedy_learner.set_slates(slates=slates)
+#     print('calculating bids ...')
+#     greedy_ad = greedy_learner.participate_auction()
+#     # do environment sample
+#     ads = []
+#     for advertiser in advertisers:
+#         ads.append(advertiser.ad)
+#     social_influence = AdPlacementSimulator.simulate_ad_placement(
+#         network=network_instance, ads=ads,
+#         slates=constants.get_slates(),
+#         iterations=1,  # iterations = 1 means network sample
+#         qualities=None)  # qualities=None means true qualities from real network
+#
+#     # do rewards and bandit update
+#     rewards = {}
+#     print('bandit rewards for quality estimates')
+#     for ad_id in social_influence.keys():
+#         rewards[ad_id] = {}
+#         for category in range(constants.CATEGORIES):
+#             estimate_error = (qualities[ad_id][category] - (
+#                         social_influence[ad_id][category]['seeds'] / nodes_per_category[category])) ** 2
+#             if estimate_error == 0:
+#                 estimate_error = 0.0001
+#             rewards[ad_id][category] = 1 / estimate_error
+#         print('ad_id: ', ad_id, 'reward: ', rewards[ad_id])
+#
+#     # update bandits with rewards
+#     publisher.update_bandits(rewards=rewards)
+#
+#     print('qualities after one step of improvement')
+#     qualities = publisher.get_bandit_qualities()
+#     for ad_id in qualities.keys():
+#         print('ad_id: ', ad_id, 'qualities: ', qualities[ad_id])

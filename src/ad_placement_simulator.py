@@ -32,6 +32,7 @@ class AdPlacementSimulator:
                 auction_ads_for_the_category.append(new_auction_ad)
 
             slate_of_the_category = slates[current_category]
+            vcg_auction = None
             vcg_auction = VCGAuction(available_ads=auction_ads_for_the_category, slate=slate_of_the_category)
             slate_with_assigned_ads = vcg_auction.perform_auction()
             # Utils.print_array(slate_with_assigned_ads)

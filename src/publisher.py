@@ -120,7 +120,10 @@ class Publisher:
             for category in range(constants.CATEGORIES):
                 bandit = self.bandits[advertiser.id][category]['bandit']
                 last_pulled_arm = self.bandits[advertiser.id][category]['last_pulled_arm']
-                bandit.update(last_pulled_arm, rewards[advertiser.id][category])
+                reward = rewards[advertiser.id][category]
+                if reward is None:
+                    reward = 0
+                bandit.update(last_pulled_arm, reward)
 
     # do real network sample
     # input slates

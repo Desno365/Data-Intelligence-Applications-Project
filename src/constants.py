@@ -3,7 +3,7 @@ from typing import List
 from src.slot import Slot
 
 # Definition of the project constants
-settings = {'auctionPrint': False,
+settings = {'auctionPrint': True,
             'adPrint': False,
             'advertiserPrint': False}
 

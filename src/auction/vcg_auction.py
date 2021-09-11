@@ -35,7 +35,12 @@ class VCGAuction(Auction):
 
             p_a = (1 / (slot_prominence_a * quality_a)) * (x_a - y_a)
             slot.update_price_per_click(price_per_click=p_a)
+            if (constants.settings['auctionPrint']):
+                print(f'x: {x_a}, y: {y_a}, p: {p_a}, prominence: {slot_prominence_a}, '
+                      f'quality: {quality_a}, bid: {slot.assigned_ad.ad_bid}')
             #print(f'Computed price for ad with id {ad_id}. slot_prominence_a={slot_prominence_a}, quality_a={quality_a}, x_a={x_a}, y_a={y_a}, p_a={p_a}.')
+            if not p_a <= slot.assigned_ad.ad_bid + constants.floatingPointMargin:
+                print('price and bid', p_a, slot.assigned_ad.ad_bid)
             assert p_a <= slot.assigned_ad.ad_bid + constants.floatingPointMargin # Price must be lower or equal than the bid.
 
         return self.slate
