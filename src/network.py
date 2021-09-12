@@ -58,7 +58,12 @@ class Network:
             for ii in range(len(constants.categories)):
                 self.weight_matrix[i][ii] = 0.1
 
-    def generate_live_edge_graph(self):
+    def generate_live_edge_graph(self, activation_probabilities=None):
+        if activation_probabilities is None:
+            activation_probabilities = self.weight_matrix
+            # for i in range(len(constants.categories)):
+            #     for ii in range(len(constants.categories)):
+            #         activation_probabilities[i][ii] = random.random()
         live_edge_adjacency_matrix = np.zeros((self.n, self.n))
         probability = 0
         for i in range(self.n):
@@ -71,20 +76,20 @@ class Network:
                 # Then, calculate the probability of this live edge graph.
                 sample = random.random()
                 # If the edge activates
-                if sample < self.weight_matrix[self.nodes[i].category][self.nodes[ii].category]:
+                edge_activation_probability = activation_probabilities[self.nodes[i].category][self.nodes[ii].category]
+                if sample < edge_activation_probability:
                     live_edge_adjacency_matrix[i][ii] = self.adjacency_matrix[i][ii]
 
                     if probability == 0:
-                        probability = self.weight_matrix[self.nodes[i].category][self.nodes[ii].category]
+                        probability = edge_activation_probability
                     else:
-                        probability = probability * self.weight_matrix[self.nodes[i].category][self.nodes[ii].category]
+                        probability = probability * edge_activation_probability
                 # If the edge does not activate
                 else:
                     if probability == 0:
-                        probability = 1 - self.weight_matrix[self.nodes[i].category][self.nodes[ii].category]
+                        probability = 1 - edge_activation_probability
                     else:
-                        probability = probability * (1 - self.weight_matrix[self.nodes[i].category][
-                            self.nodes[ii].category])
+                        probability = probability * (1 - edge_activation_probability)
 
         return live_edge_adjacency_matrix, probability
 
@@ -207,7 +212,7 @@ class Network:
     # [more iterations takes more time and gives more accurate results]
     # output: average_active_nodes (average number of active nodes in all the simulations)
     # output: estimated_activation_probabilities (estimated activation probability for each node in the network)
-    def monteCarloEstimation(self, seeds=[0], iterations=100):
+    def monteCarloEstimation(self, seeds=[0], iterations=100, activation_probabilities=None):
         # monte carlo sampling
         # reset previously calculated values
         average_active_nodes = {}
@@ -220,7 +225,7 @@ class Network:
 
         for i in range(iterations):
             # generate live edge graph and calculate activated nodes
-            live, p = self.generate_live_edge_graph()
+            live, p = self.generate_live_edge_graph(activation_probabilities=activation_probabilities)
             active_nodes = self.calculate_activated_nodes(seeds, live)
             # print(active_nodes)
             active_nodes.sort()
@@ -310,7 +315,13 @@ class Network:
 
 
     # TODO ad quality depends on advertiser
-    def estimateSocialInfluence(self, iterations=100, slates=[], qualities=None):
+    def estimateSocialInfluence(self, slates: List[List[Slot]], iterations: int = 100, qualities=None, use_estimated_activation_probabilities=False):
+        # TODO use estimated activation probabilities
+        if use_estimated_activation_probabilities:
+            activation_probabilities = self.weight_matrix
+        else:
+            activation_probabilities = self.weight_matrix
+
         categories = [0, 1, 2, 3, 4]
         avg_active_nodes = 0
         # average number of seeds throughout all the iterations
@@ -321,48 +332,25 @@ class Network:
         r = {}
         for slate in slates:
             for slot in slate:
-                if slot.assigned_ad.ad_id not in r.keys():
-                    r[slot.assigned_ad.ad_id] = {}
-                    for category in categories:
-                        if category not in r[slot.assigned_ad.ad_id].keys():
-                            r[slot.assigned_ad.ad_id][category] = {}
-                            r[slot.assigned_ad.ad_id][category]['seeds'] = 0
-                            r[slot.assigned_ad.ad_id][category]['activatedNodes'] = 0
+                r[slot.assigned_ad.ad_id] = {}
+                for category in categories:
+                    r[slot.assigned_ad.ad_id][category] = {}
+                    r[slot.assigned_ad.ad_id][category]['seeds'] = 0
+                    r[slot.assigned_ad.ad_id][category]['activatedNodes'] = 0
 
         for i in range(iterations):
             # calculate seed activation (users that click on ads)
             seeds_per_ad_id = {}  # seeds for ad_id, seeds for advertiser, dictionary with ad_id -> seed list
             seeds = {}
-            activation_probabilities_per_campaign = {}
-            # for node in self.nodes:
-            #     # ad quality goes between 0 and 1
-            #     # 0 means the ad is not clickable
-            #     # 1 means users are forced to click the ad
-            #     slate = slates[node.category]
-            #     is_seed = False
-            #     for position in slate:
-            #         # activation_probability = ad_quality[node.category] * position.slot_prominence
-            #         current_ad = position.assigned_ad
-            #         activation_probability = current_ad.ad_quality * position.slot_prominence
-            #         sample = random.random()
-            #         if sample < activation_probability:  # if the node clicks the ad
-            #             # add this node as seed for the ad it clicked on
-            #             if position.assigned_ad.ad_id not in seeds_per_ad_id.keys():
-            #                 seeds_per_ad_id[position.assigned_ad.ad_id] = {}
-            #             for category in categories:
-            #                 if category not in seeds_per_ad_id[position.assigned_ad.ad_id].keys():
-            #                     seeds_per_ad_id[position.assigned_ad.ad_id][category] = []
-            #             seeds_per_ad_id[position.assigned_ad.ad_id][node.category].append(node.id)
-            #             is_seed = True
-            #             break
             seeds_per_ad_id = self.calculateSeeds(slates=slates, qualities=qualities)
             for ad_id in seeds_per_ad_id.keys():  # keys are ad_ids
                 # calculate how many nodes are activated by the given seeds
                 total_seeds = []
-                for category in seeds_per_ad_id[ad_id].keys():
+                for category in range(constants.CATEGORIES):
                     for node in seeds_per_ad_id[ad_id][category]:
                         total_seeds.append(node)
-                activated_nodes, activation_probabilities = self.monteCarloEstimation(total_seeds, 1)
+                activated_nodes, estimated_activation_probabilities = self.monteCarloEstimation(seeds=total_seeds, iterations=1, activation_probabilities=activation_probabilities)
+                # print(estimated_activation_probabilities)
                 # calculate average number of seeds and of activated nodes for every ad_id
                 if ad_id not in avg_n_seeds_per_ad_id.keys():
                     avg_n_seeds_per_ad_id[ad_id] = {}
@@ -387,17 +375,17 @@ class Network:
         return r
 
     def calculateSeeds(self, slates, qualities=None):
-        categories = [0, 1, 2, 3, 4]
-        seeds_per_ad_id = {}  # seeds for ad_id, seeds for advertiser, dictionary with ad_id -> seed list
-        seeds = {}
+        seeds_per_ad_id = {}  # seeds for ad_id, seeds for advertiser, dictionary with ad_id -> category -> seed list
+        for slate in slates:
+            for slot in slate:
+                seeds_per_ad_id[slot.assigned_ad.ad_id] = {}
+                for category in range(constants.CATEGORIES):
+                    seeds_per_ad_id[slot.assigned_ad.ad_id][category] = []
+        count_seeds = 0
+        seeds = []
         for node in self.nodes:
-            # ad quality goes between 0 and 1
-            # 0 means the ad is not clickable
-            # 1 means users are forced to click the ad
             slate = slates[node.category]
-            is_seed = False
             for position in slate:
-                # activation_probability = ad_quality[node.category] * position.slot_prominence
                 current_ad = position.assigned_ad
                 if qualities is None:
                     activation_probability = current_ad.ad_quality * position.slot_prominence
@@ -405,15 +393,19 @@ class Network:
                     activation_probability = qualities[position.assigned_ad.ad_id][node.category] * position.slot_prominence
                 sample = random.random()
                 if sample < activation_probability:  # if the node clicks the ad
+                    seeds.append((node.id))
+                    count_seeds += 1
                     # add this node as seed for the ad it clicked on
-                    if position.assigned_ad.ad_id not in seeds_per_ad_id.keys():
-                        seeds_per_ad_id[position.assigned_ad.ad_id] = {}
-                    for category in categories:
-                        if category not in seeds_per_ad_id[position.assigned_ad.ad_id].keys():
-                            seeds_per_ad_id[position.assigned_ad.ad_id][category] = []
                     seeds_per_ad_id[position.assigned_ad.ad_id][node.category].append(node.id)
-                    is_seed = True
                     break
+
+        count = 0
+        for ad_id in seeds_per_ad_id.keys():
+            for category in range(constants.CATEGORIES):
+                count += len(seeds_per_ad_id[ad_id][category])
+        # print(count_seeds, count, len(seeds))
+        assert count == count_seeds
+        assert len(seeds) == count_seeds
         return seeds_per_ad_id
 
     def network_report(self):

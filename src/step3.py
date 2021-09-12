@@ -16,10 +16,10 @@ slates = constants.get_slates()
 Utils.print_array(slates)
 
 print("Ads:")
-advertisers = [StochasticStationaryAdvertiser(quality=[1 for _ in range(5)]) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
+advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
 for advertiser in advertisers:
-    print('ad id', advertiser.id, 'bids', advertiser.bids)
-greedy_learner = GreedyLearningAdvertiser(quality=[1 for _ in range(5)], value=1, network=network_instance)
+    print('ad id', advertiser.id, 'bids', advertiser.ad.bids)
+greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(5)], ad_value=1, network=network_instance)
 greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in advertisers])
 greedy_learner.set_slates(slates=slates)
 advertisers.append(greedy_learner)

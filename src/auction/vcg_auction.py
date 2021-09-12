@@ -39,11 +39,14 @@ class VCGAuction(Auction):
                 print(f'x: {x_a}, y: {y_a}, p: {p_a}, prominence: {slot_prominence_a}, '
                       f'quality: {quality_a}, bid: {slot.assigned_ad.ad_bid}')
             #print(f'Computed price for ad with id {ad_id}. slot_prominence_a={slot_prominence_a}, quality_a={quality_a}, x_a={x_a}, y_a={y_a}, p_a={p_a}.')
-            if not p_a <= slot.assigned_ad.ad_bid + constants.floatingPointMargin:
-                print('price and bid', p_a, slot.assigned_ad.ad_bid)
-            assert p_a <= slot.assigned_ad.ad_bid + constants.floatingPointMargin # Price must be lower or equal than the bid.
+            if not p_a <= slot.assigned_ad.bid + constants.floatingPointMargin:
+                print('price and bid', p_a, slot.assigned_ad.bid)
+                print('The inputs were: ')
+                Utils.print_array(available_ads)
+                Utils.print_array(slate)
+            assert p_a <= slot.assigned_ad.bid + constants.floatingPointMargin, 'The price is larger than the bid!' # Price must be lower or equal than the bid.
 
-        return self.slate
+        return slate
 
     @staticmethod
     # allocated_slate = the already allocated slate, allocated with the best assignment.

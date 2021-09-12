@@ -38,8 +38,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.stop_improving = False
         self.category_gain = [0 for _ in range(5)]
         self.previous_gain = 0
-        self.bids = [BidsEnum.OFF for _ in range(5)]  # Reset the bids to zero
-
+        self.bids = [BidsEnum.OFF for _ in range(constants.CATEGORIES)]  # Reset the bids to zero
         self.find_optimal_bids()
         self.ad.set_bids(self.bids)
 
@@ -57,7 +56,6 @@ class GreedyLearningAdvertiser(Advertiser):
         while not self.stop_improving:
             if constants.settings['advertiserPrint']:
                 print('debug already_increased before improvement', self.already_increased)
-
             for i in range(len(self.bids)):
                 if not self.already_increased[i]:
                     if self.bids[i].value == BidsEnum.MAX.value:
@@ -79,7 +77,6 @@ class GreedyLearningAdvertiser(Advertiser):
                     copy_ad = copy.deepcopy(self.ad)
                     copy_ad.set_bids(self.improved_bids)
                     ads.append(copy_ad)
-
                     # print('debug print slates before auction')
                     # for slate in self.slates:
                     #     print('slate start')
@@ -87,7 +84,8 @@ class GreedyLearningAdvertiser(Advertiser):
                     #         print(slot)
                     social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads,
                                                                                   slates=self.slates, iterations=10,
-                                                                                  qualities=self.qualities)
+                                                                                  use_estimated_qualities=True,
+                                                                                  use_estimated_activations=False)
                     # print('debug print slates after auction')
                     # for slate in self.slates:
                     #     print('slate start')
