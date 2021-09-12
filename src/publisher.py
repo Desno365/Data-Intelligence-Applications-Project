@@ -8,13 +8,14 @@ from src.network import Network
 
 class Publisher:
 
-    def __init__(self, network: Network, advertisers: List[Advertiser], bandit_type: BanditTypeEnum, window_size: int or None):
+    def __init__(self, network: Network, advertisers: List[Advertiser], bandit_type_qualities: BanditTypeEnum,
+                 bandit_type_activations: BanditTypeEnum, window_size: int or None):
         self.network = network
         self.advertisers = advertisers
         self.auctions = []
         self.slates = constants.get_slates()
 
-        self.bandits = {}
+        self.bandits_quality = {}
         # bandits: {
         #   ad_id: {
         #       category: {
@@ -24,12 +25,26 @@ class Publisher:
         #   }
         # }
         for advertiser in self.advertisers:
-            self.bandits[advertiser.ad.ad_id] = {}
+            self.bandits_quality[advertiser.ad.ad_id] = {}
             for category in range(constants.CATEGORIES):
-                if category not in self.bandits[advertiser.ad.ad_id].keys():
-                    self.bandits[advertiser.ad.ad_id][category] = {}
-                bandit_learner = bandit_type.instantiate_bandit(n_arms=10, window_size=window_size)
-                self.bandits[advertiser.ad.ad_id][category]['bandit'] = bandit_learner
+                if category not in self.bandits_quality[advertiser.ad.ad_id].keys():
+                    self.bandits_quality[advertiser.ad.ad_id][category] = {}
+                bandit_learner = bandit_type_qualities.instantiate_bandit(n_arms=10, window_size=window_size)
+                self.bandits_quality[advertiser.ad.ad_id][category]['bandit'] = bandit_learner
+
+        self.bandits_activation = {}
+        # bandits_prominance: {
+        #   from_category: {
+        #       to_category: {
+        #           'bandit': BanditLearner
+        #           'last_arm_pulled': int
+        # }}}
+        for from_category in range(constants.CATEGORIES):
+            self.bandits_activation[from_category] = {}
+            for to_category in range(constants.CATEGORIES):
+                self.bandits_activation[from_category][to_category] = {}
+                bandit_learner = bandit_type_activations.instantiate_bandit(n_arms=10, window_size=window_size)
+                self.bandits_activation[from_category][to_category]['bandit'] = bandit_learner
 
     # # Create an auction for each category and get the relative slate
     # def generate_auctions(self, available_ads: List[Ad]):
@@ -98,14 +113,29 @@ class Publisher:
             qualities[advertiser.id] = {}
             for category in range(constants.CATEGORIES):
                 # do bandit for single ad
-                pulled_arm = self.bandits[ad_id][category]['bandit'].pull_arm()
-                self.bandits[ad_id][category]['last_pulled_arm'] = pulled_arm
+                pulled_arm = self.bandits_quality[ad_id][category]['bandit'].pull_arm()
+                self.bandits_quality[ad_id][category]['last_pulled_arm'] = pulled_arm
                 qualities[ad_id][category] = constants.bandit_quality_values[pulled_arm]
         return qualities
 
+    def get_bandit_activations(self):
+        activations = {}
+        # activations: {
+        #   from_category: {
+        #       to_category: pulled_activation_value
+        # }}
+        # do bandit round
+        for from_category in range(constants.CATEGORIES):
+            activations[from_category] = {}
+            for to_category in range(constants.CATEGORIES):
+                # do bandit for single ad
+                pulled_arm = self.bandits_activation[from_category][to_category]['bandit'].pull_arm()
+                self.bandits_activation[from_category][to_category]['last_pulled_arm'] = pulled_arm
+                activations[from_category][to_category] = constants.bandit_activation_values[pulled_arm]
+        return activations
 
     # rewards = measured click probabilities for each category and for each ad.
-    def update_bandits(self, rewards):
+    def update_bandits_quality(self, rewards):
         # rewards:
         # {
         #   ad_id:
@@ -118,12 +148,23 @@ class Publisher:
         # }
         for advertiser in self.advertisers:
             for category in range(constants.CATEGORIES):
-                bandit = self.bandits[advertiser.id][category]['bandit']
-                last_pulled_arm = self.bandits[advertiser.id][category]['last_pulled_arm']
-                reward = rewards[advertiser.id][category]
-                if reward is None:
-                    reward = 0
-                bandit.update(last_pulled_arm, reward)
+                bandit = self.bandits_quality[advertiser.id][category]['bandit']
+                last_pulled_arm = self.bandits_quality[advertiser.id][category]['last_pulled_arm']
+                bandit.update(last_pulled_arm, rewards[advertiser.id][category])
+
+    # rewards = measured click probabilities for each category and for each ad.
+    def update_bandits_activations(self, rewards):
+        # activations:{
+        #   from_category:{
+        #       to_category:{
+        #           value:
+        # }}}
+        for from_category in range(constants.CATEGORIES):
+            for to_category in range(constants.CATEGORIES):
+                bandit = self.bandits_activation[from_category][to_category]['bandit']
+                last_pulled_arm = self.bandits_activation[from_category][to_category]['last_pulled_arm']
+                bandit.update(last_pulled_arm, rewards[from_category][to_category])
+
 
     # do real network sample
     # input slates
@@ -160,4 +201,3 @@ class Publisher:
             for category in range(constants.categories):
                 rewards[advertiser][category] = seeds[advertiser.id][category] / nodes_per_category[category]
         return rewards
-

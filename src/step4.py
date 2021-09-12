@@ -44,7 +44,8 @@ advertisers = []
 for stochastic_advertiser in stochastic_advertisers:
     advertisers.append(stochastic_advertiser)
 advertisers.append(greedy_learner)
-publisher = Publisher(network=network, advertisers=advertisers, bandit_type=BanditTypeEnum.UCB1, window_size=None)
+publisher = Publisher(network=network_instance, advertisers=advertisers, bandit_type_qualities=BanditTypeEnum.UCB1,
+                      bandit_type_activations=BanditTypeEnum.UCB1, window_size=None)
 
 nodes_per_category = network_instance.network_report()
 

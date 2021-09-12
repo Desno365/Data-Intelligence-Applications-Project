@@ -22,9 +22,12 @@ floatingPointMargin = 0.001
 # the number of bandit arms and their values
 number_of_bandit_arms = 10
 bandit_quality_values = []
-for i in range(1, 11, 1):
-    j = i/10
+bandit_activation_values = []
+for i in range(number_of_bandit_arms):
+    j = (i+1)/10
     bandit_quality_values.append(j)
+    bandit_activation_values.append(j)
+
 
 
 def get_slates() -> List[List[Slot]]:
