@@ -13,16 +13,13 @@ An advertiser that has its bids set randomly.
 
 class StochasticStationaryAdvertiser(Advertiser):
 
-    def __init__(self, quality: List[float] = None, value: float = 0.5):
-        super().__init__(quality=quality, value=value)
+    def __init__(self, ad_real_qualities: List[float] = None, value: float = 0.5):
+        super().__init__(ad_real_qualities=ad_real_qualities, ad_value=value)
         self.change_bids()
 
     def participate_auction(self) -> Ad:
         return super().participate_auction()
 
     def change_bids(self) -> None:
-        self.bids = [random.choice(list(BidsEnum)) for _ in range(constants.CATEGORIES)]
-        # for debug purposes fix bids
-        # self.bids = [list(BidsEnum)[1], list(BidsEnum)[0], list(BidsEnum)[0], list(BidsEnum)[0], list(BidsEnum)[0]]
-        self.ad.set_bids(self.bids)
+        self.ad.set_bids([random.choice(list(BidsEnum)) for _ in range(constants.CATEGORIES)])
 

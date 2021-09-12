@@ -2,30 +2,25 @@ import copy
 import random
 from typing import List
 
-import numpy as np
+from matplotlib import pyplot as plt
 
 from src import constants
 from src.ad import Ad
 from src.ad_placement_simulator import AdPlacementSimulator
 from src.advertiser.advertiser import Advertiser
 from src.bids_enum import BidsEnum
+from src.network import Network
 from src.slot import Slot
-from matplotlib import pyplot as plt
-
-from src.utils import Utils
 
 
 class GreedyLearningAdvertiser(Advertiser):
 
-    def __init__(self, quality=None, value=0.5, network=None):
-        super().__init__(quality, value)
+    def __init__(self, ad_real_qualities: List[float] = None, ad_value: float = 0.5, network: Network = None):
+        super().__init__(ad_real_qualities=ad_real_qualities, ad_value=ad_value)
         self.stop_improving = False
-        self.already_increased = [False for _ in range(5)]  # This list will keep track of which bid has already been
-        # increased
-        self.to_increment = 0  # This will keep track of the category bid that the learner should try to
-        # increase.
-        self.category_gain = [0 for _ in
-                              range(5)]  # The marginal gain after having increased that category bid
+        self.already_increased = [False for _ in range(constants.CATEGORIES)]  # This list will keep track of which bid has already been increased
+        self.to_increment = 0  # This will keep track of the category bid that the learner should try to increase.
+        self.category_gain = [0 for _ in range(constants.CATEGORIES)]  # The marginal gain after having increased that category bid
         self.previous_gain = 0
         self.network = network
         self.rival_ads = None
@@ -36,7 +31,7 @@ class GreedyLearningAdvertiser(Advertiser):
     def participate_auction(self) -> Ad:
         # Reset learner
         self.stop_improving = False
-        self.category_gain = [0 for _ in range(5)]
+        self.category_gain = [0 for _ in range(constants.CATEGORIES)]
         self.previous_gain = 0
         self.bids = [BidsEnum.OFF for _ in range(constants.CATEGORIES)]  # Reset the bids to zero
         self.find_optimal_bids()
@@ -108,7 +103,7 @@ class GreedyLearningAdvertiser(Advertiser):
                     if constants.settings['advertiserPrint']:
                         print(f"Simulated the network. Nodes activated: {activated_nodes}. Seeds: {seeds}")
 
-                    self.category_gain[i] = activated_nodes * self.advalue
+                    self.category_gain[i] = activated_nodes * self.ad_value
                     if constants.settings['advertiserPrint']:
                         print(f"Gain from activated nodes: {self.category_gain[i]}")
 
@@ -123,7 +118,7 @@ class GreedyLearningAdvertiser(Advertiser):
 
             # Here all the bids have been improved one time and the gain is noted.
 
-            if not self.already_increased.count(True) == 5:
+            if not self.already_increased.count(True) == constants.CATEGORIES:
                 print('not enough true values', self.already_increased)
                 raise ValueError(f"Control should not go here.")
 
@@ -166,8 +161,8 @@ class GreedyLearningAdvertiser(Advertiser):
                     f"Improvement: marginal gains are {marginal_gains}, the best is {best_arm} with gain {self.previous_gain}.")
                 print(f"Now bids are: {self.bids}")
 
-        self.category_gain = [0 for _ in range(5)]
-        self.already_increased = [False for _ in range(5)]
+        self.category_gain = [0 for _ in range(constants.CATEGORIES)]
+        self.already_increased = [False for _ in range(constants.CATEGORIES)]
 
     def plot_history(self) -> None:
         plt.figure(0)

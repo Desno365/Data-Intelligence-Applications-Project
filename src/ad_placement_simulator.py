@@ -6,7 +6,6 @@ from src.auction.auction_ad import AuctionAd
 from src.auction.vcg_auction import VCGAuction
 from src.network import Network
 from src.slot import Slot
-from src.utils import Utils
 
 
 class AdPlacementSimulator:
@@ -38,7 +37,6 @@ class AdPlacementSimulator:
                     qualities = ad.real_qualities
                 new_auction_ad = AuctionAd(category=current_category, ad_id=ad.ad_id, quality=qualities[current_category], bid=ad.bids[current_category].value)
                 auction_ads_for_the_category.append(new_auction_ad)
-
             slate_of_the_category = slates[current_category]
             slate_with_assigned_ads = VCGAuction.perform_auction(available_ads=auction_ads_for_the_category, slate=slate_of_the_category)
             # Utils.print_array(slate_with_assigned_ads)

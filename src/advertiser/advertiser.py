@@ -7,21 +7,23 @@ from src.bids_enum import BidsEnum
 
 
 class Advertiser:
-    """Bids are instances of BidsEnum, not values. It's easier this way to compare bid values without comparing
-    floats """
 
-    def __init__(self, quality: List[float] = None, value: float = 0.5):
-        if quality is None:
-            quality = [random.uniform(0.05, 1) for _ in range(constants.CATEGORIES)]
-        self.adquality = quality
-        self.id = random.randint(a=1, b=999)
-        self.advalue = value
-        self.bids = [BidsEnum.OFF for _ in range(constants.CATEGORIES)]
-        #print(f"creating ad with quality: {self.adquality}")
-        self.ad = Ad(ad_id=self.id, ad_quality=self.adquality, ad_value=self.advalue, bids=self.bids)
+    def __init__(self, ad_real_qualities: List[float] = None, ad_value: float = 0.5):
+        if ad_real_qualities is None:
+            ad_real_qualities = [random.uniform(0.05, 1) for _ in range(constants.CATEGORIES)]
+        self.ad_real_qualities = ad_real_qualities
+        self.id = random.randint(a=1, b=9999)
+        self.ad_value = ad_value
+        self.ad = Ad(
+            ad_id=self.id,
+            estimated_qualities=self.ad_real_qualities,
+            real_qualities=self.ad_real_qualities,
+            value=self.ad_value,
+            bids=[BidsEnum.OFF for _ in range(constants.CATEGORIES)]
+        )
 
     def participate_auction(self) -> Ad:
         return self.ad
 
     def change_bids(self) -> None:
-        self.bids = [random.choice(list(BidsEnum)) for _ in range(5)]
+        self.ad.set_bids([random.choice(list(BidsEnum)) for _ in range(5)])

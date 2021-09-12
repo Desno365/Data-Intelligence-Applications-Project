@@ -26,6 +26,7 @@ for i in range(1, 11, 1):
     j = i/10
     bandit_quality_values.append(j)
 
+
 def get_slates() -> List[List[Slot]]:
     slates = []
     for current_category in range(CATEGORIES):

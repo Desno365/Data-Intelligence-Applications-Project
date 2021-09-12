@@ -1,6 +1,9 @@
+from typing import List
+
 import numpy as np
 import random
 from src import constants
+from src.slot import Slot
 
 
 class Node:
@@ -388,7 +391,7 @@ class Network:
             for position in slate:
                 current_ad = position.assigned_ad
                 if qualities is None:
-                    activation_probability = current_ad.ad_quality * position.slot_prominence
+                    activation_probability = current_ad.quality * position.slot_prominence
                 else:
                     activation_probability = qualities[position.assigned_ad.ad_id][node.category] * position.slot_prominence
                 sample = random.random()
