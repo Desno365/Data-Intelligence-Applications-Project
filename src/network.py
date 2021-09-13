@@ -38,7 +38,8 @@ class Network:
         self.nodes = []
         self.n = n
         self.click_probabilities = np.zeros((n, n))
-
+        self.cross_category_edges = [[0 for _ in constants.categories] for _ in constants.categories]
+        self.activation_realization = [[0 for _ in constants.categories] for _ in constants.categories]
         # Create n nodes
         for i in range(self.n):
             newNode = Node(random.choice(constants.categories))
@@ -57,6 +58,7 @@ class Network:
             for i in range(self.n):
                 for ii in range(10):
                     self.adjacency_matrix[i][math.floor(random.random()) * self.n] = 1
+                    self.cross_category_edges[self.nodes[i].category][self.nodes[ii].category] += 1
         for i in range(n):
             self.adjacency_matrix[i][i] = 0
 
@@ -65,7 +67,11 @@ class Network:
             for ii in range(len(constants.categories)):
                 self.weight_matrix[i][ii] = 0.1
 
+
+
+
     def generate_live_edge_graph(self, activation_probabilities=None):
+        self.activation_realization = [[0 for _ in constants.categories] for _ in constants.categories]
         if activation_probabilities is None:
             activation_probabilities = self.weight_matrix
         live_edge_adjacency_matrix = np.zeros((self.n, self.n))
@@ -82,7 +88,8 @@ class Network:
                 # If the edge activates
                 edge_activation_probability = activation_probabilities[self.nodes[i].category][self.nodes[ii].category]
                 if sample < edge_activation_probability:
-                    live_edge_adjacency_matrix[i][ii] = self.adjacency_matrix[i][ii]
+                    live_edge_adjacency_matrix[i][ii] = 1
+                    self.activation_realization[self.nodes[i].category][self.nodes[ii].category] += 1
 
                     if probability == 0:
                         probability = edge_activation_probability
