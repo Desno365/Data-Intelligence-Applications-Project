@@ -43,7 +43,7 @@ class Publisher:
             self.bandits_activation[from_category] = {}
             for to_category in range(constants.CATEGORIES):
                 self.bandits_activation[from_category][to_category] = {}
-                bandit_learner = bandit_type_activations.instantiate_bandit(n_arms=10, window_size=window_size)
+                bandit_learner = bandit_type_activations.instantiate_bandit(n_arms=constants.number_of_bandit_arms, window_size=window_size)
                 self.bandits_activation[from_category][to_category]['bandit'] = bandit_learner
 
     # # Create an auction for each category and get the relative slate

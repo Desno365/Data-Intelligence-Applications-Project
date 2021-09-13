@@ -58,8 +58,12 @@ class Network:
             for i in range(self.n):
                 extracted_node = []
                 for ii in range(10):
-                    self.adjacency_matrix[i][math.floor(random.random()) * self.n] = 1
-                    self.cross_category_edges[self.nodes[i].category][self.nodes[ii].category] += 1
+                    new_node = random.randint(0, self.n-1)
+                    if new_node not in extracted_node:
+                        extracted_node.append(new_node)
+                        self.cross_category_edges[self.nodes[i].category][self.nodes[new_node].category] += 1
+                    self.adjacency_matrix[i][extracted_node[-1]] = 1
+
         for i in range(n):
             self.adjacency_matrix[i][i] = 0
 
@@ -91,17 +95,18 @@ class Network:
                 if sample < edge_activation_probability:
                     live_edge_adjacency_matrix[i][ii] = 1
                     self.activation_realization[self.nodes[i].category][self.nodes[ii].category] += 1
+                    # print(f'\tone activation{i}, {ii}')
 
-                    if probability == 0:
-                        probability = edge_activation_probability
-                    else:
-                        probability = probability * edge_activation_probability
-                # If the edge does not activate
-                else:
-                    if probability == 0:
-                        probability = 1 - edge_activation_probability
-                    else:
-                        probability = probability * (1 - edge_activation_probability)
+                #     if probability == 0:
+                #         probability = edge_activation_probability
+                #     else:
+                #         probability = probability * edge_activation_probability
+                # # If the edge does not activate
+                # else:
+                #     if probability == 0:
+                #         probability = 1 - edge_activation_probability
+                #     else:
+                #         probability = probability * (1 - edge_activation_probability)
 
         return live_edge_adjacency_matrix, probability
 
@@ -297,7 +302,7 @@ class Network:
                 time = datetime.now()
                 activated_nodes, node_estimated_activation_probabilities = self.monteCarloEstimation(seeds=total_seeds, iterations=1, activation_probabilities=estimated_activation_probabilities)
                 elapsed_time = datetime.now() - time
-                print(f'one monte carlo iteration takes {elapsed_time}')
+                # print(f'one monte carlo iteration takes {elapsed_time}')
                 # print(estimated_activation_probabilities)
                 # calculate average number of seeds and of activated nodes for every ad_id
                 if ad_id not in avg_n_seeds_per_ad_id.keys():
