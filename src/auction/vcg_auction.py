@@ -46,7 +46,7 @@ class VCGAuction(Auction):
         for slot in slate:
             ad_id = slot.assigned_ad.ad_id
             slot_prominence_a = slot.slot_prominence
-            quality_a = slot.assigned_ad.quality
+            quality_a = slot.assigned_ad.estimated_quality
             x_a = VCGAuction.compute_x_a(ads=available_ads, slate=slate_deep_copy, a_id=ad_id)
             y_a = VCGAuction.compute_y_a(allocated_slate=slate, a_id=ad_id)
             p_a = (1 / (slot_prominence_a * quality_a)) * (x_a - y_a)

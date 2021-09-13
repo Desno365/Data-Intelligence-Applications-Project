@@ -21,6 +21,11 @@ class Advertiser:
             value=self.ad_value,
             bids=[BidsEnum.OFF for _ in range(constants.CATEGORIES)]
         )
+        self.estimated_activations = {}
+        for from_category in range(constants.CATEGORIES):
+            self.estimated_activations[from_category] = {}
+            for to_category in range(constants.CATEGORIES):
+                self.estimated_activations[from_category][to_category] = random.random()
 
     def participate_auction(self) -> Ad:
         return self.ad

@@ -29,7 +29,7 @@ class Publisher:
             for category in range(constants.CATEGORIES):
                 if category not in self.bandits_quality[advertiser.ad.ad_id].keys():
                     self.bandits_quality[advertiser.ad.ad_id][category] = {}
-                bandit_learner = bandit_type_qualities.instantiate_bandit(n_arms=10, window_size=window_size)
+                bandit_learner = bandit_type_qualities.instantiate_bandit(n_arms=constants.number_of_bandit_arms, window_size=window_size)
                 self.bandits_quality[advertiser.ad.ad_id][category]['bandit'] = bandit_learner
 
         self.bandits_activation = {}
@@ -148,9 +148,10 @@ class Publisher:
         # }
         for advertiser in self.advertisers:
             for category in range(constants.CATEGORIES):
-                bandit = self.bandits_quality[advertiser.id][category]['bandit']
-                last_pulled_arm = self.bandits_quality[advertiser.id][category]['last_pulled_arm']
-                bandit.update(last_pulled_arm, rewards[advertiser.id][category])
+                if rewards[advertiser.id][category] != -1:
+                    bandit = self.bandits_quality[advertiser.id][category]['bandit']
+                    last_pulled_arm = self.bandits_quality[advertiser.id][category]['last_pulled_arm']
+                    bandit.update(last_pulled_arm, rewards[advertiser.id][category])
 
     # rewards = measured click probabilities for each category and for each ad.
     def update_bandits_activations(self, rewards):

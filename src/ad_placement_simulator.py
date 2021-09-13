@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 from src import constants
@@ -15,8 +16,9 @@ class AdPlacementSimulator:
             network: Network,  # the network of nodes.
             ads: List[Ad],  # the list of ads available, every ad comes from an advertiser.
             slates: List[List[Slot]],  # the list of slates, one slate per category (a slate is a list of slots).
-            use_estimated_qualities: bool,  # true to use estimated qualities, false to use real qualities.
-            use_estimated_activations: bool,  # true to use estimated activations, false to use real activations.
+            use_estimated_qualities: bool = True,  # true to use estimated qualities, false to use real qualities.
+            use_estimated_activations: bool = False,  # true to use estimated activations, false to use real one
+            estimated_activations: List[List[float]] = None,  # the estimated activation to use
             iterations: int = 100,  # number of iterations for the Monte Carlo simulation.
     ):
         assert len(slates) == constants.CATEGORIES
@@ -31,11 +33,13 @@ class AdPlacementSimulator:
             # The auction then will return the slate itself but with an ad and price assigned to every slot.
             auction_ads_for_the_category = []
             for ad in ads:
-                if use_estimated_qualities:
-                    qualities = ad.estimated_qualities
-                else:
-                    qualities = ad.real_qualities
-                new_auction_ad = AuctionAd(category=current_category, ad_id=ad.ad_id, quality=qualities[current_category], bid=ad.bids[current_category].value)
+                new_auction_ad = AuctionAd(
+                    category=current_category,
+                    ad_id=ad.ad_id,
+                    estimated_quality=ad.estimated_qualities[current_category],
+                    real_quality=ad.real_qualities[current_category],
+                    bid=ad.bids[current_category].value
+                )
                 auction_ads_for_the_category.append(new_auction_ad)
             slate_of_the_category = slates[current_category]
             slate_with_assigned_ads = VCGAuction.perform_auction(available_ads=auction_ads_for_the_category, slate=slate_of_the_category)
@@ -49,17 +53,11 @@ class AdPlacementSimulator:
         # Output: dictionary with ad_id keys (uniquely identifies advertiser) specifying the average number of seeds
         # and activated nodes
         # Note: having the division by ad_id is equivalent as dividing by advertiser since every advertiser has one ad.
-        qualities = {}
-        for ad in ads:
-            qualities[ad.ad_id] = {}
-            if use_estimated_qualities:
-                qualities[ad.ad_id] = ad.estimated_qualities
-            else:
-                qualities[ad.ad_id] = ad.real_qualities
-        # for key in qualities:
-        #     print(key, qualities[key])
-        social_influence = network.estimateSocialInfluence(slates=slates, iterations=iterations, qualities=qualities, use_estimated_activation_probabilities=False)
-
+        time = datetime.now()
+        if not use_estimated_activations:
+            estimated_activations = None
+        social_influence = network.estimateSocialInfluence(slates=slates, iterations=iterations, use_estimated_qualities=use_estimated_qualities, estimated_activation_probabilities=estimated_activations)
+        print('estimate social influence', datetime.now()-time)
         #network.prettyPrintSocialInfluence(social_influence)
 
         # Set price to zero for all:

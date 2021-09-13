@@ -2,7 +2,7 @@ from src.auction.auction_ad import AuctionAd
 
 
 class Slot:
-    # slot_id = identifier for the slot.
+    # slot_id = identifier for the slot, it also specifies the position (id zero = first position).
     # slot_prominence = probability that the user observes the slot.
     # price_per_click = price that advertiser must pay of ads gets clicked.
     def __init__(self, slot_id: int, slot_prominence: float):

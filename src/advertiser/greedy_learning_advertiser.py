@@ -1,5 +1,7 @@
 import copy
+import datetime
 import random
+from datetime import datetime
 from typing import List
 
 from matplotlib import pyplot as plt
@@ -26,6 +28,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.rival_ads = None
         self.slates = None
         self.gain_history = []
+        self.use_estimate_activations = False
 
     def participate_auction(self) -> Ad:
         # Reset learner
@@ -76,10 +79,15 @@ class GreedyLearningAdvertiser(Advertiser):
                     #     print('slate start')
                     #     for slot in slate:
                     #         print(slot)
+                    time = datetime.now()
+
                     social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads,
-                                                                                  slates=self.slates, iterations=10,
+                                                                                  slates=self.slates, iterations=constants.greedy_simulation_iterations,
                                                                                   use_estimated_qualities=True,
-                                                                                  use_estimated_activations=False)
+                                                                                  use_estimated_activations=self.use_estimate_activations,
+                                                                                  estimated_activations=self.estimated_activations)
+                    elapsed_time = datetime.now() - time
+                    print(f'simulate ad placement in greedy takes {elapsed_time}')
                     # print('debug print slates after auction')
                     # for slate in self.slates:
                     #     print('slate start')
