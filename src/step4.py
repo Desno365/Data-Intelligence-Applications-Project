@@ -39,7 +39,7 @@ from src.publisher import Publisher
 # create context
 network_instance = network.Network(100, False)
 stochastic_advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(constants.SLATE_DIMENSION)]
-greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(5)], ad_value=1, network=network_instance)
+greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(constants.CATEGORIES)], ad_value=1, network=network_instance)
 advertisers = []
 for stochastic_advertiser in stochastic_advertisers:
     advertisers.append(stochastic_advertiser)
@@ -71,7 +71,6 @@ for day in range(200):
         ad = advertiser.ad
         estimated_q = bandit_estimated_qualities[ad.ad_id]
         ad.set_estimated_qualities(estimated_q)
-    greedy_learner.qualities = bandit_estimated_qualities
     # set context for simulation for calculating best bids
     greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in stochastic_advertisers])
     slates = constants.get_slates()
@@ -143,7 +142,6 @@ for day in range(200):
             if error <= 0.001:
                 error = 0.001
             rewards[ad.ad_id][category] = 1 / error
-
 
     # update bandits with rewards
     publisher.update_bandits_quality(rewards=rewards)

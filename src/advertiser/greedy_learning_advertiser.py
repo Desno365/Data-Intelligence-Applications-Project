@@ -26,7 +26,6 @@ class GreedyLearningAdvertiser(Advertiser):
         self.rival_ads = None
         self.slates = None
         self.gain_history = []
-        self.qualities = None
 
     def participate_auction(self) -> Ad:
         # Reset learner
