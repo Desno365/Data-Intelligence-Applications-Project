@@ -56,6 +56,7 @@ class Network:
             #         self.adjacency_matrix[i][ii] = 1 if random.random() < constants.network_connectivity else 0
             # using number of neighbours
             for i in range(self.n):
+                extracted_node = []
                 for ii in range(10):
                     self.adjacency_matrix[i][math.floor(random.random()) * self.n] = 1
                     self.cross_category_edges[self.nodes[i].category][self.nodes[ii].category] += 1
@@ -65,7 +66,7 @@ class Network:
         self.weight_matrix = np.zeros((len(constants.categories), len(constants.categories)))
         for i in range(len(constants.categories)):
             for ii in range(len(constants.categories)):
-                self.weight_matrix[i][ii] = 0.1
+                self.weight_matrix[i][ii] = random.random()
 
 
 
@@ -286,7 +287,7 @@ class Network:
             time = datetime.now()
             seeds_per_ad_id = self.calculateSeeds(slates=slates, use_estimated_qualities=use_estimated_qualities)
             elapsed_time = datetime.now() - time
-            print(f'calculate seeds time: {elapsed_time}')
+            # print(f'calculate seeds time: {elapsed_time}')
             for ad_id in seeds_per_ad_id.keys():  # keys are ad_ids
                 # calculate how many nodes are activated by the given seeds
                 total_seeds = []

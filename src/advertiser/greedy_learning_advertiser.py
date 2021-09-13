@@ -17,7 +17,8 @@ from src.slot import Slot
 
 class GreedyLearningAdvertiser(Advertiser):
 
-    def __init__(self, ad_real_qualities: List[float] = None, ad_value: float = 0.5, network: Network = None):
+    def __init__(self, ad_real_qualities: List[float] = None, ad_value: float = 0.5, network: Network = None,
+                 use_estimate_activations=False):
         super().__init__(ad_real_qualities=ad_real_qualities, ad_value=ad_value)
         self.stop_improving = False
         self.already_increased = [False for _ in range(constants.CATEGORIES)]  # This list will keep track of which bid has already been increased
@@ -28,7 +29,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.rival_ads = None
         self.slates = None
         self.gain_history = []
-        self.use_estimate_activations = False
+        self.use_estimate_activations = use_estimate_activations
 
     def participate_auction(self) -> Ad:
         # Reset learner

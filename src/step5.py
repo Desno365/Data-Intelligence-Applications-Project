@@ -1,123 +1,231 @@
+import random
+from datetime import datetime
+
+import numpy as np
+from matplotlib import pyplot as plt
+
 from src import constants, network
 from src.ad_placement_simulator import AdPlacementSimulator
 from src.advertiser.greedy_learning_advertiser import GreedyLearningAdvertiser
 from src.advertiser.stochastic_stationary_advertiser import StochasticStationaryAdvertiser
 from src.bandit_algorithms.bandit_type_enum import BanditTypeEnum
 from src.publisher import Publisher
-from random import random
 
 # create context
 network_instance = network.Network(1000, False)
+nodes_per_category = network_instance.network_report()
+
 stochastic_advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(constants.SLATE_DIMENSION + 1)]
-# TODO greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(constants.CATEGORIES)], ad_value=1, network=network_instance)
+greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(constants.CATEGORIES)], ad_value=1,
+                                       network=network_instance, )
 advertisers = []
 for stochastic_advertiser in stochastic_advertisers:
     advertisers.append(stochastic_advertiser)
-# TODO advertisers.append(greedy_learner)
-publisher = Publisher(network=network_instance, advertisers=advertisers, bandit_type_qualities=BanditTypeEnum.THOMPSON_SAMPLING,
-                      bandit_type_activations=BanditTypeEnum.THOMPSON_SAMPLING, window_size=None)
+advertisers.append(greedy_learner)
 
-nodes_per_category = network_instance.network_report()
+publisher = Publisher(network=network_instance, advertisers=advertisers, bandit_type_qualities=BanditTypeEnum.SLIDING_WINDOW_THOMPSON_SAMPLING,
+                      bandit_type_activations=BanditTypeEnum.SLIDING_WINDOW_THOMPSON_SAMPLING, window_size=50)
 
-sample_estimated_qualities = {}
+learn_from_first_slot_only = True
+
+# print('true quality values:')
+# for advertiser in advertisers:
+#     print(advertiser.id, advertiser.ad.real_qualities)
+
+# Variables for plot
+plot_rewards_bandit_activation = {}
+plot_regret_bandit_activation = {}
+plot_rewards_random_activation = {}
+plot_regret_random_activation = {}
+for from_category in range(constants.CATEGORIES):
+    plot_rewards_bandit_activation[from_category] = {}
+    plot_regret_bandit_activation[from_category] = {}
+    plot_rewards_random_activation[from_category] = {}
+    plot_regret_random_activation[from_category] = {}
+    for to_category in range(constants.CATEGORIES):
+        plot_rewards_bandit_activation[from_category][to_category] = np.array([])
+        plot_regret_bandit_activation[from_category][to_category] = np.array([])
+        plot_rewards_random_activation[from_category][to_category] = np.array([])
+        plot_regret_random_activation[from_category][to_category] = np.array([])
+
+plot_rewards_bandit = {}
+plot_regret_bandit = {}
+plot_rewards_random = {}
+plot_regret_random = {}
 for advertiser in advertisers:
     ad_id = advertiser.id
-    sample_estimated_qualities[ad_id] = {}
+    plot_rewards_bandit[ad_id] = {}
+    plot_regret_bandit[ad_id] = {}
+    plot_rewards_random[ad_id] = {}
+    plot_regret_random[ad_id] = {}
     for category in range(constants.CATEGORIES):
-        sample_estimated_qualities[ad_id][category] = {}
-        sample_estimated_qualities[ad_id][category]['estimate'] = 0
-        sample_estimated_qualities[ad_id][category]['number_of_samples'] = 0
+        plot_rewards_bandit[ad_id][category] = np.array([])
+        plot_regret_bandit[ad_id][category] = np.array([])
+        plot_rewards_random[ad_id][category] = np.array([])
+        plot_regret_random[ad_id][category] = np.array([])
 
-bandit_estimated_activations = {}
-for from_category in range(constants.CATEGORIES):
-    bandit_estimated_activations[from_category] = {}
-    for to_category in range(constants.CATEGORIES):
-        bandit_estimated_activations[from_category][to_category] = {}
-        bandit_estimated_activations[from_category][to_category] = random()
-
-for day in range(10):
+for day in range(100):
+    print('activations at day', day)
     # get current quality estimates
     bandit_estimated_qualities = publisher.get_bandit_qualities()
     bandit_estimated_activations = publisher.get_bandit_activations()
-    # pass estimates
+    for from_category in bandit_estimated_activations.keys():
+        print('from cat: ', from_category, 'bandit estimated activations: ', bandit_estimated_activations[from_category])
+
+    # pass estimations to advertisers and ads
     for advertiser in advertisers:
-        # pass quality estimates to ads
         ad = advertiser.ad
         estimated_q = bandit_estimated_qualities[ad.ad_id]
         ad.set_estimated_qualities(estimated_q)
-        # pass activation estimates to the advertisers
         advertiser.estimated_activations = bandit_estimated_activations
     # set context for simulation for calculating best bids
-    # TODO greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in stochastic_advertisers])
     slates = constants.get_slates()
-    # TODO greedy_learner.set_slates(slates=slates)
+    greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in stochastic_advertisers])
+    greedy_learner.set_slates(slates=slates)
     # calculate bids by simulation
-    # print('calculating bids ...')
-    # TODO greedy_ad = greedy_learner.participate_auction()
-    # print('finish calculating bids')
+    print('calculating bids ...')
+    greedy_simulation_start = datetime.now()
+    # todo greedy_ad = greedy_learner.participate_auction()
+    print(f'calculated bids in {datetime.now() - greedy_simulation_start}')
     # do environment sample
+
     ads = []
     for advertiser in advertisers:
         ads.append(advertiser.ad)
+    time = datetime.now()
     social_influence = AdPlacementSimulator.simulate_ad_placement(
         network=network_instance,
         ads=ads,
         slates=slates,
         iterations=1,  # iterations = 1 means network sample
         use_estimated_qualities=False,  # use_estimated_qualities=False means true qualities from real network
-        estimated_activations=None   # use_estimated_activations=None means true activations from real network
+        estimated_activations=None   # use_estimated_activations=False means true activations from real network
     )
+    elapsed_time = datetime.now() - time
+    print(f'environment sample time {elapsed_time}')
 
-    # do rewards and bandit update
-    rewards = {}
-
-    for ad_id in social_influence.keys():
-        rewards[ad_id] = {}
+    rewards_qualities = {}
+    for advertiser in advertisers:
+        ad_id = advertiser.id
+        rewards_qualities[ad_id] = {}
         for category in range(constants.CATEGORIES):
-            rewards[ad_id][category] = -1
-    # calculate rewards
+            rewards_qualities[ad_id][category] = -1
+    # calculate rewards for quality estimates
     for category in range(constants.CATEGORIES):
         slate = slates[category]
         susceptible_nodes = nodes_per_category[category]
         for slot in slate:
             ad = slot.assigned_ad
             number_of_seeds = social_influence[ad.ad_id][category]['seeds']
-            # print(f"current sample estimate:{sample_estimated_qualities[ad.ad_id][category]['estimate']}   "
-            #       f"number of samples:{sample_estimated_qualities[ad.ad_id][category]['number_of_samples']}   "
-            #       f"new sample: {(number_of_seeds / susceptible_nodes)}   "
-            #       f"number of seeds: {number_of_seeds}   susceptible nodes: {susceptible_nodes}   "
-            #       f"slot prominence: {slot.slot_prominence}   "
-            #       f"ad id: {ad.ad_id}")
-            old_estimate = sample_estimated_qualities[ad.ad_id][category]['estimate']
-            number_of_samples = sample_estimated_qualities[ad.ad_id][category]['number_of_samples']
-            new_sample = (number_of_seeds / susceptible_nodes) / constants.SLOT_VISIBILITY
-            # new_sample = (number_of_seeds / nodes_per_category[category]) / slot.slot_prominence
-            estimated_quality = (old_estimate * number_of_samples + new_sample) / (number_of_samples + 1)
-
-            sample_estimated_qualities[ad.ad_id][category]['number_of_samples'] += 1
-            sample_estimated_qualities[ad.ad_id][category]['estimate'] = estimated_quality
+            measured_quality = (number_of_seeds / susceptible_nodes) / constants.SLOT_VISIBILITY
+            # measured_quality = (number_of_seeds / nodes_per_category[category]) / slot.slot_prominence
             susceptible_nodes -= number_of_seeds
-            if susceptible_nodes <= 0:
+            if susceptible_nodes <= constants.number_of_bandit_arms:
+                print("Not enough samples.")
                 break
-            error = abs(new_sample - bandit_estimated_qualities[ad.ad_id][category])
-
+            error = abs(measured_quality - bandit_estimated_qualities[ad.ad_id][category])
             if error <= 1 / constants.number_of_bandit_arms:
-                rewards[ad.ad_id][category] = 1
+                rewards_qualities[ad.ad_id][category] = 1
             else:
-                rewards[ad.ad_id][category] = 0
-
+                rewards_qualities[ad.ad_id][category] = 0
             real_error = abs(slot.assigned_ad.real_quality - bandit_estimated_qualities[ad.ad_id][category])
-            plot_regret_bandit[ad.ad_id][category] = real_error
-            plot_rewards_bandit[ad.ad_id][category] = 1 - real_error
-            random_regret = random.uniform(0, 1)
-            plot_regret_random[ad.ad_id][category] = random_regret
-            plot_rewards_random[ad.ad_id][category] = 1 - random_regret
+            plot_regret_bandit[ad.ad_id][category] = np.append(plot_regret_bandit[ad.ad_id][category], real_error)
+            plot_rewards_bandit[ad.ad_id][category] = np.append(plot_rewards_bandit[ad.ad_id][category], 1 - real_error)
+            random_estimated_quality = random.choice(constants.bandit_quality_values)
+            random_regret = abs(slot.assigned_ad.real_quality - random_estimated_quality)
+            plot_regret_random[ad.ad_id][category] = np.append(plot_regret_random[ad.ad_id][category], random_regret)
+            plot_rewards_random[ad.ad_id][category] = np.append(plot_rewards_random[ad.ad_id][category],
+                                                                1 - random_regret)
 
             if learn_from_first_slot_only:
                 break
 
+    # do rewards and bandit update for activation estimate
+    rewards_activations = {}
+    for from_category in constants.categories:
+        rewards_activations[from_category] = {}
+        for to_category in range(constants.CATEGORIES):
+            rewards_activations[from_category][to_category] = -1
+    # calculate rewards
+    for from_category in constants.categories:
+        for to_category in constants.categories:
+
+            if network_instance.cross_category_edges[from_category][to_category] != 0:
+                measured_activation = network_instance.activation_realization[from_category][to_category] / \
+                                      network_instance.cross_category_edges[from_category][to_category]
+            else:
+                measured_activation = 0
+            # print(
+            #     f'n{network_instance.activation_realization[from_category][to_category]}, '
+            #     f'tot{network_instance.cross_category_edges[from_category][to_category]}, '
+            #     f'act{measured_activation}')
+            error_activation = abs(measured_activation - bandit_estimated_activations[from_category][to_category])
+
+            if error_activation <= 1 / constants.number_of_bandit_arms:
+                rewards_activations[from_category][to_category] = 1
+            else:
+                rewards_activations[from_category][to_category] = 0
+
+            real_error_activation = abs(network_instance.weight_matrix[from_category][to_category] - bandit_estimated_activations[from_category][to_category])
+            plot_regret_bandit_activation[from_category][to_category] = np.append(plot_regret_bandit_activation[from_category][to_category], real_error_activation)
+            plot_rewards_bandit_activation[from_category][to_category] = np.append(plot_rewards_bandit_activation[from_category][to_category], 1 - real_error_activation)
+
+            random_estimated_activation = random.choice(constants.bandit_activation_values)
+            random_regret_activation = abs(network_instance.weight_matrix[from_category][to_category] - random_estimated_activation)
+
+            plot_regret_random_activation[from_category][to_category] = np.append(plot_regret_random_activation[from_category][to_category], random_regret_activation)
+            plot_rewards_random_activation[from_category][to_category] = np.append(plot_rewards_random_activation[from_category][to_category], 1 - random_regret_activation)
+
     # update bandits with rewards
-    publisher.update_bandits_quality(rewards=rewards)
+    publisher.update_bandits_activations(rewards=rewards_activations)
+    # update bandits with rewards
+    publisher.update_bandits_quality(rewards=rewards_qualities)
 
+# # Create plot for activations
+# # Note: one experiment = one bandit (one bandit for each category and for each advertiser)
+for from_category in range(constants.CATEGORIES):
+    for to_category in range(constants.CATEGORIES):
+        plt.figure(0)
+        plt.xlabel("t")
+        plt.ylabel(f"Reward from category {from_category}, to cat {to_category}")
+        plt.plot(np.cumsum(plot_rewards_bandit_activation[from_category][to_category]), 'r')
+        plt.plot(np.cumsum(plot_rewards_random_activation[from_category][to_category]), 'g')
+        plt.legend(["Bandit", "Random"])
+        plt.show()
 
+        plt.figure(1)
+        plt.xlabel("t")
+        plt.ylabel(f"Regret ad {from_category}, cat {to_category}")
+        plt.plot(np.cumsum(plot_regret_bandit_activation[from_category][to_category]), 'r')
+        plt.plot(np.cumsum(plot_regret_random_activation[from_category][to_category]), 'g')
+        plt.legend(["Bandit", "Random"])
+        plt.show()
 
+print('true activation values:')
+for from_category in range(constants.CATEGORIES):
+    print(network_instance.weight_matrix[from_category][:])
+
+# Create plot for qualities
+# Note: one experiment = one bandit (one bandit for each category and for each advertiser)
+for advertiser in advertisers:
+    ad_id = advertiser.id
+    for category in range(constants.CATEGORIES):
+        plt.figure(0)
+        plt.xlabel("t")
+        plt.ylabel(f"Reward ad {ad_id}, cat {category}")
+        plt.plot(np.cumsum(plot_rewards_bandit[ad_id][category]), 'r')
+        plt.plot(np.cumsum(plot_rewards_random[ad_id][category]), 'g')
+        plt.legend(["Bandit", "Random"])
+        plt.show()
+
+        plt.figure(1)
+        plt.xlabel("t")
+        plt.ylabel(f"Regret ad {ad_id}, cat {category}")
+        plt.plot(np.cumsum(plot_regret_bandit[ad_id][category]), 'r')
+        plt.plot(np.cumsum(plot_regret_random[ad_id][category]), 'g')
+        plt.legend(["Bandit", "Random"])
+        plt.show()
+
+print('true quality values:')
+for advertiser in advertisers:
+    print(advertiser.id, advertiser.ad.real_qualities)
