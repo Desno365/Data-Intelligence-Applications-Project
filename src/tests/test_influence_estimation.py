@@ -12,15 +12,15 @@ import src.auction.vcg_auction
 def test_enumeration_estimation(n_nodes=3, fc=True, seeds=[0]):
     start_time = time.time()
     print('Run full enumeration and monte carlo, calculate error of estimation\n')
-    network = network.Network(n_nodes, fc)
-    average_active_nodes, ground_truth_activations = network.calculateActivations(seeds)
-    print('Network adjacency matrix:\n', network.adjacency_matrix)
+    network_instance = network.Network(n_nodes, fc)
+    average_active_nodes, ground_truth_activations = network_instance.calculateActivations(seeds)
+    print('Network adjacency matrix:\n', network_instance.adjacency_matrix)
     print('Average number of activated nodes and node activation probabilities (true values):\n', average_active_nodes, ground_truth_activations)
 
-    estimated_average_active_nodes, estimated_activation_probabilities = network.monteCarloEstimation()
+    estimated_average_active_nodes, estimated_activation_probabilities = network_instance.monteCarloEstimation()
     print('Average number of activated nodes and node activation probabilities (estimated values):\n', estimated_average_active_nodes, estimated_activation_probabilities)
 
-    error = network.evaluateError(ground_truth_activations, estimated_activation_probabilities)
+    error = network_instance.evaluateError(ground_truth_activations, estimated_activation_probabilities)
     print('error on node activation probabilities: ', error)
     print('Execution time: ', time.time() - start_time, ' seconds')
 
@@ -31,9 +31,9 @@ def test_monte_carlo_speed():
     t = []
     for n_nodes in range(1, 1000, 10):
         print('testing with ', n_nodes, ' nodes')
-        network = network.Network(n_nodes, True)
+        network_instance = network.Network(n_nodes, True)
         start_time = time.time()
-        estimated_average_active_nodes, estimated_activation_probabilities = network.monteCarloEstimation(iterations=10)
+        estimated_average_active_nodes, estimated_activation_probabilities = network_instance.monteCarloEstimation(iterations=10)
         run_time = time.time() - start_time
         # print(n_nodes, ' nodes, ', time.time() - start_time, ' seconds')
         n.append(n_nodes)
@@ -43,14 +43,14 @@ def test_monte_carlo_speed():
 
 
 def test_monte_carlo():
-    network = network.Network(1, True)
-    print(network.adjacency_matrix)
-    _ = network.monteCarloEstimation(iterations=1)
+    network_instance = network.Network(1, True)
+    print(network_instance.adjacency_matrix)
+    _ = network_instance.monteCarloEstimation(iterations=1)
     # for nod in active_nodes:
     #     network.nodes[nod].z += 1
 
 def test_monte_carlo_with_publisher():
-    network = network.Network(100, False)
+    network_instance = network.Network(100, False)
     publisher = publisher.Publisher(network)
 
     ad_list = [ad.Ad(ad_id=i, ad_quality=0.5, ad_value=1) for i in range(10)]

@@ -53,11 +53,16 @@ class AdPlacementSimulator:
         # Output: dictionary with ad_id keys (uniquely identifies advertiser) specifying the average number of seeds
         # and activated nodes
         # Note: having the division by ad_id is equivalent as dividing by advertiser since every advertiser has one ad.
-        time = datetime.now()
+        if constants.settings['executionTimePrint']:
+            time = datetime.now()
         if not use_estimated_activations:
             estimated_activations = None
-        social_influence = network.estimateSocialInfluence(slates=slates, iterations=iterations, use_estimated_qualities=use_estimated_qualities, estimated_activation_probabilities=estimated_activations)
-        print('estimate social influence', datetime.now()-time)
+        social_influence = network.estimateSocialInfluence(slates=slates,
+                                                           iterations=iterations,
+                                                           use_estimated_qualities=use_estimated_qualities,
+                                                           estimated_activation_probabilities=estimated_activations)
+        if constants.settings['executionTimePrint']:
+            print('estimate social influence', datetime.now()-time)
         #network.prettyPrintSocialInfluence(social_influence)
 
         # Set price to zero for all:

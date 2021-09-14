@@ -159,7 +159,7 @@ class GreedyLearningAdvertiser(Advertiser):
                     indices.append(i)
             best_arm = random.choice(indices)
             # best_arm = marginal_gains.index(max(marginal_gains))
-            self.gain_history.append(max(self.category_gain))
+            self.simulation_gain_history.append(max(self.category_gain))
 
             self.bids[best_arm] = self.bids[best_arm].next_elem()
             self.previous_gain = self.category_gain[best_arm]
@@ -176,11 +176,11 @@ class GreedyLearningAdvertiser(Advertiser):
         plt.figure(0)
         plt.xlabel("Step")
         plt.ylabel("Gain")
-        plt.plot(self.gain_history, 'r')
+        plt.plot(self.simulation_gain_history, 'r')
         plt.show()
 
         plt.figure(1)
         plt.xlabel("Step")
         plt.ylabel("Marginal Gain")
-        plt.plot([self.gain_history[i] - self.gain_history[i - 1] for i in range(1, len(self.gain_history))], 'r')
+        plt.plot([self.simulation_gain_history[i] - self.simulation_gain_history[i - 1] for i in range(1, len(self.simulation_gain_history))], 'r')
         plt.show()
