@@ -109,6 +109,10 @@ for day in range(number_of_days):
     elapsed_time = datetime.now() - time
     print(f'environment sample time {elapsed_time}')
 
+    # Report results to advertisers
+    for advertiser in advertisers:
+        advertiser.report_daily_results(social_influence=social_influence)
+
     if learn_qualities:
         rewards_qualities = {}
         for advertiser in advertisers:

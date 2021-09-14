@@ -28,12 +28,13 @@ class GreedyLearningAdvertiser(Advertiser):
         self.network = network
         self.rival_ads = None
         self.slates = None
-        self.gain_history = []
+        self.simulation_gain_history = []
         self.use_estimate_activations = use_estimate_activations
 
     def participate_auction(self) -> Ad:
         # Reset learner
         self.stop_improving = False
+        self.simulation_gain_history = []
         self.category_gain = [0 for _ in range(constants.CATEGORIES)]
         self.previous_gain = 0
         self.bids = [BidsEnum.OFF for _ in range(constants.CATEGORIES)]  # Reset the bids to zero
@@ -88,41 +89,8 @@ class GreedyLearningAdvertiser(Advertiser):
                                                                                   use_estimated_activations=self.use_estimate_activations,
                                                                                   estimated_activations=self.estimated_activations)
                     elapsed_time = datetime.now() - time
-                    print(f'simulate ad placement in greedy takes {elapsed_time}')
-                    # print('debug print slates after auction')
-                    # for slate in self.slates:
-                    #     print('slate start')
-                    #     for slot in slate:
-                    #         print(slot)
-                    activated_nodes = 0
-                    seeds = {}
-                    prices = {}
-
-                    if self.id in social_influence.keys():
-                        for category in social_influence[self.id].keys():
-                            activated_nodes += social_influence[self.id][category]['activatedNodes']
-                            seeds[category] = social_influence[self.id][category]["seeds"]
-                            prices[category] = social_influence[self.id][category]["price"]
-                    else:
-                        if constants.settings['advertiserPrint']:
-                            print('greedy advertiser ad is not in the slate')
-                            print(self.id, social_influence.keys())
-
-                    if constants.settings['advertiserPrint']:
-                        print(f"Simulated the network. Nodes activated: {activated_nodes}. Seeds: {seeds}")
-
-                    self.category_gain[i] = activated_nodes * self.ad_value
-                    if constants.settings['advertiserPrint']:
-                        print(f"Gain from activated nodes: {self.category_gain[i]}")
-
-                    # The price the advertiser must pay. Seeds are returned in a dictionary indexed by category.
-                    # To calculate the payment, for each category take its price per click and multiply it by the number
-                    # of seeds in that category.
-                    for category in seeds.keys():
-                        self.category_gain[i] -= (prices[category] * seeds[category])
+                    self.category_gain[i] = self.compute_gain_from_social_influence(social_influence=social_influence)
                     self.already_increased[i] = True
-                    if constants.settings['advertiserPrint']:
-                        print(f"Gain after payment: {self.category_gain[i]}")
 
             # Here all the bids have been improved one time and the gain is noted.
 
@@ -133,9 +101,10 @@ class GreedyLearningAdvertiser(Advertiser):
             self.improve()
 
     def improve(self) -> None:
-        # TODO: Here I update each marginal gain with current gain - previous gain. Current gain depends on category,
+        # Here I update each marginal gain with current gain - previous gain. Current gain depends on category,
         # but previous gain is the maximum gain of the preceding step. This often results in marginal gains being all
         # negative and the improvement stops after one step. Consider reworking this.
+        #
         # BUT my gain is the total gain computed on all categories. If the marginal gain is negative then I have
         # no incentive to take my most recent tentative.
         marginal_gains = [elem - self.previous_gain for elem in self.category_gain]
@@ -145,7 +114,6 @@ class GreedyLearningAdvertiser(Advertiser):
             print(f"ALL MARGINAL GAINS ARE NEGATIVE. Marginal gains: {marginal_gains}")
             print(f"Previous gain is {self.previous_gain}")
             print(f"Bids are {self.bids}")
-            # print(f"Continuing anyway...")
             print("\n")
             self.stop_improving = True
 

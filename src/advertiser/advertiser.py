@@ -26,6 +26,7 @@ class Advertiser:
             self.estimated_activations[from_category] = {}
             for to_category in range(constants.CATEGORIES):
                 self.estimated_activations[from_category][to_category] = random.random()
+        self.daily_gain_history = np.array([])
 
     def participate_auction(self) -> Ad:
         return self.ad
