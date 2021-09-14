@@ -1,10 +1,6 @@
-import numpy as np
-from matplotlib import pyplot as plt
-
-from src import slot, constants, network
-from src.ad_placement_simulator import AdPlacementSimulator
-from src.advertiser.stochastic_stationary_advertiser import StochasticStationaryAdvertiser
+from src import constants, network
 from src.advertiser.greedy_learning_advertiser import GreedyLearningAdvertiser
+from src.advertiser.stochastic_stationary_advertiser import StochasticStationaryAdvertiser
 from src.utils import Utils
 
 NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 10
@@ -12,7 +8,7 @@ NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 10
 network_instance = network.Network(50, False)
 
 print("Slates:")
-slates = constants.get_slates()
+slates = constants.slates
 Utils.print_array(slates)
 
 print("Ads:")
@@ -25,6 +21,6 @@ greedy_learner.set_slates(slates=slates)
 advertisers.append(greedy_learner)
 greedy_ad = greedy_learner.participate_auction()
 
-greedy_learner.plot_history()
+greedy_learner.plot_gain_history_in_single_day()
 
 

@@ -84,14 +84,15 @@ for day in range(number_of_days):
         ad.set_estimated_qualities(estimated_q)
         advertiser.estimated_activations = bandit_estimated_activations
     # set context for simulation for calculating best bids
-    slates = constants.get_slates()
-    greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in stochastic_advertisers])
-    greedy_learner.set_slates(slates=slates)
-    # calculate bids by simulation
-    print('calculating bids ...')
-    greedy_simulation_start = datetime.now()
-    # todo greedy_ad = greedy_learner.participate_auction()
-    print(f'calculated bids in {datetime.now() - greedy_simulation_start}')
+    slates = constants.slates
+    if use_greedy_advertiser:
+        greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in stochastic_advertisers])
+        greedy_learner.set_slates(slates=slates)
+        # calculate bids by simulation
+        print('calculating bids ...')
+        greedy_simulation_start = datetime.now()
+        greedy_ad = greedy_learner.participate_auction()
+        print(f'calculated bids in {datetime.now() - greedy_simulation_start}')
     # do environment sample
 
     ads = []

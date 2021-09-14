@@ -13,7 +13,7 @@ class Publisher:
         self.network = network
         self.advertisers = advertisers
         self.auctions = []
-        self.slates = constants.get_slates()
+        self.slates = constants.slates
 
         self.bandits_quality = {}
         # bandits: {

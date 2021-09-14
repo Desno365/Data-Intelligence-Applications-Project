@@ -34,7 +34,6 @@ class AdPlacementSimulator:
             auction_ads_for_the_category = []
             for ad in ads:
                 new_auction_ad = AuctionAd(
-                    category=current_category,
                     ad_id=ad.ad_id,
                     estimated_quality=ad.estimated_qualities[current_category],
                     real_quality=ad.real_qualities[current_category],

@@ -140,7 +140,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.category_gain = [0 for _ in range(constants.CATEGORIES)]
         self.already_increased = [False for _ in range(constants.CATEGORIES)]
 
-    def plot_history(self) -> None:
+    def plot_gain_history_in_single_day(self) -> None:
         plt.figure(0)
         plt.xlabel("Step")
         plt.ylabel("Gain")

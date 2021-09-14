@@ -13,7 +13,7 @@ from src.utils import Utils
 class TestVCGAuction(TestCase):
     def test_perform_auction(self):
         ads = TestVCGAuction.get_example_ads_array()
-        slots = constants.get_slates()[0]
+        slots = constants.slates[0]
 
         Utils.print_array(ads)
         slots_assigned = VCGAuction.perform_auction(available_ads=ads, slate=slots)
@@ -24,7 +24,7 @@ class TestVCGAuction(TestCase):
         number_of_advertisers = 8
         for _ in range(number_of_auctions_to_try):
             ads = TestVCGAuction.get_random_ads_array(number_of_advertisers)
-            slots = constants.get_slates()[0]
+            slots = constants.slates[0]
 
             Utils.print_array(ads)
             slots_assigned = VCGAuction.perform_auction(available_ads=ads, slate=slots)
@@ -37,10 +37,10 @@ class TestVCGAuction(TestCase):
             Slot(slot_id=2, slot_prominence=0.80 * 0.80 * 0.80),
         ]
         ads = [
-            AuctionAd(ad_id=0, estimated_quality=0.05, bid=BidsEnum.VERY_SMALL.value),
-            AuctionAd(ad_id=1, estimated_quality=0.15, bid=BidsEnum.SMALL.value),
-            AuctionAd(ad_id=2, estimated_quality=0.10, bid=BidsEnum.MEDIUM.value),
-            AuctionAd(ad_id=3, estimated_quality=0.20, bid=BidsEnum.MAX.value),
+            AuctionAd(ad_id=0, estimated_quality=0.05, real_quality=0.05, bid=BidsEnum.VERY_SMALL.value),
+            AuctionAd(ad_id=1, estimated_quality=0.15, real_quality=0.15, bid=BidsEnum.SMALL.value),
+            AuctionAd(ad_id=2, estimated_quality=0.10, real_quality=0.10, bid=BidsEnum.MEDIUM.value),
+            AuctionAd(ad_id=3, estimated_quality=0.20, real_quality=0.20, bid=BidsEnum.MAX.value),
         ]
         gain = VCGAuction.get_total_gain_of_best_allocation(ads=ads, slate=slots)
         expected_gain = (0.80 * 0.20 * BidsEnum.MAX.value) + (0.80 * 0.80 * 0.10 * BidsEnum.MEDIUM.value) + (0.80 * 0.80 * 0.80 * 0.15 * BidsEnum.SMALL.value)
@@ -65,9 +65,9 @@ class TestVCGAuction(TestCase):
             Slot(slot_id=1, slot_prominence=0.80 * 0.80),
             Slot(slot_id=2, slot_prominence=0.80 * 0.80 * 0.80),
         ]
-        slots[0].update_assigned_ad(AuctionAd(ad_id=9, estimated_quality=0.50, bid=BidsEnum.MAX.value))
-        slots[1].update_assigned_ad(AuctionAd(ad_id=8, estimated_quality=0.45, bid=BidsEnum.MEDIUM.value))
-        slots[2].update_assigned_ad(AuctionAd(ad_id=7, estimated_quality=0.40, bid=BidsEnum.SMALL.value))
+        slots[0].update_assigned_ad(AuctionAd(ad_id=9, estimated_quality=0.50, real_quality=0.50, bid=BidsEnum.MAX.value))
+        slots[1].update_assigned_ad(AuctionAd(ad_id=8, estimated_quality=0.45, real_quality=0.45, bid=BidsEnum.MEDIUM.value))
+        slots[2].update_assigned_ad(AuctionAd(ad_id=7, estimated_quality=0.40, real_quality=0.40, bid=BidsEnum.SMALL.value))
 
         # Test gain of whole slate.
         gain = VCGAuction.get_total_gain_of_allocation(allocated_slate=slots, except_ad_id=None)
@@ -93,23 +93,23 @@ class TestVCGAuction(TestCase):
     def get_example_ads_array() -> List[AuctionAd]:
         # random_bid = random.choice(list(BidsEnum)).value
         ads = [
-            AuctionAd(ad_id=0, estimated_quality=0.05, bid=BidsEnum.OFF.value),
-            AuctionAd(ad_id=1, estimated_quality=0.10, bid=BidsEnum.VERY_SMALL.value),
-            AuctionAd(ad_id=2, estimated_quality=0.15, bid=BidsEnum.SMALL.value),
-            AuctionAd(ad_id=3, estimated_quality=0.20, bid=BidsEnum.MEDIUM.value),
-            AuctionAd(ad_id=4, estimated_quality=0.25, bid=BidsEnum.MAX.value),
-            AuctionAd(ad_id=5, estimated_quality=0.30, bid=BidsEnum.OFF.value),
-            AuctionAd(ad_id=6, estimated_quality=0.35, bid=BidsEnum.VERY_SMALL.value),
-            AuctionAd(ad_id=7, estimated_quality=0.40, bid=BidsEnum.SMALL.value),
-            AuctionAd(ad_id=8, estimated_quality=0.45, bid=BidsEnum.MEDIUM.value),
-            AuctionAd(ad_id=9, estimated_quality=0.50, bid=BidsEnum.MAX.value),
+            AuctionAd(ad_id=0, estimated_quality=0.05, real_quality=0.05, bid=BidsEnum.OFF.value),
+            AuctionAd(ad_id=1, estimated_quality=0.10, real_quality=0.10, bid=BidsEnum.VERY_SMALL.value),
+            AuctionAd(ad_id=2, estimated_quality=0.15, real_quality=0.15, bid=BidsEnum.SMALL.value),
+            AuctionAd(ad_id=3, estimated_quality=0.20, real_quality=0.20, bid=BidsEnum.MEDIUM.value),
+            AuctionAd(ad_id=4, estimated_quality=0.25, real_quality=0.25, bid=BidsEnum.MAX.value),
+            AuctionAd(ad_id=5, estimated_quality=0.30, real_quality=0.30, bid=BidsEnum.OFF.value),
+            AuctionAd(ad_id=6, estimated_quality=0.35, real_quality=0.35, bid=BidsEnum.VERY_SMALL.value),
+            AuctionAd(ad_id=7, estimated_quality=0.40, real_quality=0.40, bid=BidsEnum.SMALL.value),
+            AuctionAd(ad_id=8, estimated_quality=0.45, real_quality=0.45, bid=BidsEnum.MEDIUM.value),
+            AuctionAd(ad_id=9, estimated_quality=0.50, real_quality=0.50, bid=BidsEnum.MAX.value),
         ]
         return ads
 
     @staticmethod
     def run_random_auction() -> None:
         ads = TestVCGAuction.get_example_ads_array()
-        slots = constants.get_slates()[0]
+        slots = constants.slates()[0]
 
         Utils.print_array(ads)
         slots_assigned = VCGAuction.perform_auction(available_ads=ads, slate=slots)
@@ -119,6 +119,7 @@ class TestVCGAuction(TestCase):
     def get_random_ads_array(number_of_advertisers: int) -> List[AuctionAd]:
         ads = []
         for i in range(number_of_advertisers):
-            ads.append(AuctionAd(ad_id=i, estimated_quality=random.uniform(0.05, 1), bid=random.choice(list(BidsEnum)).value),)
-        ads.append(AuctionAd(ad_id=number_of_advertisers, estimated_quality=1, bid=random.choice(list(BidsEnum)).value))
+            random_quality = random.uniform(0.05, 1)
+            ads.append(AuctionAd(ad_id=i, estimated_quality=random_quality, real_quality=random_quality, bid=random.choice(list(BidsEnum)).value),)
+        ads.append(AuctionAd(ad_id=number_of_advertisers, estimated_quality=1, real_quality=1, bid=random.choice(list(BidsEnum)).value))
         return ads
