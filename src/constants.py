@@ -18,7 +18,13 @@ categories = [0, 1, 2, 3, 4]
 number_of_nodes = 100
 average_number_neighbours = 2 * math.log(number_of_nodes)
 sigma_neighbours = math.log(number_of_nodes)
-cross_category_edge_probability = 0.1
+connection_p_far = 0.05
+connection_p_close = 0.1
+edge_activation_p_far = 0.05
+edge_activation_p_close = 0.1
+edge_activation_p_same = 0.15
+category_proportions = [625/9881, 1625/9881, 3225/9881, 5785/9881, 1]
+do_drawings = True
 # the number of ad slots in a slate
 SLATE_DIMENSION = 3
 

@@ -53,12 +53,17 @@ class Network:
         for category in constants.categories:
             self.nodes_by_category[category] = []
         for i in range(self.n):
-            chosen_category = random.choice(constants.categories)
+            sample = random.random()
+            for category in constants.categories:
+                if sample < constants.category_proportions[category]:
+                    chosen_category = category
+                    break
+            # chosen_category = random.choice(constants.categories)
             newNode = Node(chosen_category)
             newNode.id = i
             self.nodes.append(newNode)
             self.nodes_by_category[chosen_category].append(i)
-            self.drawing_network.add_node(i, category=chosen_category)
+            self.drawing_network.add_node(i, category=chosen_category, is_seed=False, is_active=False)
         print('done')
         # Create edges
         print('creating edges')
@@ -78,19 +83,23 @@ class Network:
                     number_of_neighbours = 0
                 for ii in range(number_of_neighbours):
                     available_nodes = []
-                    if random.random() < constants.cross_category_edge_probability:
-                        available_categories = list(filter(lambda c: c != node_category, constants.categories))
-                        for category in available_categories:
-                            available_nodes += self.nodes_by_category[category]
+                    sample = random.random()
+                    if sample < constants.connection_p_far:
+                        available_categories = list(filter(lambda c: abs(c-node_category) > 1, constants.categories))
+
+                    elif sample < constants.connection_p_far + constants.connection_p_close:
+                        available_categories = list(filter(lambda c: abs(c-node_category) == 1, constants.categories))
                     else:
-                        available_nodes = self.nodes_by_category[node_category]
+                        available_categories = [node_category]
+                    for category in available_categories:
+                        available_nodes += self.nodes_by_category[category]
                     new_node = random.choice(available_nodes)
                     if new_node not in extracted_node:
                         extracted_node.append(new_node)
                         self.cross_category_edges[node_category][self.nodes[new_node].category] += 1
                         # this data structure is used to calculate activated edges faster
                         self.edges.append((i, new_node))
-                        self.drawing_network.add_edge(i, new_node)
+                        self.drawing_network.add_edge(i, new_node, is_active=False)
                     self.adjacency_matrix[i][extracted_node[-1]] = 1
         print('done')
         for i in range(n):
@@ -98,7 +107,13 @@ class Network:
         self.weight_matrix = np.zeros((len(constants.categories), len(constants.categories)))
         for i in range(len(constants.categories)):
             for ii in range(len(constants.categories)):
-                self.weight_matrix[i][ii] = random.random()
+                if i == ii:
+                    activation_probability = constants.edge_activation_p_same
+                elif abs(i-ii) == 1:
+                    activation_probability = constants.edge_activation_p_close
+                else:
+                    activation_probability = constants.edge_activation_p_far
+                self.weight_matrix[i][ii] = activation_probability
         print(f'network created in {datetime.now() - start_time}')
 
     def generate_live_edge_graph(self, activation_probabilities=None):
@@ -116,6 +131,7 @@ class Network:
                 live_edge_adjacency_matrix[edge[0]][edge[1]] = 1
                 self.live_edges.append(edge)
                 self.activation_realization[self.nodes[edge[0]].category][self.nodes[edge[1]].category] += 1
+                # self.drawing_network.edges[edge[0], edge[1]]["is_active"] = True
         # old code a bit slot
         # for i in range(self.n):
         #     for ii in range(self.n):
@@ -157,20 +173,33 @@ class Network:
     # # calculate activated nodes in the live edge graph (with stack)
     def depth_first_search(self, activated_nodes, live_edge_adjacency_matrix):
         seeds = activated_nodes.copy()
+        processed_nodes = []
+        for node in seeds:
+            self.drawing_network.nodes[node]['is_seed'] = True
         for seed in seeds:
+            start_time = datetime.now()
             stack = []
             stack.append(seed)
             while len(stack):
                 s = stack.pop()
+                self.drawing_network.nodes[s]['is_active'] = True
                 # faster code
                 for edge in self.live_edges:
                     if edge[0] == s:
+                        if edge[1] not in processed_nodes:
+                            stack.append(edge[1])
+                            processed_nodes.append(edge[1])
                         activated_nodes.append(edge[1])
+                        self.drawing_network.nodes[edge[1]]['is_active'] = True
+                        self.drawing_network.edges[edge[0], edge[1]]["is_active"] = True
+                    # if progress_index % 1000000 == 0:
+                    #     print('processed 1000000 edges')
                 # old code a bit slow
                 # for k in range(self.n):
                 #     if live_edge_adjacency_matrix[s][k] == 1:
                 #         if k not in activated_nodes:
                 #             activated_nodes.append(k)
+            print(f'processed one seed in {datetime.now() - start_time}')
         return activated_nodes
 
     # # input seeds (nodes that start the cascade)
