@@ -26,7 +26,7 @@ edge_activation_p_same = 0.15
 category_proportions = [625/9881, 1625/9881, 3225/9881, 5785/9881, 1]
 do_drawings = True
 # the number of ad slots in a slate
-SLATE_DIMENSION = 3
+SLATE_DIMENSION = 6
 
 # The probability of clicking a slot
 SLOT_VISIBILITY = 0.50
