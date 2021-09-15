@@ -10,9 +10,9 @@ from src.advertiser.stochastic_stationary_advertiser import StochasticStationary
 
 # ################ Prepare experiment. ################ #
 NUMBER_OF_ADVERTISERS = constants.SLATE_DIMENSION + 1
-MAX_NUMBER_OF_ITERATIONS_EXPONENT = 2
-BASELINE_NUMBER_OF_ITERATIONS = 1000
-NUMBER_OF_EXPERIMENTS = 10
+MAX_NUMBER_OF_ITERATIONS_EXPONENT = 3
+BASELINE_NUMBER_OF_ITERATIONS = 10000
+NUMBER_OF_EXPERIMENTS = 10000
 NUMBER_OF_NODES = 100
 
 network_instance = network.Network(NUMBER_OF_NODES, False)
