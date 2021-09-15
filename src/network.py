@@ -193,7 +193,8 @@ class Network:
                         if edge[1] not in processed_nodes:
                             stack.append(edge[1])
                             processed_nodes.append(edge[1])
-                            cascade.append(edge[1])
+                            if edge[1] not in cascade:
+                                cascade.append(edge[1])
                         self.drawing_network.nodes[edge[1]]['is_active'] = True
                         self.drawing_network.edges[edge[0], edge[1]]["is_active"] = True
                     # if progress_index % 1000000 == 0:
@@ -312,8 +313,8 @@ class Network:
             i.activation_probability = 0
 
         for i in range(iterations):
-            if i % 1000 == 0:
-                print('iteration', i)
+            if i % 1000 == 0 and i != 0:
+                print('MC iteration', i)
             # start = datetime.now()
             # generate live edge graph and calculate activated nodes
             # live_edge_start = datetime.now()
