@@ -38,7 +38,7 @@ network_connectivity = 0.4
 floatingPointMargin = 0.001
 
 # Number of iterations of the Monte Carlo simulation.
-greedy_simulation_iterations = 3
+greedy_simulation_iterations = 100
 
 # the number of bandit arms and their values
 number_of_bandit_arms = 5

@@ -1,21 +1,23 @@
 import random
 
+import networkx as nx
 import numpy as np
-from matplotlib import pyplot as plt, colors
+from matplotlib import pyplot as plt
 
-from src import slot, constants, network
+from src import constants, network
 from src.ad_placement_simulator import AdPlacementSimulator
 from src.advertiser.stochastic_stationary_advertiser import StochasticStationaryAdvertiser
-from src.utils import Utils
-import networkx as nx
 
 # ################ Prepare experiment. ################ #
-
 NUMBER_OF_ADVERTISERS = constants.SLATE_DIMENSION + 1
+MAX_NUMBER_OF_ITERATIONS_EXPONENT = 2
+BASELINE_NUMBER_OF_ITERATIONS = 1000
+NUMBER_OF_EXPERIMENTS = 10
+NUMBER_OF_NODES = 100
 
-network_instance = network.Network(500, False)
+network_instance = network.Network(NUMBER_OF_NODES, False)
 live_edges, _ = network_instance.generate_live_edge_graph()
-network_instance.depth_first_search([random.randint(0, 499) for i in range(3)], live_edges)
+network_instance.depth_first_search([random.randint(0, NUMBER_OF_NODES-1) for i in range(3)], live_edges)
 
 slates = constants.slates
 advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(NUMBER_OF_ADVERTISERS)]
@@ -67,41 +69,48 @@ plt.show()
 # ################ Run experiment. ################ #
 number_of_activated_nodes_per_experiment = []
 list_iterations = []
-log_range = np.logspace(0, 3, num=100, dtype='int')  # Starting from 10^0 to 10^4.
+log_range = np.logspace(0, MAX_NUMBER_OF_ITERATIONS_EXPONENT, num=NUMBER_OF_EXPERIMENTS, dtype='int')  # Starting from 10^0 to 10^4.
 log_range = list(dict.fromkeys(log_range))
-log_range = [1, 5, 10, 50]
+log_range.append(BASELINE_NUMBER_OF_ITERATIONS)  # Baseline (interpreted as the run with the highest number of iterations)
 print("Using these values as possible iterations:")
 print(log_range)
 
 for iterations in log_range:
     print(f"#################### Running with {str(iterations)} iterations")
     list_iterations.append(iterations)
-    social_influence = AdPlacementSimulator.simulate_ad_placement(network=network_instance,
-                                                                  ads=advertisements,
-                                                                  slates=slates,
-                                                                  use_estimated_qualities=False,
-                                                                  use_estimated_activations=False,
-                                                                  iterations=iterations)
+    social_influence = AdPlacementSimulator.simulate_ad_placement(
+        network=network_instance,
+        ads=advertisements,
+        slates=slates,
+        use_estimated_qualities=False,
+        use_estimated_activations=False,
+        iterations=iterations
+    )
+    total_activated_nodes = 0
     for category in constants.categories:
-        n = social_influence[advertisers[0].id][category]['activatedNodes']
-    number_of_activated_nodes_per_experiment.append(n)
-    print(n)
-best_performance = number_of_activated_nodes_per_experiment[-1]
+        total_activated_nodes += social_influence[advertisers[0].id][category]['activatedNodes']
+    number_of_activated_nodes_per_experiment.append(total_activated_nodes)
+
+# ################ Prepare result. ################ #
+best_performance = number_of_activated_nodes_per_experiment.pop()  # Baseline
+log_range.pop()  # Baseline
+absolute_performance_gap = [abs(best_performance - activated_nodes) for activated_nodes in number_of_activated_nodes_per_experiment]
 
 # ################ Plot result. ################ #
+plt.rcParams["figure.figsize"] = (8, 6)
 
 plt.figure(0)
 plt.xlabel("Iterations")
 plt.ylabel("Activated nodes")
 plt.plot(log_range, number_of_activated_nodes_per_experiment, 'r')
-plt.plot([best_performance for i in range(len(number_of_activated_nodes_per_experiment))], 'b--')
-plt.ylim(ymin=0)
+plt.plot(log_range, [best_performance for i in range(len(number_of_activated_nodes_per_experiment))], 'b--')
+plt.legend(["Activated nodes per experiment", f"Baseline ({BASELINE_NUMBER_OF_ITERATIONS} iterations)"])
 plt.show()
 
 plt.figure(1)
 plt.xlabel("Iterations")
-plt.ylabel("Activated nodes")
-plt.plot(log_range, number_of_activated_nodes_per_experiment, 'r')
-plt.plot([best_perfomance for i in range(len(number_of_activated_nodes_per_experiment))], 'b--')
+plt.ylabel("Performance gap of activated nodes")
+plt.plot(log_range, absolute_performance_gap, 'r')
+plt.legend([" |baseline - experiment_value| "])
+plt.axis([0, None, 0, None])  # plt.axis([xmin, xmax, ymin, ymax])
 plt.show()
-

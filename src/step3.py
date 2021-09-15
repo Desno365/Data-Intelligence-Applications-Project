@@ -5,7 +5,7 @@ from src.utils import Utils
 
 NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 10
 
-network_instance = network.Network(50, False)
+network_instance = network.Network(100, False)
 
 print("Slates:")
 slates = constants.slates
@@ -15,12 +15,10 @@ print("Ads:")
 advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
 for advertiser in advertisers:
     print('ad id', advertiser.id, 'bids', advertiser.ad.bids)
-greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(5)], ad_value=1, network=network_instance)
+greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(constants.CATEGORIES)], ad_value=1, network=network_instance)
 greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in advertisers])
 greedy_learner.set_slates(slates=slates)
 advertisers.append(greedy_learner)
 greedy_ad = greedy_learner.participate_auction()
 
 greedy_learner.plot_gain_history_in_single_day()
-
-
