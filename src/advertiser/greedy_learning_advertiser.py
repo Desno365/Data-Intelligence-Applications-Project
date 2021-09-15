@@ -1,7 +1,5 @@
 import copy
-import datetime
 import random
-from datetime import datetime
 from typing import List
 
 from matplotlib import pyplot as plt
@@ -17,8 +15,7 @@ from src.slot import Slot
 
 class GreedyLearningAdvertiser(Advertiser):
 
-    def __init__(self, ad_real_qualities: List[float] = None, ad_value: float = 0.5, network: Network = None,
-                 use_estimate_activations=False):
+    def __init__(self, network: Network, use_estimated_activations: bool, ad_real_qualities: List[float] = None, ad_value: float = 0.5,):
         super().__init__(ad_real_qualities=ad_real_qualities, ad_value=ad_value)
         self.stop_improving = False
         self.already_increased = [False for _ in range(constants.CATEGORIES)]  # This list will keep track of which bid has already been increased
@@ -33,7 +30,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.simulation_price_history = []
         self.category_activated_nodes = [0 for _ in range(constants.CATEGORIES)]
         self.simulation_activated_nodes_history = []
-        self.use_estimate_activations = use_estimate_activations
+        self.use_estimated_activations = use_estimated_activations
 
     def participate_auction(self) -> Ad:
         # Reset learner
@@ -83,11 +80,15 @@ class GreedyLearningAdvertiser(Advertiser):
                     copy_ad.set_bids(self.improved_bids)
                     ads.append(copy_ad)
 
-                    social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads,
-                                                                                  slates=self.slates, iterations=constants.greedy_simulation_iterations,
-                                                                                  use_estimated_qualities=True,
-                                                                                  use_estimated_activations=self.use_estimate_activations,
-                                                                                  estimated_activations=self.estimated_activations)
+                    social_influence = AdPlacementSimulator.simulate_ad_placement(
+                        network=self.network,
+                        ads=ads,
+                        slates=self.slates,
+                        iterations=constants.greedy_simulation_iterations,
+                        use_estimated_qualities=True,
+                        use_estimated_activations=self.use_estimated_activations,
+                        estimated_activations=self.estimated_activations
+                    )
                     gain, total_value, total_price = self.compute_gain_from_social_influence(social_influence=social_influence)
                     self.category_gain[i] = gain
                     self.category_activated_nodes[i] = total_value

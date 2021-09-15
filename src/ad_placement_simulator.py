@@ -16,7 +16,7 @@ class AdPlacementSimulator:
             network: Network,  # the network of nodes.
             ads: List[Ad],  # the list of ads available, every ad comes from an advertiser.
             slates: List[List[Slot]],  # the list of slates, one slate per category (a slate is a list of slots).
-            use_estimated_qualities: bool = True,  # true to use estimated qualities, false to use real qualities.
+            use_estimated_qualities: bool = False,  # true to use estimated qualities, false to use real qualities.
             use_estimated_activations: bool = False,  # true to use estimated activations, false to use real one
             estimated_activations: List[List[float]] = None,  # the estimated activation to use
             iterations: int = 100,  # number of iterations for the Monte Carlo simulation.

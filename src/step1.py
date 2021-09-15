@@ -8,20 +8,31 @@ from src import constants, network
 from src.ad_placement_simulator import AdPlacementSimulator
 from src.advertiser.stochastic_stationary_advertiser import StochasticStationaryAdvertiser
 
-# ################ Prepare experiment. ################ #
-NUMBER_OF_ADVERTISERS = constants.SLATE_DIMENSION + 1
+
+# ################ Constants. ################ #
+NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 1
 MAX_NUMBER_OF_ITERATIONS_EXPONENT = 3
 BASELINE_NUMBER_OF_ITERATIONS = 10000
 NUMBER_OF_EXPERIMENTS = 10000
-NUMBER_OF_NODES = 100
 
-network_instance = network.Network(NUMBER_OF_NODES, False)
+
+# ################ Prepare context: Network. ################ #
+network_instance = network.Network(constants.number_of_nodes, False)
 live_edges, _ = network_instance.generate_live_edge_graph()
-network_instance.depth_first_search([random.randint(0, NUMBER_OF_NODES-1) for i in range(3)], live_edges)
+network_instance.depth_first_search([random.randint(0, constants.number_of_nodes-1) for i in range(3)], live_edges)
 
-slates = constants.slates
-advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(NUMBER_OF_ADVERTISERS)]
+# ################ Prepare context: Network. ################ #
+advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
 advertisements = [adv.participate_auction() for adv in advertisers]
+
+# ################ Prepare variables for the experiment. ################ #
+number_of_activated_nodes_per_experiment = []
+log_range = np.logspace(0, MAX_NUMBER_OF_ITERATIONS_EXPONENT, num=NUMBER_OF_EXPERIMENTS, dtype='int')  # Starting from 10^0 to 10^4.
+log_range = list(dict.fromkeys(log_range))
+log_range.append(BASELINE_NUMBER_OF_ITERATIONS)  # Baseline (interpreted as the run with the highest number of iterations)
+print("Using these values as possible iterations:")
+print(log_range)
+
 
 # ################ Draw the network ################ #
 G = network_instance.drawing_network
@@ -66,22 +77,14 @@ for node in G:
 nx.draw_spring(G, with_labels=False, labels=labels, node_size=node_size, arrows=True, width=edge_width, node_color=color_map, edge_color=edge_colours)
 plt.show()
 
-# ################ Run experiment. ################ #
-number_of_activated_nodes_per_experiment = []
-list_iterations = []
-log_range = np.logspace(0, MAX_NUMBER_OF_ITERATIONS_EXPONENT, num=NUMBER_OF_EXPERIMENTS, dtype='int')  # Starting from 10^0 to 10^4.
-log_range = list(dict.fromkeys(log_range))
-log_range.append(BASELINE_NUMBER_OF_ITERATIONS)  # Baseline (interpreted as the run with the highest number of iterations)
-print("Using these values as possible iterations:")
-print(log_range)
 
+# ################ Run experiment. ################ #
 for iterations in log_range:
     print(f"#################### Running with {str(iterations)} iterations")
-    list_iterations.append(iterations)
     social_influence = AdPlacementSimulator.simulate_ad_placement(
         network=network_instance,
         ads=advertisements,
-        slates=slates,
+        slates=constants.slates,
         use_estimated_qualities=False,
         use_estimated_activations=False,
         iterations=iterations
@@ -91,10 +94,12 @@ for iterations in log_range:
         total_activated_nodes += social_influence[advertisers[0].id][category]['activatedNodes']
     number_of_activated_nodes_per_experiment.append(total_activated_nodes)
 
+
 # ################ Prepare result. ################ #
 best_performance = number_of_activated_nodes_per_experiment.pop()  # Baseline
 log_range.pop()  # Baseline
 absolute_performance_gap = [abs(best_performance - activated_nodes) for activated_nodes in number_of_activated_nodes_per_experiment]
+
 
 # ################ Plot result. ################ #
 plt.rcParams["figure.figsize"] = (8, 6)

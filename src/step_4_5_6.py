@@ -12,8 +12,10 @@ from src.advertiser.stochastic_stationary_advertiser import StochasticStationary
 from src.bandit_algorithms.bandit_type_enum import BanditTypeEnum
 from src.publisher import Publisher
 
-# create context
+
+# ################ Constants. ################ #
 number_of_days = 50  # Days for the run.
+number_of_stochastic_advertisers = constants.SLATE_DIMENSION + 1
 learn_qualities = True  # True to learn qualities, False to use real qualities.
 learn_activations = False  # True to learn activation probabilities, False to use real activation probabilities.
 use_greedy_advertiser = True  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
@@ -24,13 +26,17 @@ use_non_stationary_advertisers = False  # True to use Non-Stationary Stochastic 
 window_size = 10  # Sliding window size.
 abrupt_change_interval = 10  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
 
+
+# ################ Prepare context: Network. ################ #
 network_instance = network.Network(constants.number_of_nodes, False)
 nodes_per_category = network_instance.network_report()
 
+
+# ################ Prepare context: Advertisers. ################ #
 if use_non_stationary_advertisers:
-    stochastic_advertisers = [StochasticNonStationaryAdvertiser(n=abrupt_change_interval) for _ in range(constants.SLATE_DIMENSION + 1)]
+    stochastic_advertisers = [StochasticNonStationaryAdvertiser(n=abrupt_change_interval) for _ in range(number_of_stochastic_advertisers)]
 else:
-    stochastic_advertisers = [StochasticStationaryAdvertiser() for _ in range(constants.SLATE_DIMENSION + 1)]
+    stochastic_advertisers = [StochasticStationaryAdvertiser() for _ in range(number_of_stochastic_advertisers)]
 advertisers = []
 for stochastic_advertiser in stochastic_advertisers:
     advertisers.append(stochastic_advertiser)
@@ -38,6 +44,8 @@ if use_greedy_advertiser:
     greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(constants.CATEGORIES)], ad_value=1, network=network_instance, )
     advertisers.append(greedy_learner)
 
+
+# ################ Prepare context: Publisher. ################ #
 publisher = Publisher(
     network=network_instance,
     advertisers=advertisers,
@@ -46,7 +54,7 @@ publisher = Publisher(
     window_size=window_size
 )
 
-# Variables for plot
+# ################ Prepare variables for plotting. ################ #
 if learn_activations:
     plot_rewards_bandit_activation = {}
     plot_regret_bandit_activation = {}
@@ -63,21 +71,21 @@ if learn_activations:
             plot_rewards_random_activation[from_category][to_category] = np.array([])
             plot_regret_random_activation[from_category][to_category] = np.array([])
 if learn_qualities:
-    plot_rewards_bandit = {}
-    plot_regret_bandit = {}
-    plot_rewards_random = {}
-    plot_regret_random = {}
+    plot_rewards_bandit_quality = {}
+    plot_regret_bandit_quality = {}
+    plot_rewards_random_quality = {}
+    plot_regret_random_quality = {}
     for advertiser in advertisers:
         ad_id = advertiser.id
-        plot_rewards_bandit[ad_id] = {}
-        plot_regret_bandit[ad_id] = {}
-        plot_rewards_random[ad_id] = {}
-        plot_regret_random[ad_id] = {}
+        plot_rewards_bandit_quality[ad_id] = {}
+        plot_regret_bandit_quality[ad_id] = {}
+        plot_rewards_random_quality[ad_id] = {}
+        plot_regret_random_quality[ad_id] = {}
         for category in range(constants.CATEGORIES):
-            plot_rewards_bandit[ad_id][category] = np.array([])
-            plot_regret_bandit[ad_id][category] = np.array([])
-            plot_rewards_random[ad_id][category] = np.array([])
-            plot_regret_random[ad_id][category] = np.array([])
+            plot_rewards_bandit_quality[ad_id][category] = np.array([])
+            plot_regret_bandit_quality[ad_id][category] = np.array([])
+            plot_rewards_random_quality[ad_id][category] = np.array([])
+            plot_regret_random_quality[ad_id][category] = np.array([])
 
 for day in range(number_of_days):
     print('Running day', day)
@@ -114,8 +122,9 @@ for day in range(number_of_days):
         ads=ads,
         slates=slates,
         iterations=1,  # iterations = 1 means network sample
-        use_estimated_qualities=False,  # use_estimated_qualities=False means true qualities from real network
-        estimated_activations=None   # use_estimated_activations=False means true activations from real network
+        use_estimated_qualities=False,
+        use_estimated_activations=False,
+        estimated_activations=None,
     )
     elapsed_time = datetime.now() - time
     print(f'environment sample time {elapsed_time}')
@@ -150,12 +159,12 @@ for day in range(number_of_days):
                 else:
                     rewards_qualities[ad.ad_id][category] = 0
                 real_error = abs(slot.assigned_ad.real_quality - bandit_estimated_qualities[ad.ad_id][category])
-                plot_regret_bandit[ad.ad_id][category] = np.append(plot_regret_bandit[ad.ad_id][category], real_error)
-                plot_rewards_bandit[ad.ad_id][category] = np.append(plot_rewards_bandit[ad.ad_id][category], 1 - real_error)
+                plot_regret_bandit_quality[ad.ad_id][category] = np.append(plot_regret_bandit_quality[ad.ad_id][category], real_error)
+                plot_rewards_bandit_quality[ad.ad_id][category] = np.append(plot_rewards_bandit_quality[ad.ad_id][category], 1 - real_error)
                 random_estimated_quality = random.choice(constants.bandit_quality_values)
                 random_regret = abs(slot.assigned_ad.real_quality - random_estimated_quality)
-                plot_regret_random[ad.ad_id][category] = np.append(plot_regret_random[ad.ad_id][category], random_regret)
-                plot_rewards_random[ad.ad_id][category] = np.append(plot_rewards_random[ad.ad_id][category], 1 - random_regret)
+                plot_regret_random_quality[ad.ad_id][category] = np.append(plot_regret_random_quality[ad.ad_id][category], random_regret)
+                plot_rewards_random_quality[ad.ad_id][category] = np.append(plot_rewards_random_quality[ad.ad_id][category], 1 - random_regret)
                 if learn_from_first_slot_only:
                     break
         # update bandits with rewards
@@ -234,8 +243,8 @@ if learn_qualities:
             fig += 1
             plt.xlabel("t")
             plt.ylabel(f"Cumulative Reward ad {ad_id}, cat {category}")
-            plt.plot(np.cumsum(plot_rewards_bandit[ad_id][category]), 'r')
-            plt.plot(np.cumsum(plot_rewards_random[ad_id][category]), 'g')
+            plt.plot(np.cumsum(plot_rewards_bandit_quality[ad_id][category]), 'r')
+            plt.plot(np.cumsum(plot_rewards_random_quality[ad_id][category]), 'g')
             plt.legend(["Bandit", "Random"])
             plt.show()
 
@@ -243,8 +252,8 @@ if learn_qualities:
             fig += 1
             plt.xlabel("t")
             plt.ylabel(f"Cumulative Regret ad {ad_id}, cat {category}")
-            plt.plot(np.cumsum(plot_regret_bandit[ad_id][category]), 'r')
-            plt.plot(np.cumsum(plot_regret_random[ad_id][category]), 'g')
+            plt.plot(np.cumsum(plot_regret_bandit_quality[ad_id][category]), 'r')
+            plt.plot(np.cumsum(plot_regret_random_quality[ad_id][category]), 'g')
             plt.legend(["Bandit", "Random"])
             plt.show()
 
