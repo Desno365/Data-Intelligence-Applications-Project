@@ -1,5 +1,5 @@
 import random
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -38,38 +38,38 @@ class Advertiser:
         self.ad.set_bids([random.choice(list(BidsEnum)) for _ in range(5)])
 
     def report_daily_results(self, social_influence):
-        d_gain = self.compute_gain_from_social_influence(social_influence=social_influence)
+        d_gain, total_value, total_price = self.compute_gain_from_social_influence(social_influence=social_influence)
         self.daily_gain_history = np.append(self.daily_gain_history, d_gain)
 
-    def compute_gain_from_social_influence(self, social_influence) -> float:
-        activated_nodes = 0
+    def compute_gain_from_social_influence(self, social_influence) -> Tuple[float, float, float]:
+        total_activated_nodes = 0
         seeds = {}
         prices = {}
 
         # Note for each category activated nodes, seeds and prices.
         if self.id in social_influence.keys():
             for category in social_influence[self.id].keys():
-                activated_nodes += social_influence[self.id][category]['activatedNodes']
+                total_activated_nodes += social_influence[self.id][category]['activatedNodes']
                 seeds[category] = social_influence[self.id][category]["seeds"]
                 prices[category] = social_influence[self.id][category]["price"]
         else:
             if constants.settings['advertiserPrint']:
-                print('greedy advertiser ad is not in the slate')
+                print('advertiser ad is not in the slate')
                 print(self.id, social_influence.keys())
 
         if constants.settings['advertiserPrint']:
-            print(f"Simulated the network. Nodes activated: {activated_nodes}. Seeds: {seeds}")
-
-        gain = activated_nodes * self.ad_value
-        if constants.settings['advertiserPrint']:
-            print(f"Gain from activated nodes: {gain}")
+            print(f"Simulated the network. Nodes activated: {total_activated_nodes}. Seeds: {seeds}")
 
         # The price the advertiser must pay. Seeds are taken in a dictionary indexed by category.
         # To calculate the payment, for each category take its price per click and multiply it by the number
         # of seeds in that category.
+        total_price = 0
         for category in seeds.keys():
-            gain -= (prices[category] * seeds[category])
+            total_price += (prices[category] * seeds[category])
         if constants.settings['advertiserPrint']:
-            print(f"Gain after payment: {gain}")
-        return gain
+            print(f"Total price: {total_price}")
+
+        total_value = total_activated_nodes * self.ad_value
+        gain = total_value - total_price
+        return gain, total_value, total_price
 

@@ -23,18 +23,24 @@ class GreedyLearningAdvertiser(Advertiser):
         self.stop_improving = False
         self.already_increased = [False for _ in range(constants.CATEGORIES)]  # This list will keep track of which bid has already been increased
         self.to_increment = 0  # This will keep track of the category bid that the learner should try to increase.
-        self.category_gain = [0 for _ in range(constants.CATEGORIES)]  # The marginal gain after having increased that category bid
+        self.category_gain = [0.0 for _ in range(constants.CATEGORIES)]  # The marginal gain after having increased that category bid
         self.previous_gain = 0
         self.network = network
         self.rival_ads = None
         self.slates = None
         self.simulation_gain_history = []
+        self.category_price = [0.0 for _ in range(constants.CATEGORIES)]
+        self.simulation_price_history = []
+        self.category_activated_nodes = [0 for _ in range(constants.CATEGORIES)]
+        self.simulation_activated_nodes_history = []
         self.use_estimate_activations = use_estimate_activations
 
     def participate_auction(self) -> Ad:
         # Reset learner
         self.stop_improving = False
         self.simulation_gain_history = []
+        self.simulation_price_history = []
+        self.simulation_activated_nodes_history = []
         self.category_gain = [0 for _ in range(constants.CATEGORIES)]
         self.previous_gain = 0
         self.bids = [BidsEnum.OFF for _ in range(constants.CATEGORIES)]  # Reset the bids to zero
@@ -76,20 +82,16 @@ class GreedyLearningAdvertiser(Advertiser):
                     copy_ad = copy.deepcopy(self.ad)
                     copy_ad.set_bids(self.improved_bids)
                     ads.append(copy_ad)
-                    # print('debug print slates before auction')
-                    # for slate in self.slates:
-                    #     print('slate start')
-                    #     for slot in slate:
-                    #         print(slot)
-                    time = datetime.now()
 
                     social_influence = AdPlacementSimulator.simulate_ad_placement(network=self.network, ads=ads,
                                                                                   slates=self.slates, iterations=constants.greedy_simulation_iterations,
                                                                                   use_estimated_qualities=True,
                                                                                   use_estimated_activations=self.use_estimate_activations,
                                                                                   estimated_activations=self.estimated_activations)
-                    elapsed_time = datetime.now() - time
-                    self.category_gain[i] = self.compute_gain_from_social_influence(social_influence=social_influence)
+                    gain, total_value, total_price = self.compute_gain_from_social_influence(social_influence=social_influence)
+                    self.category_gain[i] = gain
+                    self.category_activated_nodes[i] = total_value
+                    self.category_price[i] = total_price
                     self.already_increased[i] = True
 
             # Here all the bids have been improved one time and the gain is noted.
@@ -126,29 +128,36 @@ class GreedyLearningAdvertiser(Advertiser):
                 if marginal_gains[i] == max_value:
                     indices.append(i)
             best_arm = random.choice(indices)
-            # best_arm = marginal_gains.index(max(marginal_gains))
-            self.simulation_gain_history.append(max(self.category_gain))
+            self.simulation_gain_history.append(self.category_gain[best_arm])
+            self.simulation_activated_nodes_history.append(self.category_activated_nodes[best_arm])
+            self.simulation_price_history.append(self.category_price[best_arm])
 
             self.bids[best_arm] = self.bids[best_arm].next_elem()
             self.previous_gain = self.category_gain[best_arm]
 
-            if constants.settings['advertiserPrint']:
-                print(
-                    f"Improvement: marginal gains are {marginal_gains}, the best is {best_arm} with gain {self.previous_gain}.")
-                print(f"Now bids are: {self.bids}")
+            print(f"Greedy improvement: marginal gains are {marginal_gains}, the best is {best_arm} with gain {self.previous_gain}.")
+            print(f"Now bids are: {self.bids}")
 
-        self.category_gain = [0 for _ in range(constants.CATEGORIES)]
+        self.category_gain = [0.0 for _ in range(constants.CATEGORIES)]
         self.already_increased = [False for _ in range(constants.CATEGORIES)]
 
     def plot_gain_history_in_single_day(self) -> None:
         plt.figure(0)
         plt.xlabel("Step")
-        plt.ylabel("Gain")
-        plt.plot(self.simulation_gain_history, 'r')
+        plt.ylabel("Marginal Gain")
+        plt.plot([self.simulation_gain_history[i] - self.simulation_gain_history[i - 1] for i in range(1, len(self.simulation_gain_history))], 'r')
         plt.show()
 
         plt.figure(1)
         plt.xlabel("Step")
-        plt.ylabel("Marginal Gain")
-        plt.plot([self.simulation_gain_history[i] - self.simulation_gain_history[i - 1] for i in range(1, len(self.simulation_gain_history))], 'r')
+        plt.ylabel("Gain (total value - total price)")
+        plt.plot(self.simulation_gain_history, 'r')
         plt.show()
+
+        plt.figure(2)
+        plt.xlabel("Step")
+        plt.plot(self.simulation_activated_nodes_history, 'g')
+        plt.plot(self.simulation_price_history, 'r')
+        plt.legend(["Total value per step", "Total price per step"])
+        plt.show()
+        plt.figure(2)
