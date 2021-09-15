@@ -1,13 +1,13 @@
 import math
-from datetime import datetime
-from typing import List
-
-import numpy as np
 import random
+from datetime import datetime
+from typing import List, Dict
+
+import networkx as nx
+import numpy as np
+
 from src import constants
 from src.slot import Slot
-import matplotlib.pyplot as plt
-import networkx as nx
 
 
 class Node:
@@ -353,7 +353,7 @@ class Network:
         return error
 
     # TODO ad quality depends on advertiser
-    def estimateSocialInfluence(self, slates: List[List[Slot]], iterations: int = 100, use_estimated_qualities=False, estimated_activation_probabilities=None):
+    def estimateSocialInfluence(self, slates: List[List[Slot]], iterations: int = 100, use_estimated_qualities=False, estimated_activation_probabilities=None) -> Dict[int, Dict[int, Dict]]:
 
         avg_active_nodes = 0
         # average number of seeds throughout all the iterations

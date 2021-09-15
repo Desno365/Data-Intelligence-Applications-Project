@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Dict
 
 from src import constants
 from src.ad import Ad
@@ -20,7 +20,7 @@ class AdPlacementSimulator:
             use_estimated_activations: bool = False,  # true to use estimated activations, false to use real one
             estimated_activations: List[List[float]] = None,  # the estimated activation to use
             iterations: int = 100,  # number of iterations for the Monte Carlo simulation.
-    ):
+    ) -> Dict[int, Dict[int, Dict]]:
         assert len(slates) == constants.CATEGORIES
         assert iterations > 0
 

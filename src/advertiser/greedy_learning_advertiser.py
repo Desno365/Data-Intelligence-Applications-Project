@@ -28,9 +28,10 @@ class GreedyLearningAdvertiser(Advertiser):
         self.simulation_gain_history = []
         self.category_price = [0.0 for _ in range(constants.CATEGORIES)]
         self.simulation_price_history = []
-        self.category_activated_nodes = [0 for _ in range(constants.CATEGORIES)]
+        self.category_total_value = [0.0 for _ in range(constants.CATEGORIES)]
         self.simulation_activated_nodes_history = []
         self.use_estimated_activations = use_estimated_activations
+        self.estimated_activations = [[random.random() for _ in range(constants.CATEGORIES)] for _ in range(constants.CATEGORIES)]
 
     def participate_auction(self) -> Ad:
         # Reset learner
@@ -91,7 +92,7 @@ class GreedyLearningAdvertiser(Advertiser):
                     )
                     gain, total_value, total_price = self.compute_gain_from_social_influence(social_influence=social_influence)
                     self.category_gain[i] = gain
-                    self.category_activated_nodes[i] = total_value
+                    self.category_total_value[i] = total_value
                     self.category_price[i] = total_price
                     self.already_increased[i] = True
 
@@ -130,7 +131,7 @@ class GreedyLearningAdvertiser(Advertiser):
                     indices.append(i)
             best_arm = random.choice(indices)
             self.simulation_gain_history.append(self.category_gain[best_arm])
-            self.simulation_activated_nodes_history.append(self.category_activated_nodes[best_arm])
+            self.simulation_activated_nodes_history.append(self.category_total_value[best_arm])
             self.simulation_price_history.append(self.category_price[best_arm])
 
             self.bids[best_arm] = self.bids[best_arm].next_elem()

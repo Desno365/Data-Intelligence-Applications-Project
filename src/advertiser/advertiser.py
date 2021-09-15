@@ -2,7 +2,6 @@ import random
 from typing import List, Tuple
 
 import numpy as np
-from matplotlib import pyplot as plt
 
 from src import constants
 from src.ad import Ad
@@ -12,6 +11,8 @@ from src.bids_enum import BidsEnum
 class Advertiser:
 
     def __init__(self, ad_real_qualities: List[float] = None, ad_value: float = 0.5):
+        assert ad_value >= 0.0
+
         if ad_real_qualities is None:
             ad_real_qualities = [random.uniform(0.05, 1) for _ in range(constants.CATEGORIES)]
         self.ad_real_qualities = ad_real_qualities
@@ -24,18 +25,13 @@ class Advertiser:
             value=self.ad_value,
             bids=[BidsEnum.OFF for _ in range(constants.CATEGORIES)]
         )
-        self.estimated_activations = {}
-        for from_category in range(constants.CATEGORIES):
-            self.estimated_activations[from_category] = {}
-            for to_category in range(constants.CATEGORIES):
-                self.estimated_activations[from_category][to_category] = random.random()
         self.daily_gain_history = np.array([])
 
     def participate_auction(self) -> Ad:
         return self.ad
 
     def change_bids(self) -> None:
-        self.ad.set_bids([random.choice(list(BidsEnum)) for _ in range(5)])
+        self.ad.set_bids([random.choice(list(BidsEnum)) for _ in range(constants.CATEGORIES)])
 
     def report_daily_results(self, social_influence):
         d_gain, total_value, total_price = self.compute_gain_from_social_influence(social_influence=social_influence)
