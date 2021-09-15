@@ -18,8 +18,8 @@ NUMBER_OF_EXPERIMENTS = 10000
 
 # ################ Prepare context: Network. ################ #
 network_instance = network.Network(constants.number_of_nodes, False)
-live_edges, _ = network_instance.generate_live_edge_graph()
-network_instance.depth_first_search([random.randint(0, constants.number_of_nodes-1) for i in range(3)], live_edges)
+_ = network_instance.generate_live_edge_graph()
+network_instance.depth_first_search([random.randint(0, constants.number_of_nodes-1) for i in range(3)])
 
 # ################ Prepare context: Network. ################ #
 advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]

@@ -67,7 +67,7 @@ class Publisher:
     #                 seeds[clicked_slot].append(node)
     #
     #     for ad in range(const.SLATE_DIMENSION):
-    #         activated_nodes[ad] = self.network.monteCarloEstimation(seeds=seeds[ad], iterations=30)
+    #         activated_nodes[ad] = self.network.monte_carlo_estimation(seeds=seeds[ad], iterations=30)
     #
     #     return len(seeds), activated_nodes
     #
@@ -86,7 +86,7 @@ class Publisher:
     #                 clicked_slot = node.show_ad(self.slates[category])
     #                 if clicked_slot >= 0 and self.slates[category][clicked_slot].assinged_ad == advertiser:
     #                     seeds.append(node)
-    #         activated_nodes, node_activation_probabilities = influence_estimation.monteCarloEstimation(
+    #         activated_nodes, node_activation_probabilities = influence_estimation.monte_carlo_estimation(
     #             seeds=seeds, iterations=iterations)
     #
     #         avg_seeds += len(seeds)
@@ -178,7 +178,7 @@ class Publisher:
         #       {list of node_ids}
         #   }
         # }
-        seeds = self.network.calculateSeeds(slates)
+        seeds = self.network.calculate_seeds(slates)
 
         # rewards:
         # {

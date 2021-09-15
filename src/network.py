@@ -5,9 +5,10 @@ from typing import List, Dict
 
 import networkx as nx
 import numpy as np
+from numpy import ndarray
 
 from src import constants
-from src.slot import Slot
+from src.type_definitions import SlateType, ActivationProbabilitiesType, SocialInfluenceType
 
 
 class Node:
@@ -26,16 +27,16 @@ class Node:
 
 class Network:
     @staticmethod
-    def prettyPrintSocialInfluence(socialInfluence):
+    def pretty_print_social_influence(social_influence: SocialInfluenceType) -> None:
         print("### social influence report ###")
         print('### start ###')
-        for ad in socialInfluence.keys():
+        for ad in social_influence.keys():
             print('ad id: ', ad)
-            for category in socialInfluence[ad].keys():
-                print('category: ', category, 'seeds: ', socialInfluence[ad][category]['seeds'], ' activatedNodes: ', socialInfluence[ad][category]['activatedNodes'])
+            for category in social_influence[ad].keys():
+                print('category: ', category, 'seeds: ', social_influence[ad][category]['seeds'], ' activatedNodes: ', social_influence[ad][category]['activatedNodes'])
         print('### end ###')
 
-    def __init__(self, n, fc):
+    def __init__(self, n: int, fc: bool):
         self.drawing_network = nx.Graph()
         start_time = datetime.now()
         self.adjacency_matrix = np.zeros((n, n))
@@ -59,9 +60,9 @@ class Network:
                     chosen_category = category
                     break
             # chosen_category = random.choice(constants.categories)
-            newNode = Node(chosen_category)
-            newNode.id = i
-            self.nodes.append(newNode)
+            new_node = Node(chosen_category)
+            new_node.id = i
+            self.nodes.append(new_node)
             self.nodes_by_category[chosen_category].append(i)
             self.drawing_network.add_node(i, category=chosen_category, is_seed=False, is_active=False)
         print('done')
@@ -116,13 +117,12 @@ class Network:
                 self.weight_matrix[i][ii] = activation_probability
         print(f'network created in {datetime.now() - start_time}')
 
-    def generate_live_edge_graph(self, activation_probabilities=None):
+    def generate_live_edge_graph(self, activation_probabilities: ActivationProbabilitiesType = None) -> ndarray:
         self.live_edges = []
         self.activation_realization = [[0 for _ in constants.categories] for _ in constants.categories]
         if activation_probabilities is None:
             activation_probabilities = self.weight_matrix
         live_edge_adjacency_matrix = np.zeros((self.n, self.n))
-        probability = 0
         # new code super fast
         for edge in self.edges:
             sample = random.random()
@@ -160,7 +160,7 @@ class Network:
         #         #     else:
         #         #         probability = probability * (1 - edge_activation_probability)
 
-        return live_edge_adjacency_matrix, probability
+        return live_edge_adjacency_matrix
 
     # calculate activated nodes in the live edge graph (with recursion)
     # def depth_first_search(self, root, activated_nodes, live_edge_adjacency_matrix):
@@ -171,7 +171,7 @@ class Network:
     #         self.depth_first_search(k, activated_nodes, live_edge_adjacency_matrix)
     #   return activated_nodes
     # # calculate activated nodes in the live edge graph (with stack)
-    def depth_first_search(self, activated_nodes, live_edge_adjacency_matrix):
+    def depth_first_search(self, activated_nodes: List[int]):
         seeds = activated_nodes.copy()
         cascade = []
         for i in seeds:
@@ -221,7 +221,7 @@ class Network:
     # input: seeds (the nodes that start the influence cascade)
     # output: average (average number of nodes activated by seeds in each simulation);
     # output: ground_truth_activation_probabilities (activation probability of each node)
-    def calculateActivations(self, seeds):
+    def calculate_activations(self, seeds: List[int]):
         # enumerate all live edge graphs to calculate node activation probability
         # takes 1 minute to compute with a fully connected graph (with no self loops) with 5 nodes
         # print(2 ** (self.n * (self.n - 1))) #number of live edge graphs to enumerate
@@ -301,7 +301,7 @@ class Network:
     # [more iterations takes more time and gives more accurate results]
     # output: average_active_nodes (average number of active nodes in all the simulations)
     # output: estimated_activation_probabilities (estimated activation probability for each node in the network)
-    def monteCarloEstimation(self, seeds=[0], iterations=100, activation_probabilities=None):
+    def monte_carlo_estimation(self, seeds: List[int], iterations=100, activation_probabilities: ActivationProbabilitiesType = None):
         # monte carlo sampling
         # reset previously calculated values
         average_active_nodes = {}
@@ -318,10 +318,10 @@ class Network:
             # start = datetime.now()
             # generate live edge graph and calculate activated nodes
             # live_edge_start = datetime.now()
-            live, p = self.generate_live_edge_graph(activation_probabilities=activation_probabilities)
+            _ = self.generate_live_edge_graph(activation_probabilities=activation_probabilities)
             # print(f'generated edge activations in {datetime.now() - live_edge_start}')
             # node_start = datetime.now()
-            active_nodes = self.depth_first_search(seeds, live)
+            active_nodes = self.depth_first_search(seeds)
             # print(f'calculated active nodes in {datetime.now() - node_start}')
             active_nodes.sort()
             for node in active_nodes:
@@ -346,15 +346,13 @@ class Network:
     # input: ground truth
     # input: estimations
     # output: sum of squares error on activation probabilities
-    def evaluateError(self, ground_truth_activation_probabilities, estimated_activation_probabilities):
+    def evaluate_error(self, ground_truth_activation_probabilities, estimated_activation_probabilities) -> float:
         error = 0
         for asd in range(len(self.nodes)):
             error += (ground_truth_activation_probabilities[asd] - estimated_activation_probabilities[asd]) ** 2
         return error
 
-    # TODO ad quality depends on advertiser
-    def estimateSocialInfluence(self, slates: List[List[Slot]], iterations: int = 100, use_estimated_qualities=False, estimated_activation_probabilities=None) -> Dict[int, Dict[int, Dict]]:
-
+    def estimate_social_influence(self, slates: List[SlateType], iterations: int = 100, use_estimated_qualities: bool = False, estimated_activation_probabilities: ActivationProbabilitiesType = None) -> SocialInfluenceType:
         avg_active_nodes = 0
         # average number of seeds throughout all the iterations
         avg_n_seeds = {}
@@ -376,7 +374,7 @@ class Network:
             seeds_per_ad_id = {}  # seeds for ad_id, seeds for advertiser, dictionary with ad_id -> seed list
             seeds = {}
             # time = datetime.now()
-            seeds_per_ad_id = self.calculateSeeds(slates=slates, use_estimated_qualities=use_estimated_qualities)
+            seeds_per_ad_id = self.calculate_seeds(slates=slates, use_estimated_qualities=use_estimated_qualities)
             # elapsed_time = datetime.now() - time
             # print(f'calculate seeds time: {elapsed_time}')
             for ad_id in seeds_per_ad_id.keys():  # keys are ad_ids
@@ -386,7 +384,7 @@ class Network:
                     for node in seeds_per_ad_id[ad_id][category]:
                         total_seeds.append(node)
                 # time = datetime.now()
-                activated_nodes, node_estimated_activation_probabilities = self.monteCarloEstimation(seeds=total_seeds, iterations=1, activation_probabilities=estimated_activation_probabilities)
+                activated_nodes, node_estimated_activation_probabilities = self.monte_carlo_estimation(seeds=total_seeds, iterations=1, activation_probabilities=estimated_activation_probabilities)
                 # elapsed_time = datetime.now() - time
                 # print(f'one monte carlo iteration takes {elapsed_time}')
                 # print(estimated_activation_probabilities)
@@ -414,7 +412,7 @@ class Network:
                 r[ad_id][category]['activatedNodes'] = avg_active_nodes_per_ad_id[ad_id][category]
         return r
 
-    def calculateSeeds(self, slates: List[List[Slot]], use_estimated_qualities=False):
+    def calculate_seeds(self, slates: List[SlateType], use_estimated_qualities=False) -> Dict[int, Dict[int, List[int]]]:
         seeds_per_ad_id = {}  # seeds for ad_id, seeds for advertiser, dictionary with ad_id -> category -> seed list
         for slate in slates:
             for slot in slate:
@@ -448,7 +446,7 @@ class Network:
         assert len(seeds) == count_seeds
         return seeds_per_ad_id
 
-    def network_report(self):
+    def network_report(self) -> Dict[int, int]:
         nodes_per_category = {}
         for category in range(constants.CATEGORIES):
             nodes_per_category[category] = 0

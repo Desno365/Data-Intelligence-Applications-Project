@@ -8,6 +8,7 @@ from src.bandit_algorithms.ucb1_learner import UCB1Learner
 class SlidingWindowUCB1Learner(UCB1Learner):
     def __init__(self, n_arms: int, window_size: int):
         super().__init__(n_arms)
+        assert window_size > 1
         self.window_size = window_size
         self.pulled_arms_sliding_window = np.array([], dtype=np.int32)
         self.rewards_per_arm_sliding_window = [[] for _ in range(n_arms)]

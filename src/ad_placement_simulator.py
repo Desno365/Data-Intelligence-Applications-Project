@@ -1,12 +1,12 @@
 from datetime import datetime
-from typing import List, Dict
+from typing import List
 
 from src import constants
 from src.ad import Ad
 from src.auction.auction_ad import AuctionAd
 from src.auction.vcg_auction import VCGAuction
 from src.network import Network
-from src.slot import Slot
+from src.type_definitions import SlateType, ActivationProbabilitiesType, SocialInfluenceType
 
 
 class AdPlacementSimulator:
@@ -15,12 +15,12 @@ class AdPlacementSimulator:
     def simulate_ad_placement(
             network: Network,  # the network of nodes.
             ads: List[Ad],  # the list of ads available, every ad comes from an advertiser.
-            slates: List[List[Slot]],  # the list of slates, one slate per category (a slate is a list of slots).
+            slates: List[SlateType],  # the list of slates, one slate per category (a slate is a list of slots).
             use_estimated_qualities: bool = False,  # true to use estimated qualities, false to use real qualities.
             use_estimated_activations: bool = False,  # true to use estimated activations, false to use real one
-            estimated_activations: List[List[float]] = None,  # the estimated activation to use
+            estimated_activations: ActivationProbabilitiesType = None,  # the estimated activation to use
             iterations: int = 100,  # number of iterations for the Monte Carlo simulation.
-    ) -> Dict[int, Dict[int, Dict]]:
+    ) -> SocialInfluenceType:
         assert len(slates) == constants.CATEGORIES
         assert iterations > 0
 
@@ -56,10 +56,12 @@ class AdPlacementSimulator:
             time = datetime.now()
         if not use_estimated_activations:
             estimated_activations = None
-        social_influence = network.estimateSocialInfluence(slates=slates,
-                                                           iterations=iterations,
-                                                           use_estimated_qualities=use_estimated_qualities,
-                                                           estimated_activation_probabilities=estimated_activations)
+        social_influence = network.estimate_social_influence(
+            slates=slates,
+            iterations=iterations,
+            use_estimated_qualities=use_estimated_qualities,
+            estimated_activation_probabilities=estimated_activations
+        )
         if constants.settings['executionTimePrint']:
             print('estimate social influence', datetime.now()-time)
         #network.prettyPrintSocialInfluence(social_influence)
@@ -86,4 +88,3 @@ class AdPlacementSimulator:
         #       }
         #   }
         # }
-

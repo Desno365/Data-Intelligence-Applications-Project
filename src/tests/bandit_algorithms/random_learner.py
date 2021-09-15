@@ -1,7 +1,5 @@
 import random
 
-import numpy as np
-
 from src.bandit_algorithms.bandit_learner import BanditLearner
 
 

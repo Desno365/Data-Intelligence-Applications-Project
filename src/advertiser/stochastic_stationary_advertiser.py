@@ -15,11 +15,7 @@ class StochasticStationaryAdvertiser(Advertiser):
 
     def __init__(self, ad_real_qualities: List[float] = None, value: float = 0.5):
         super().__init__(ad_real_qualities=ad_real_qualities, ad_value=value)
-        self.change_bids()
+        self.ad.set_bids([random.choice(list(BidsEnum)) for _ in range(constants.CATEGORIES)])
 
     def participate_auction(self) -> Ad:
         return super().participate_auction()
-
-    def change_bids(self) -> None:
-        self.ad.set_bids([random.choice(list(BidsEnum)) for _ in range(constants.CATEGORIES)])
-

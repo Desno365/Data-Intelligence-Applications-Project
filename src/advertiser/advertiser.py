@@ -1,11 +1,12 @@
 import random
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import numpy as np
 
 from src import constants
 from src.ad import Ad
 from src.bids_enum import BidsEnum
+from src.type_definitions import SocialInfluenceType
 
 
 class Advertiser:
@@ -30,14 +31,11 @@ class Advertiser:
     def participate_auction(self) -> Ad:
         return self.ad
 
-    def change_bids(self) -> None:
-        self.ad.set_bids([random.choice(list(BidsEnum)) for _ in range(constants.CATEGORIES)])
-
-    def report_daily_results(self, social_influence):
+    def report_daily_results(self, social_influence: SocialInfluenceType) -> None:
         d_gain, total_value, total_price = self.compute_gain_from_social_influence(social_influence=social_influence)
         self.daily_gain_history = np.append(self.daily_gain_history, d_gain)
 
-    def compute_gain_from_social_influence(self, social_influence) -> Tuple[float, float, float]:
+    def compute_gain_from_social_influence(self, social_influence: SocialInfluenceType) -> Tuple[float, float, float]:
         total_activated_nodes = 0
         seeds = {}
         prices = {}

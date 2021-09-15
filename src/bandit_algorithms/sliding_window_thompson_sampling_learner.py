@@ -8,6 +8,7 @@ class SlidingWindowThompsonSamplingLearner(ThompsonSamplingLearner):
     # window_size = size of the sliding window.
     def __init__(self, n_arms: int, window_size: int):
         super().__init__(n_arms)
+        assert window_size > 1
         self.window_size = window_size
         self.pulled_arms = np.array([], dtype=np.int32)
 

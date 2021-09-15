@@ -10,7 +10,7 @@ from src.ad_placement_simulator import AdPlacementSimulator
 from src.advertiser.advertiser import Advertiser
 from src.bids_enum import BidsEnum
 from src.network import Network
-from src.slot import Slot
+from src.type_definitions import SlateType
 
 
 class GreedyLearningAdvertiser(Advertiser):
@@ -50,7 +50,7 @@ class GreedyLearningAdvertiser(Advertiser):
     def set_rival_ads(self, rival_ads: List[Ad]) -> None:
         self.rival_ads = rival_ads
 
-    def set_slates(self, slates: List[List[Slot]]) -> None:
+    def set_slates(self, slates: List[SlateType]) -> None:
         self.slates = slates
 
     def find_optimal_bids(self) -> None:

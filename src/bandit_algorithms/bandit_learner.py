@@ -7,6 +7,7 @@ import numpy as np
 class BanditLearner(metaclass=abc.ABCMeta):
     # n_arms = number of arms the learner can pull.
     def __init__(self, n_arms: int):
+        assert n_arms > 1
         self.n_arms = n_arms
         self.t = 0  # current round.
         self.rewards_per_arm = [[] for _ in range(n_arms)]  # List of lists (using python list), example rewards_per_arm[0] contains the list of pulled rewards from arm 0.
@@ -15,6 +16,7 @@ class BanditLearner(metaclass=abc.ABCMeta):
     # pulled_arm = arm pulled.
     # reward = reward of arm pulled.
     def update_observations(self, pulled_arm: int, reward: float) -> None:
+        assert pulled_arm < self.n_arms
         self.rewards_per_arm[pulled_arm].append(reward)
         self.collected_rewards = np.append(self.collected_rewards, reward)
 
