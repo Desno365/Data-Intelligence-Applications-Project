@@ -7,34 +7,44 @@ from matplotlib import pyplot as plt
 from src import constants, network
 from src.ad_placement_simulator import AdPlacementSimulator
 from src.advertiser.greedy_learning_advertiser import GreedyLearningAdvertiser
+from src.advertiser.stochastic_non_stationary_advertiser import StochasticNonStationaryAdvertiser
 from src.advertiser.stochastic_stationary_advertiser import StochasticStationaryAdvertiser
 from src.bandit_algorithms.bandit_type_enum import BanditTypeEnum
 from src.publisher import Publisher
 
 # create context
-learn_qualities = True
-learn_activations = False
-use_greedy_advertiser = True
-learn_from_first_slot_only = False
-bandit_type_qualities = BanditTypeEnum.THOMPSON_SAMPLING
-bandit_type_activations = BanditTypeEnum.THOMPSON_SAMPLING
-window_size = 50
-number_of_days = 50
+number_of_days = 50  # Days for the run.
+learn_qualities = True  # True to learn qualities, False to use real qualities.
+learn_activations = False  # True to learn activation probabilities, False to use real activation probabilities.
+use_greedy_advertiser = True  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
+learn_from_first_slot_only = False  # True to learn only from first slot of slate, False to learn from all slots.
+bandit_type_qualities = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for qualities.
+bandit_type_activations = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for activations.
+use_non_stationary_advertisers = False  # True to use Non-Stationary Stochastic Advertisers, False to use Stationary Stochastic Advertisers.
+window_size = 10  # Sliding window size.
+abrupt_change_interval = 10  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
 
 network_instance = network.Network(constants.number_of_nodes, False)
 nodes_per_category = network_instance.network_report()
 
-stochastic_advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(constants.SLATE_DIMENSION + 1)]
+if use_non_stationary_advertisers:
+    stochastic_advertisers = [StochasticNonStationaryAdvertiser(n=abrupt_change_interval) for _ in range(constants.SLATE_DIMENSION + 1)]
+else:
+    stochastic_advertisers = [StochasticStationaryAdvertiser() for _ in range(constants.SLATE_DIMENSION + 1)]
 advertisers = []
 for stochastic_advertiser in stochastic_advertisers:
     advertisers.append(stochastic_advertiser)
 if use_greedy_advertiser:
-    greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(constants.CATEGORIES)], ad_value=1,
-                                              network=network_instance, )
+    greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(constants.CATEGORIES)], ad_value=1, network=network_instance, )
     advertisers.append(greedy_learner)
 
-publisher = Publisher(network=network_instance, advertisers=advertisers, bandit_type_qualities=bandit_type_qualities,
-                      bandit_type_activations=bandit_type_activations, window_size=window_size)
+publisher = Publisher(
+    network=network_instance,
+    advertisers=advertisers,
+    bandit_type_qualities=bandit_type_qualities,
+    bandit_type_activations=bandit_type_activations,
+    window_size=window_size
+)
 
 # Variables for plot
 if learn_activations:
@@ -70,7 +80,7 @@ if learn_qualities:
             plot_regret_random[ad_id][category] = np.array([])
 
 for day in range(number_of_days):
-    print('activations at day', day)
+    print('Running day', day)
     # get current quality estimates
     bandit_estimated_qualities = publisher.get_bandit_qualities()
     bandit_estimated_activations = publisher.get_bandit_activations()
@@ -145,8 +155,7 @@ for day in range(number_of_days):
                 random_estimated_quality = random.choice(constants.bandit_quality_values)
                 random_regret = abs(slot.assigned_ad.real_quality - random_estimated_quality)
                 plot_regret_random[ad.ad_id][category] = np.append(plot_regret_random[ad.ad_id][category], random_regret)
-                plot_rewards_random[ad.ad_id][category] = np.append(plot_rewards_random[ad.ad_id][category],
-                                                                    1 - random_regret)
+                plot_rewards_random[ad.ad_id][category] = np.append(plot_rewards_random[ad.ad_id][category], 1 - random_regret)
                 if learn_from_first_slot_only:
                     break
         # update bandits with rewards
