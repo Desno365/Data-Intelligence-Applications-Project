@@ -95,12 +95,14 @@ for day in range(NUMBER_OF_DAYS):
     for from_category in bandit_estimated_activations.keys():
         print('from cat: ', from_category, 'bandit estimated activations: ', bandit_estimated_activations[from_category])
 
-    # pass estimations to advertisers and ads
+    # pass quality estimations to ads
     for advertiser in advertisers:
         ad = advertiser.ad
         estimated_q = bandit_estimated_qualities[ad.ad_id]
         ad.set_estimated_qualities(estimated_q)
-        advertiser.estimated_activations = bandit_estimated_activations
+    # pass activations estimations to greedy advertiser
+    if USE_GREEDY_ADVERTISER:
+        greedy_learner.estimated_activations = bandit_estimated_activations
     # set context for simulation for calculating best bids
     slates = constants.slates
     if USE_GREEDY_ADVERTISER:
