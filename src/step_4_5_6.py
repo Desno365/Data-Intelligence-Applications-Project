@@ -14,17 +14,17 @@ from src.publisher import Publisher
 
 
 # ################ Constants. ################ #
-number_of_days = 50  # Days for the run.
-number_of_stochastic_advertisers = constants.SLATE_DIMENSION + 1
-learn_qualities = True  # True to learn qualities, False to use real qualities.
-learn_activations = False  # True to learn activation probabilities, False to use real activation probabilities.
-use_greedy_advertiser = True  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
-learn_from_first_slot_only = False  # True to learn only from first slot of slate, False to learn from all slots.
-bandit_type_qualities = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for qualities.
-bandit_type_activations = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for activations.
-use_non_stationary_advertisers = False  # True to use Non-Stationary Stochastic Advertisers, False to use Stationary Stochastic Advertisers.
-window_size = 10  # Sliding window size.
-abrupt_change_interval = 10  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
+NUMBER_OF_DAYS = 50  # Days for the run.
+NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 1
+LEARN_QUALITIES = True  # True to learn qualities, False to use real qualities.
+LEARN_ACTIVATIONS = False  # True to learn activation probabilities, False to use real activation probabilities.
+USE_GREEDY_ADVERTISER = True  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
+LEARN_FROM_FIRST_SLOT_ONLY = False  # True to learn only from first slot of slate, False to learn from all slots.
+BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for qualities.
+BANDIT_TYPE_FOR_ACTIVATIONS = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for activations.
+USE_NON_STATIONARY_ADVERTISERS = False  # True to use Non-Stationary Stochastic Advertisers, False to use Stationary Stochastic Advertisers.
+SLIDING_WINDOW_SIZE = 10  # The size of the sliding window for bandit algorithms that have this parameter.
+ABRUPT_CHANGE_INTERVAL = 10  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
 
 
 # ################ Prepare context: Network. ################ #
@@ -33,14 +33,14 @@ nodes_per_category = network_instance.network_report()
 
 
 # ################ Prepare context: Advertisers. ################ #
-if use_non_stationary_advertisers:
-    stochastic_advertisers = [StochasticNonStationaryAdvertiser(n=abrupt_change_interval) for _ in range(number_of_stochastic_advertisers)]
+if USE_NON_STATIONARY_ADVERTISERS:
+    stochastic_advertisers = [StochasticNonStationaryAdvertiser(n=ABRUPT_CHANGE_INTERVAL) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
 else:
-    stochastic_advertisers = [StochasticStationaryAdvertiser() for _ in range(number_of_stochastic_advertisers)]
+    stochastic_advertisers = [StochasticStationaryAdvertiser() for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
 advertisers = []
 for stochastic_advertiser in stochastic_advertisers:
     advertisers.append(stochastic_advertiser)
-if use_greedy_advertiser:
+if USE_GREEDY_ADVERTISER:
     greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(constants.CATEGORIES)], ad_value=1, network=network_instance, )
     advertisers.append(greedy_learner)
 
@@ -49,13 +49,13 @@ if use_greedy_advertiser:
 publisher = Publisher(
     network=network_instance,
     advertisers=advertisers,
-    bandit_type_qualities=bandit_type_qualities,
-    bandit_type_activations=bandit_type_activations,
-    window_size=window_size
+    bandit_type_qualities=BANDIT_TYPE_FOR_QUALITIES,
+    bandit_type_activations=BANDIT_TYPE_FOR_ACTIVATIONS,
+    window_size=SLIDING_WINDOW_SIZE
 )
 
 # ################ Prepare variables for plotting. ################ #
-if learn_activations:
+if LEARN_ACTIVATIONS:
     plot_rewards_bandit_activation = {}
     plot_regret_bandit_activation = {}
     plot_rewards_random_activation = {}
@@ -70,7 +70,7 @@ if learn_activations:
             plot_regret_bandit_activation[from_category][to_category] = np.array([])
             plot_rewards_random_activation[from_category][to_category] = np.array([])
             plot_regret_random_activation[from_category][to_category] = np.array([])
-if learn_qualities:
+if LEARN_QUALITIES:
     plot_rewards_bandit_quality = {}
     plot_regret_bandit_quality = {}
     plot_rewards_random_quality = {}
@@ -87,7 +87,7 @@ if learn_qualities:
             plot_rewards_random_quality[ad_id][category] = np.array([])
             plot_regret_random_quality[ad_id][category] = np.array([])
 
-for day in range(number_of_days):
+for day in range(NUMBER_OF_DAYS):
     print('Running day', day)
     # get current quality estimates
     bandit_estimated_qualities = publisher.get_bandit_qualities()
@@ -103,7 +103,7 @@ for day in range(number_of_days):
         advertiser.estimated_activations = bandit_estimated_activations
     # set context for simulation for calculating best bids
     slates = constants.slates
-    if use_greedy_advertiser:
+    if USE_GREEDY_ADVERTISER:
         greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in stochastic_advertisers])
         greedy_learner.set_slates(slates=slates)
         # calculate bids by simulation
@@ -133,7 +133,7 @@ for day in range(number_of_days):
     for advertiser in advertisers:
         advertiser.report_daily_results(social_influence=social_influence)
 
-    if learn_qualities:
+    if LEARN_QUALITIES:
         rewards_qualities = {}
         for advertiser in advertisers:
             ad_id = advertiser.id
@@ -165,11 +165,11 @@ for day in range(number_of_days):
                 random_regret = abs(slot.assigned_ad.real_quality - random_estimated_quality)
                 plot_regret_random_quality[ad.ad_id][category] = np.append(plot_regret_random_quality[ad.ad_id][category], random_regret)
                 plot_rewards_random_quality[ad.ad_id][category] = np.append(plot_rewards_random_quality[ad.ad_id][category], 1 - random_regret)
-                if learn_from_first_slot_only:
+                if LEARN_FROM_FIRST_SLOT_ONLY:
                     break
         # update bandits with rewards
         publisher.update_bandits_quality(rewards=rewards_qualities)
-    if learn_activations:
+    if LEARN_ACTIVATIONS:
         # do rewards and bandit update for activation estimate
         rewards_activations = {}
         for from_category in constants.categories:
@@ -208,7 +208,7 @@ for day in range(number_of_days):
         # update bandits with rewards
         publisher.update_bandits_activations(rewards=rewards_activations)
 
-if learn_activations:
+if LEARN_ACTIVATIONS:
     # # Create plot for activations
     # # Note: one experiment = one bandit (one bandit for each category and for each advertiser)
     for from_category in range(constants.CATEGORIES):
@@ -233,7 +233,7 @@ if learn_activations:
     for from_category in range(constants.CATEGORIES):
         print(network_instance.weight_matrix[from_category][:])
 fig = 0
-if learn_qualities:
+if LEARN_QUALITIES:
     # Create plot for qualities
     # Note: one experiment = one bandit (one bandit for each category and for each advertiser)
     for advertiser in advertisers:
