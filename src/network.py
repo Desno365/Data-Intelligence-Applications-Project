@@ -173,13 +173,17 @@ class Network:
     # # calculate activated nodes in the live edge graph (with stack)
     def depth_first_search(self, activated_nodes, live_edge_adjacency_matrix):
         seeds = activated_nodes.copy()
+        cascade = []
+        for i in seeds:
+            cascade.append(i)
         processed_nodes = []
         for node in seeds:
             self.drawing_network.nodes[node]['is_seed'] = True
         for seed in seeds:
-            start_time = datetime.now()
+            # start_time = datetime.now()
             stack = []
             stack.append(seed)
+            processed_nodes.append(seed)
             while len(stack):
                 s = stack.pop()
                 self.drawing_network.nodes[s]['is_active'] = True
@@ -189,7 +193,7 @@ class Network:
                         if edge[1] not in processed_nodes:
                             stack.append(edge[1])
                             processed_nodes.append(edge[1])
-                        activated_nodes.append(edge[1])
+                            cascade.append(edge[1])
                         self.drawing_network.nodes[edge[1]]['is_active'] = True
                         self.drawing_network.edges[edge[0], edge[1]]["is_active"] = True
                     # if progress_index % 1000000 == 0:
@@ -199,8 +203,8 @@ class Network:
                 #     if live_edge_adjacency_matrix[s][k] == 1:
                 #         if k not in activated_nodes:
                 #             activated_nodes.append(k)
-            print(f'processed one seed in {datetime.now() - start_time}')
-        return activated_nodes
+            # print(f'processed one seed in {datetime.now() - start_time}')
+        return cascade
 
     # # input seeds (nodes that start the cascade)
     # # input live_edge_adjacency_matrix (definition of the active edges in the graph)
@@ -308,6 +312,9 @@ class Network:
             i.activation_probability = 0
 
         for i in range(iterations):
+            if i % 1000 == 0:
+                print('iteration', i)
+            # start = datetime.now()
             # generate live edge graph and calculate activated nodes
             # live_edge_start = datetime.now()
             live, p = self.generate_live_edge_graph(activation_probabilities=activation_probabilities)
@@ -319,14 +326,17 @@ class Network:
             for node in active_nodes:
                 average_active_nodes[self.nodes[node].category] += 1
             # update node activation counts
-            for nod in active_nodes:
-                self.nodes[nod].z += 1
+                self.nodes[node].z += 1
+            # print(f'one monte carlo iteration {datetime.now() - start}')
         for category in average_active_nodes.keys():
             average_active_nodes[category] = average_active_nodes[category] / iterations
         estimated_activation_probabilities = []
         for i in range(self.n):
             ap = self.nodes[i].z / iterations
             self.nodes[i].activation_probability = ap
+            if ap > 1:
+                print(ap)
+            assert ap <= 1
             estimated_activation_probabilities.append(ap)
 
         return average_active_nodes, estimated_activation_probabilities
