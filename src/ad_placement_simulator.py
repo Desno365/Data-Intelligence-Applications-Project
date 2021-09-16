@@ -23,6 +23,7 @@ class AdPlacementSimulator:
     ) -> SocialInfluenceType:
         assert len(slates) == constants.CATEGORIES
         assert iterations > 0
+        assert (not use_estimated_activations) or (estimated_activations is not None)  # If use_estimated_activations is true, then estimated_activations must be defined.
 
         # The auction must be simulated for each category.
         for current_category in range(constants.CATEGORIES):

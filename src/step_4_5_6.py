@@ -41,7 +41,7 @@ advertisers = []
 for stochastic_advertiser in stochastic_advertisers:
     advertisers.append(stochastic_advertiser)
 if USE_GREEDY_ADVERTISER:
-    greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[1 for _ in range(constants.CATEGORIES)], ad_value=1, network=network_instance, )
+    greedy_learner = GreedyLearningAdvertiser(network=network_instance, use_estimated_activations=LEARN_ACTIVATIONS, ad_real_qualities=[1 for _ in range(constants.CATEGORIES)], ad_value=1,)
     advertisers.append(greedy_learner)
 
 
@@ -103,8 +103,9 @@ for day in range(NUMBER_OF_DAYS):
     # pass quality estimations to ads
     for advertiser in advertisers:
         ad = advertiser.ad
-        estimated_q = bandit_estimated_qualities[ad.ad_id]
-        ad.set_estimated_qualities(estimated_q)
+        estimated_qualities_dict = bandit_estimated_qualities[ad.ad_id]
+        estimated_qualities_list = [estimated_qualities_dict[x] for x in estimated_qualities_dict]
+        ad.set_estimated_qualities(estimated_qualities_list)
     # pass activations estimations to greedy advertiser
     if USE_GREEDY_ADVERTISER:
         greedy_learner.estimated_activations = bandit_estimated_activations

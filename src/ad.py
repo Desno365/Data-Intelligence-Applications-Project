@@ -33,7 +33,7 @@ class Ad:
 
     def set_estimated_qualities(self, estimated_qualities: List[float]) -> None:
         assert len(estimated_qualities) == constants.CATEGORIES
-        assert all(0.0 <= quality <= 1.0 for quality in estimated_qualities)
+        assert all((0.0 - constants.floatingPointMargin) <= quality <= (1.0 + constants.floatingPointMargin) for quality in estimated_qualities)
         self.estimated_qualities = estimated_qualities
         if constants.settings['adPrint']:
             print(f"New estimated qualities: {estimated_qualities}")
