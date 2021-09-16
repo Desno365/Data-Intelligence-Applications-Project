@@ -86,6 +86,11 @@ if LEARN_QUALITIES:
             plot_regret_bandit_quality[ad_id][category] = np.array([])
             plot_rewards_random_quality[ad_id][category] = np.array([])
             plot_regret_random_quality[ad_id][category] = np.array([])
+if USE_GREEDY_ADVERTISER:
+    gain_history_greedy = []
+    gain_history_stochastics = {}
+    for advertiser in advertisers:
+        gain_history_stochastics[advertiser.id] = []
 
 for day in range(NUMBER_OF_DAYS):
     print('Running day', day)
@@ -128,6 +133,22 @@ for day in range(NUMBER_OF_DAYS):
         use_estimated_activations=False,
         estimated_activations=None,
     )
+
+    if USE_GREEDY_ADVERTISER:
+        for advertiser in advertisers:
+            ad_id = advertiser.id
+            gain = 0
+            if ad_id in social_influence.keys():
+                for category in range(constants.CATEGORIES):
+                    ad_category_info = social_influence[ad_id][category].copy()
+                    gain += advertiser.ad_value * ad_category_info["activatedNodes"] - ad_category_info["price"] * ad_category_info["seeds"]
+                    if ad_id == greedy_learner.id:
+                        print(f'\t Seeds: {ad_category_info["seeds"]} - Activations: {ad_category_info["activatedNodes"]} - PPC: {ad_category_info["price"]}')
+            if ad_id == greedy_learner.id:
+                gain_history_greedy.append(gain)
+            else:
+                gain_history_stochastics[ad_id].append(gain)
+
     elapsed_time = datetime.now() - time
     print(f'environment sample time {elapsed_time}')
 
@@ -279,3 +300,18 @@ plt.plot(np.cumsum(gain_of_greedy), 'r')
 plt.plot(np.cumsum(mean_gain_of_stochastic), 'g')
 plt.legend(["Greedy", "Mean Gain of Stochastic advs"])
 plt.show()
+
+if USE_GREEDY_ADVERTISER:
+    plt.figure(fig)
+    fig += 1
+    plt.title('Gain History')
+    plt.xlabel("Day")
+    plt.ylabel("Gain history")
+    plt.plot(gain_history_greedy, 'g')
+    for advertiser in advertisers:
+        rgb = (random.random(), random.random(), random.random())
+        if advertiser.id != greedy_learner.id:
+            plt.plot(gain_history_stochastics[advertiser.id], color=rgb)
+    plt.plot(gain_history_greedy, 'g')
+    plt.legend(["Greedy"])
+    plt.show()
