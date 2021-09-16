@@ -14,13 +14,13 @@ from src.publisher import Publisher
 
 
 # ################ Constants. ################ #
-NUMBER_OF_DAYS = 199  # Days for the run.
+NUMBER_OF_DAYS = 1000  # Days for the run.
 NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 1
 LEARN_QUALITIES = True  # True to learn qualities, False to use real qualities.
 LEARN_ACTIVATIONS = False  # True to learn activation probabilities, False to use real activation probabilities.
 USE_GREEDY_ADVERTISER = False  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
 LEARN_FROM_FIRST_SLOT_ONLY = False  # True to learn only from first slot of slate, False to learn from all slots.
-BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.SLIDING_WINDOW_UCB1  # Bandit to be used for qualities.
+BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for qualities.
 BANDIT_TYPE_FOR_ACTIVATIONS = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for activations.
 USE_NON_STATIONARY_ADVERTISERS = False  # True to use Non-Stationary Stochastic Advertisers, False to use Stationary Stochastic Advertisers.
 SLIDING_WINDOW_SIZE = 50  # The size of the sliding window for bandit algorithms that have this parameter.
@@ -270,10 +270,6 @@ if LEARN_QUALITIES:
             fig += 1
             plt.xlabel("t")
             plt.ylabel(f"Cumulative Reward ad {ad_id}, cat {category}")
-            if len(plot_rewards_bandit_quality[ad_id][category]) > 0:
-                print(len(plot_rewards_bandit_quality[ad_id][category]))
-                print(plot_rewards_bandit_quality[ad_id][category])
-                print(np.cumsum(plot_rewards_bandit_quality[ad_id][category]))
             plt.plot(np.cumsum(plot_rewards_bandit_quality[ad_id][category]), 'g')
             plt.plot(np.cumsum(plot_rewards_random_quality[ad_id][category]), 'r')
             plt.legend(["Bandit", "Random"])
