@@ -29,7 +29,7 @@ class Publisher:
             for category in range(constants.CATEGORIES):
                 if category not in self.bandits_quality[advertiser.ad.ad_id].keys():
                     self.bandits_quality[advertiser.ad.ad_id][category] = {}
-                bandit_learner = bandit_type_qualities.instantiate_bandit(n_arms=constants.number_of_bandit_arms, window_size=window_size)
+                bandit_learner = bandit_type_qualities.instantiate_bandit(n_arms=constants.number_of_bandit_arms_qualities, window_size=window_size)
                 self.bandits_quality[advertiser.ad.ad_id][category]['bandit'] = bandit_learner
 
         self.bandits_activation = {}
@@ -43,62 +43,8 @@ class Publisher:
             self.bandits_activation[from_category] = {}
             for to_category in range(constants.CATEGORIES):
                 self.bandits_activation[from_category][to_category] = {}
-                bandit_learner = bandit_type_activations.instantiate_bandit(n_arms=constants.number_of_bandit_arms, window_size=window_size)
+                bandit_learner = bandit_type_activations.instantiate_bandit(n_arms=constants.number_of_bandit_arms_activations, window_size=window_size)
                 self.bandits_activation[from_category][to_category]['bandit'] = bandit_learner
-
-    # # Create an auction for each category and get the relative slate
-    # def generate_auctions(self, available_ads: List[Ad]):
-    #     for i in range(const.CATEGORIES):
-    #         # todo: dove vengono differenziate le diverse auctions?
-    #         self.auctions.append(VCGAuction(available_ads, self.slates[i]))
-    #         self.slates[i] = self.auctions[i].perform_auction()
-    #
-    # # Play a round for a given category, return the number of seeds and the number of activated nodes
-    # # The activated nodes is the average number of activated nodes given the seeds, as computed in influenceEstimation
-    # # todo : need to be fixed to perform an actual auction if needed
-    # def play_round(self, category, advertiser, iteration_for_average=30):
-    #     # [[]] -> [advertiser (with respect to slot position), seeds/activated_nodes]
-    #     seeds = [[] for _ in range(const.SLATE_DIMENSION)]
-    #     activated_nodes = [[] for _ in range(const.SLATE_DIMENSION)]
-    #     for node in self.network.nodes:
-    #         if node.category == category:
-    #             clicked_slot = node.show_ad(self.slates[category])
-    #             if clicked_slot >= 0:
-    #                 seeds[clicked_slot].append(node)
-    #
-    #     for ad in range(const.SLATE_DIMENSION):
-    #         activated_nodes[ad] = self.network.monte_carlo_estimation(seeds=seeds[ad], iterations=30)
-    #
-    #     return len(seeds), activated_nodes
-    #
-    # # Get the expected number of seeds and activated nodes for an auction
-    # # The function refer to the auctions currently saved in the publisher, with function generate_auctions
-    # # Input: category (the auction to check), advertiser (the advertiser to monitor), iterations (number of iterations
-    # # for the average)
-    # # Output: average number of seeds , average number of activated nodes
-    # def estimate_auction_effect(self, category: int, advertiser, iterations=15):
-    #     avg_seeds = 0
-    #     avg_activated_nodes = 0
-    #     for _ in range(iterations):
-    #         seeds = []
-    #         for node in self.network.nodes:
-    #             if node.category == category:
-    #                 clicked_slot = node.show_ad(self.slates[category])
-    #                 if clicked_slot >= 0 and self.slates[category][clicked_slot].assinged_ad == advertiser:
-    #                     seeds.append(node)
-    #         activated_nodes, node_activation_probabilities = influence_estimation.monte_carlo_estimation(
-    #             seeds=seeds, iterations=iterations)
-    #
-    #         avg_seeds += len(seeds)
-    #         avg_activated_nodes += activated_nodes
-    #
-    #     return avg_seeds/iterations, avg_activated_nodes/iterations
-    #
-    # # Given an advertiser, a category and the number of seeds, return the cost of the auction
-    # def get_cost(self, advertiser, category: int, number_of_seeds):
-    #     for slot in self.slates[category]:
-    #         if slot.assigned_ad == advertiser:
-    #             return slot.price_per_click * number_of_seeds
 
     def get_bandit_qualities(self):
         qualities = {}
@@ -119,19 +65,22 @@ class Publisher:
         return qualities
 
     def get_bandit_activations(self):
-        activations = {}
-        # activations: {
-        #   from_category: {
+        activations = []
+        # activations: [
+        #   from_category: [
         #       to_category: pulled_activation_value
-        # }}
+        #   ]
+        # ]
         # do bandit round
         for from_category in range(constants.CATEGORIES):
-            activations[from_category] = {}
+            activations.append([])
             for to_category in range(constants.CATEGORIES):
                 # do bandit for single ad
                 pulled_arm = self.bandits_activation[from_category][to_category]['bandit'].pull_arm()
                 self.bandits_activation[from_category][to_category]['last_pulled_arm'] = pulled_arm
-                activations[from_category][to_category] = constants.bandit_activation_values[pulled_arm]
+                activations[from_category].append(constants.bandit_activation_values[pulled_arm])
+            assert len(activations[from_category]) == constants.CATEGORIES
+        assert len(activations) == constants.CATEGORIES
         return activations
 
     # rewards = measured click probabilities for each category and for each ad.

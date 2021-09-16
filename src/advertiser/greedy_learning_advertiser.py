@@ -10,7 +10,7 @@ from src.ad_placement_simulator import AdPlacementSimulator
 from src.advertiser.advertiser import Advertiser
 from src.bids_enum import BidsEnum
 from src.network import Network
-from src.type_definitions import SlateType
+from src.type_definitions import SlateType, ActivationProbabilitiesType
 
 
 class GreedyLearningAdvertiser(Advertiser):
@@ -31,9 +31,9 @@ class GreedyLearningAdvertiser(Advertiser):
         self.category_total_value = [0.0 for _ in range(constants.CATEGORIES)]
         self.simulation_activated_nodes_history = []
         self.use_estimated_activations = use_estimated_activations
-        self.estimated_activations = [[random.random() for _ in range(constants.CATEGORIES)] for _ in range(constants.CATEGORIES)]
+        self.estimated_activations = None
 
-    def participate_auction(self) -> Ad:
+    def participate_real_auction(self) -> Ad:
         # Reset learner
         self.stop_improving = False
         self.simulation_gain_history = []
@@ -52,6 +52,16 @@ class GreedyLearningAdvertiser(Advertiser):
 
     def set_slates(self, slates: List[SlateType]) -> None:
         self.slates = slates
+
+    def set_estimated_activations(self, estimated_activations: ActivationProbabilitiesType) -> None:
+        assert len(estimated_activations) == constants.CATEGORIES
+        for i in estimated_activations:
+            assert len(i) == constants.CATEGORIES
+            for j in i:
+                assert (0.0 - constants.floatingPointMargin) <= j <= (1.0 + constants.floatingPointMargin)
+        self.estimated_activations = estimated_activations
+        if constants.settings['adPrint']:
+            print(f"New estimated activations: {estimated_activations}")
 
     def find_optimal_bids(self) -> None:
         self.improved_bids = self.bids.copy()

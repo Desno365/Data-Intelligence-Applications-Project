@@ -67,9 +67,16 @@ class AdPlacementSimulator:
             print('estimate social influence', datetime.now()-time)
         #network.prettyPrintSocialInfluence(social_influence)
 
-        # Set price to zero for all:
+        # Set price to zero for all and check that if seeds are zero for an advertiser also activated nodes are zero.
         for ad_id in social_influence.keys():
             for current_category in social_influence[ad_id].keys():
+                total_seeds = 0
+                for category in constants.categories:
+                    total_seeds += social_influence[ad_id][category]['seeds']
+                if total_seeds == 0.0:
+                    if social_influence[ad_id][current_category]["activatedNodes"] != 0.0:
+                        print(f'Error: seeds {social_influence[ad_id][current_category]["seeds"]}, activated nodes {social_influence[ad_id][current_category]["activatedNodes"]}')
+                        raise Exception("Activated nodes not zero with zero seeds")
                 social_influence[ad_id][current_category]["price"] = 0.0
 
         # Add price information:

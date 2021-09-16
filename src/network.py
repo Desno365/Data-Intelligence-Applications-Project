@@ -109,11 +109,11 @@ class Network:
         for i in range(len(constants.categories)):
             for ii in range(len(constants.categories)):
                 if i == ii:
-                    activation_probability = constants.edge_activation_p_same
+                    activation_probability = random.uniform(constants.edge_activation_p_close / 2, constants.edge_activation_p_same)
                 elif abs(i-ii) == 1:
-                    activation_probability = constants.edge_activation_p_close
+                    activation_probability = random.uniform(constants.edge_activation_p_far / 2, constants.edge_activation_p_close)
                 else:
-                    activation_probability = constants.edge_activation_p_far
+                    activation_probability = random.uniform(0.01, constants.edge_activation_p_far)
                 self.weight_matrix[i][ii] = activation_probability
         print(f'network created in {datetime.now() - start_time}')
 
@@ -172,6 +172,7 @@ class Network:
     #   return activated_nodes
     # # calculate activated nodes in the live edge graph (with stack)
     def depth_first_search(self, activated_nodes: List[int]):
+        assert len(activated_nodes) > 0
         seeds = activated_nodes.copy()
         cascade = []
         for i in seeds:
@@ -303,6 +304,7 @@ class Network:
     # output: average_active_nodes (average number of active nodes in all the simulations)
     # output: estimated_activation_probabilities (estimated activation probability for each node in the network)
     def monte_carlo_estimation(self, seeds: List[int], iterations=100, activation_probabilities: ActivationProbabilitiesType = None):
+        assert len(seeds) > 0
         # monte carlo sampling
         # reset previously calculated values
         average_active_nodes = {}
@@ -384,8 +386,13 @@ class Network:
                 for category in range(constants.CATEGORIES):
                     for node in seeds_per_ad_id[ad_id][category]:
                         total_seeds.append(node)
+
                 # time = datetime.now()
-                activated_nodes, node_estimated_activation_probabilities = self.monte_carlo_estimation(seeds=total_seeds, iterations=1, activation_probabilities=estimated_activation_probabilities)
+                if len(total_seeds) > 0:
+                    activated_nodes, node_estimated_activation_probabilities = self.monte_carlo_estimation(seeds=total_seeds, iterations=1, activation_probabilities=estimated_activation_probabilities)
+                else:
+                    activated_nodes = [0 for i in range(constants.CATEGORIES)]
+                # print(f'seeds {total_seeds}, nodes {activated_nodes}')
                 # elapsed_time = datetime.now() - time
                 # print(f'one monte carlo iteration takes {elapsed_time}')
                 # print(estimated_activation_probabilities)
@@ -411,6 +418,7 @@ class Network:
             for category in constants.categories:
                 r[ad_id][category]['seeds'] = avg_n_seeds_per_ad_id[ad_id][category]
                 r[ad_id][category]['activatedNodes'] = avg_active_nodes_per_ad_id[ad_id][category]
+                # print(f'ad_id {ad_id}, category {category}, seeds {avg_n_seeds_per_ad_id[ad_id][category]}, nodes {avg_active_nodes_per_ad_id[ad_id][category]}')
         return r
 
     def calculate_seeds(self, slates: List[SlateType], use_estimated_qualities=False) -> Dict[int, Dict[int, List[int]]]:

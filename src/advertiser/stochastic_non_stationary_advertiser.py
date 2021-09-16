@@ -21,12 +21,24 @@ class StochasticNonStationaryAdvertiser(Advertiser):
         self.n = n
         self.k = 0
 
-    def participate_auction(self) -> Ad:
+    def participate_real_auction(self) -> Ad:
         self.k += 1
         if self.k >= self.n:
             self.change_bids()
+            self.change_qualities()
             self.k = 0
-        return super().participate_auction()
+        return super().participate_real_auction()
 
     def change_bids(self) -> None:
         self.ad.set_bids([random.choice(list(BidsEnum)) for _ in range(constants.CATEGORIES)])
+
+    def change_qualities(self):
+        ad_real_qualities = [random.uniform(0.05, 1) for _ in range(constants.CATEGORIES)]
+        current_estimated_qualities = self.ad.estimated_qualities
+        self.ad = Ad(
+            ad_id=self.id,
+            estimated_qualities=current_estimated_qualities,
+            real_qualities=ad_real_qualities,
+            value=self.ad_value,
+            bids=[BidsEnum.OFF for _ in range(constants.CATEGORIES)]
+        )

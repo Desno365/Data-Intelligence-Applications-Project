@@ -10,7 +10,7 @@ network = Network(50, False)
 greedy = GreedyLearningAdvertiser(network=network)
 
 for j in range(10000):
-    greedy.participate_auction()
+    greedy.participate_real_auction()
     nodes = [Node(random.randint(0, 4)) for _ in range(10)]
     bids_per_category = [random.choice(list(BidsEnum)) for _ in range(5)]
     cost_per_category = [bids_per_category[i].value for i in range(5)]

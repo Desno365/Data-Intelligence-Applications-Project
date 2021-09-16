@@ -24,7 +24,7 @@ network_instance.depth_first_search([random.randint(0, constants.number_of_nodes
 
 # ################ Prepare context: Network. ################ #
 advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
-advertisements = [adv.participate_auction() for adv in advertisers]
+advertisements = [adv.participate_real_auction() for adv in advertisers]
 
 # ################ Prepare variables for the experiment. ################ #
 # number_of_activated_nodes_per_experiment = []

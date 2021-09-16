@@ -34,7 +34,7 @@ for advertiser in advertisers:
 
 
 # ################ Run experiment. ################ #
-greedy_ad = greedy_learner.participate_auction()
+greedy_ad = greedy_learner.participate_real_auction()
 
 
 # ################ Plot result. ################ #

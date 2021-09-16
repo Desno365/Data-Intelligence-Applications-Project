@@ -15,13 +15,13 @@ settings = {
 # the number of node categories in the network, each node is assigned a random category at creation
 CATEGORIES = 5
 categories = [0, 1, 2, 3, 4]
-number_of_nodes = 100
+number_of_nodes = 300
 average_number_neighbours = 2 * math.log(number_of_nodes)
 sigma_neighbours = math.log(number_of_nodes)
 connection_p_far = 0.05
 connection_p_close = 0.1
-edge_activation_p_far = 0.05
-edge_activation_p_close = 0.1
+edge_activation_p_far = 0.06
+edge_activation_p_close = 0.10
 edge_activation_p_same = 0.15
 category_proportions = [625/9881, 1625/9881, 3225/9881, 5785/9881, 1]
 do_drawings = True
@@ -38,16 +38,13 @@ network_connectivity = 0.4
 floatingPointMargin = 0.001
 
 # Number of iterations of the Monte Carlo simulation.
-greedy_simulation_iterations = 100
+greedy_simulation_iterations = 20
 
 # the number of bandit arms and their values
-number_of_bandit_arms = 5
-bandit_quality_values = []
-bandit_activation_values = []
-for i in range(number_of_bandit_arms):
-    j = (i+1)/number_of_bandit_arms
-    bandit_quality_values.append(j)
-    bandit_activation_values.append(j)
+bandit_quality_values = [0.2, 0.4, 0.6, 0.8, 1.0]
+bandit_activation_values = [0.03, 0.06, 0.09, 0.12, 0.15]  # [i*0.15/10 for i in range(10)]
+number_of_bandit_arms_qualities = len(bandit_quality_values)
+number_of_bandit_arms_activations = len(bandit_activation_values)
 
 slates = []
 for current_category in range(CATEGORIES):
