@@ -38,10 +38,11 @@ network_connectivity = 0.4
 floatingPointMargin = 0.001
 
 # Number of iterations of the Monte Carlo simulation.
-greedy_simulation_iterations = 20
+greedy_simulation_iterations = 3
 
 # the number of bandit arms and their values
 bandit_quality_values = [0.2, 0.4, 0.6, 0.8, 1.0]
+# bandit_quality_values = [(i+1)/10 for i in range(10)]
 bandit_activation_values = [0.03, 0.06, 0.09, 0.12, 0.15]  # [i*0.15/10 for i in range(10)]
 number_of_bandit_arms_qualities = len(bandit_quality_values)
 number_of_bandit_arms_activations = len(bandit_activation_values)

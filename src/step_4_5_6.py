@@ -14,17 +14,17 @@ from src.publisher import Publisher
 
 
 # ################ Constants. ################ #
-NUMBER_OF_DAYS = 100  # Days for the run.
+NUMBER_OF_DAYS = 199  # Days for the run.
 NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 1
 LEARN_QUALITIES = True  # True to learn qualities, False to use real qualities.
-LEARN_ACTIVATIONS = True  # True to learn activation probabilities, False to use real activation probabilities.
-USE_GREEDY_ADVERTISER = True  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
+LEARN_ACTIVATIONS = False  # True to learn activation probabilities, False to use real activation probabilities.
+USE_GREEDY_ADVERTISER = False  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
 LEARN_FROM_FIRST_SLOT_ONLY = False  # True to learn only from first slot of slate, False to learn from all slots.
-BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for qualities.
+BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.SLIDING_WINDOW_UCB1  # Bandit to be used for qualities.
 BANDIT_TYPE_FOR_ACTIVATIONS = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for activations.
 USE_NON_STATIONARY_ADVERTISERS = False  # True to use Non-Stationary Stochastic Advertisers, False to use Stationary Stochastic Advertisers.
-SLIDING_WINDOW_SIZE = 10  # The size of the sliding window for bandit algorithms that have this parameter.
-ABRUPT_CHANGE_INTERVAL = 10  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
+SLIDING_WINDOW_SIZE = 50  # The size of the sliding window for bandit algorithms that have this parameter.
+ABRUPT_CHANGE_INTERVAL = 100  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
 
 
 # ################ Prepare context: Network. ################ #
@@ -187,6 +187,7 @@ for day in range(NUMBER_OF_DAYS):
                 plot_rewards_random_quality[ad.ad_id][category] = np.append(plot_rewards_random_quality[ad.ad_id][category], 1 - random_regret)
                 if LEARN_FROM_FIRST_SLOT_ONLY:
                     break
+
         # update bandits with rewards
         publisher.update_bandits_quality(rewards=rewards_qualities)
     if LEARN_ACTIVATIONS:
@@ -230,7 +231,7 @@ for day in range(NUMBER_OF_DAYS):
 
 
 fig = 0
-
+'''
 if LEARN_ACTIVATIONS:
     # # Create plot for activations
     # # Note: one experiment = one bandit (one bandit for each category and for each advertiser)
@@ -257,6 +258,7 @@ if LEARN_ACTIVATIONS:
     print('true activation values:')
     for from_category in range(constants.CATEGORIES):
         print(network_instance.weight_matrix[from_category][:])
+'''
 
 if LEARN_QUALITIES:
     # Create plot for qualities
@@ -268,8 +270,12 @@ if LEARN_QUALITIES:
             fig += 1
             plt.xlabel("t")
             plt.ylabel(f"Cumulative Reward ad {ad_id}, cat {category}")
-            plt.plot(np.cumsum(plot_rewards_bandit_quality[ad_id][category]), 'r')
-            plt.plot(np.cumsum(plot_rewards_random_quality[ad_id][category]), 'g')
+            if len(plot_rewards_bandit_quality[ad_id][category]) > 0:
+                print(len(plot_rewards_bandit_quality[ad_id][category]))
+                print(plot_rewards_bandit_quality[ad_id][category])
+                print(np.cumsum(plot_rewards_bandit_quality[ad_id][category]))
+            plt.plot(np.cumsum(plot_rewards_bandit_quality[ad_id][category]), 'g')
+            plt.plot(np.cumsum(plot_rewards_random_quality[ad_id][category]), 'r')
             plt.legend(["Bandit", "Random"])
             plt.show()
 
@@ -277,8 +283,13 @@ if LEARN_QUALITIES:
             fig += 1
             plt.xlabel("t")
             plt.ylabel(f"Cumulative Regret ad {ad_id}, cat {category}")
-            plt.plot(np.cumsum(plot_regret_bandit_quality[ad_id][category]), 'r')
-            plt.plot(np.cumsum(plot_regret_random_quality[ad_id][category]), 'g')
+            plt.plot(np.cumsum(plot_regret_bandit_quality[ad_id][category]), 'g')
+            plt.plot(np.cumsum(plot_regret_random_quality[ad_id][category]), 'r')
+            #if USE_NON_STATIONARY_ADVERTISERS:
+            #    for i in range(NUMBER_OF_DAYS):
+            #        i = i + 1
+            #        if i % ABRUPT_CHANGE_INTERVAL == 0:
+            #            plt.axvline(x=i)
             plt.legend(["Bandit", "Random"])
             plt.show()
 

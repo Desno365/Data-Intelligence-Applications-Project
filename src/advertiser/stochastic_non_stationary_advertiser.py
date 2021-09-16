@@ -24,6 +24,7 @@ class StochasticNonStationaryAdvertiser(Advertiser):
     def participate_real_auction(self) -> Ad:
         self.k += 1
         if self.k >= self.n:
+            print(f"Advertiser with id {self.id} is making an abrupt change.")
             self.change_bids()
             self.change_qualities()
             self.k = 0
