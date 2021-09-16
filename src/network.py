@@ -175,7 +175,8 @@ class Network:
         seeds = activated_nodes.copy()
         cascade = []
         for i in seeds:
-            cascade.append(i)
+            if i not in cascade:
+                cascade.append(i)
         processed_nodes = []
         for node in seeds:
             self.drawing_network.nodes[node]['is_seed'] = True
@@ -336,7 +337,7 @@ class Network:
             ap = self.nodes[i].z / iterations
             self.nodes[i].activation_probability = ap
             if ap > 1:
-                print(ap)
+                print(ap, active_nodes)
             assert ap <= 1
             estimated_activation_probabilities.append(ap)
 
