@@ -19,7 +19,7 @@ for slate in constants.slates:
 
 # ################ Prepare context: Advertisers. ################ #
 advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
-greedy_learner = GreedyLearningAdvertiser(ad_real_qualities=[0.8 for _ in range(constants.CATEGORIES)], ad_value=1, network=network_instance)
+greedy_learner = GreedyLearningAdvertiser(network=network_instance, use_estimated_activations=False, ad_real_qualities=[0.8 for _ in range(constants.CATEGORIES)], ad_value=1)
 greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in advertisers])
 greedy_learner.set_slates(slates=constants.slates)
 advertisers.append(greedy_learner)
