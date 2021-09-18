@@ -14,7 +14,7 @@ from src.publisher import Publisher
 
 
 # ################ Constants. ################ #
-NUMBER_OF_DAYS = 100  # Days for the run.
+NUMBER_OF_DAYS = 20  # Days for the run.
 NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 1
 LEARN_QUALITIES = True  # True to learn qualities, False to use real qualities.
 LEARN_ACTIVATIONS = False  # True to learn activation probabilities, False to use real activation probabilities.
@@ -23,8 +23,8 @@ LEARN_FROM_FIRST_SLOT_ONLY = True  # True to learn only from first slot of slate
 BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.UCB1  # Bandit to be used for qualities.
 BANDIT_TYPE_FOR_ACTIVATIONS = BanditTypeEnum.UCB1  # Bandit to be used for activations.
 USE_NON_STATIONARY_ADVERTISERS = False  # True to use Non-Stationary Stochastic Advertisers, False to use Stationary Stochastic Advertisers.
-SLIDING_WINDOW_SIZE = 100  # The size of the sliding window for bandit algorithms that have this parameter.
-ABRUPT_CHANGE_INTERVAL = 100  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
+SLIDING_WINDOW_SIZE = 1000  # The size of the sliding window for bandit algorithms that have this parameter.
+ABRUPT_CHANGE_INTERVAL = 1000  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
 
 
 # ################ Prepare context: Network. ################ #
@@ -43,7 +43,7 @@ for stochastic_advertiser in stochastic_advertisers:
 if USE_GREEDY_ADVERTISER:
     greedy_learner = GreedyLearningAdvertiser(network=network_instance, use_estimated_activations=LEARN_ACTIVATIONS,
                                               ad_real_qualities=[random.random() for _ in range(constants.CATEGORIES)],
-                                              ad_value=1)
+                                              ad_value=0.7)
     advertisers.append(greedy_learner)
 
 
@@ -171,10 +171,6 @@ for day in range(NUMBER_OF_DAYS):
                 number_of_seeds = social_influence[ad.ad_id][category]['seeds']
                 measured_quality = (number_of_seeds / susceptible_nodes) / constants.SLOT_VISIBILITY
                 # measured_quality = (number_of_seeds / nodes_per_category[category]) / slot.slot_prominence
-                susceptible_nodes -= number_of_seeds
-                if susceptible_nodes <= constants.number_of_bandit_arms_qualities:
-                    print("Not enough samples.")
-                    break
                 error = abs(measured_quality - bandit_estimated_qualities[ad.ad_id][category])
                 if error <= 1 / constants.number_of_bandit_arms_qualities:
                     rewards_qualities[ad.ad_id][category] = 1
@@ -189,9 +185,14 @@ for day in range(NUMBER_OF_DAYS):
                 plot_rewards_random_quality[ad.ad_id][category] = np.append(plot_rewards_random_quality[ad.ad_id][category], 1 - random_regret)
                 if LEARN_FROM_FIRST_SLOT_ONLY:
                     break
+                susceptible_nodes -= number_of_seeds
+                if susceptible_nodes <= constants.number_of_bandit_arms_qualities:
+                    print("Not enough samples.")
+                    break
 
         # update bandits with rewards
         publisher.update_bandits_quality(rewards=rewards_qualities)
+
     if LEARN_ACTIVATIONS:
         # do rewards and bandit update for activation estimate
         rewards_activations = {}
@@ -297,21 +298,21 @@ if LEARN_QUALITIES:
 
 # Print gain of advertisers.
 if USE_GREEDY_ADVERTISER:
-    gain_of_greedy = greedy_learner.daily_gain_history
-    gains_of_stochastic = []
-    for stochastic_advertiser in stochastic_advertisers:
-        gains_of_stochastic.append(stochastic_advertiser.daily_gain_history)
-
-    mean_gain_of_stochastic = np.mean(gains_of_stochastic, axis=0)
-
-    plt.figure(fig)
-    fig += 1
-    plt.xlabel("t")
-    plt.ylabel("Cumulative Gain")
-    plt.plot(np.cumsum(gain_of_greedy), 'r')
-    plt.plot(np.cumsum(mean_gain_of_stochastic), 'g')
-    plt.legend(["Greedy", "Mean Gain of Stochastic advs"])
-    plt.show()
+    # gain_of_greedy = greedy_learner.daily_gain_history
+    # gains_of_stochastic = []
+    # for stochastic_advertiser in stochastic_advertisers:
+    #     gains_of_stochastic.append(stochastic_advertiser.daily_gain_history)
+    #
+    # mean_gain_of_stochastic = np.mean(gains_of_stochastic, axis=0)
+    #
+    # plt.figure(fig)
+    # fig += 1
+    # plt.xlabel("t")
+    # plt.ylabel("Cumulative Gain")
+    # plt.plot(np.cumsum(gain_of_greedy), 'r')
+    # plt.plot(np.cumsum(mean_gain_of_stochastic), 'g')
+    # plt.legend(["Greedy", "Mean Gain of Stochastic advs"])
+    # plt.show()
 
     plt.figure(fig)
     fig += 1
