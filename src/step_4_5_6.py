@@ -14,17 +14,17 @@ from src.publisher import Publisher
 
 
 # ################ Constants. ################ #
-NUMBER_OF_DAYS = 150  # Days for the run.
+NUMBER_OF_DAYS = 100  # Days for the run.
 NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 1
 LEARN_QUALITIES = True  # True to learn qualities, False to use real qualities.
 LEARN_ACTIVATIONS = False  # True to learn activation probabilities, False to use real activation probabilities.
 USE_GREEDY_ADVERTISER = True  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
-AVERAGING_FACTOR = 1
+GREEDY_AVERAGING_FACTOR = 3  # The number of iterations of each step of the greedy algorithm. If 1, work with no averaging
 LEARN_FROM_FIRST_SLOT_ONLY = True  # True to learn only from first slot of slate, False to learn from all slots.
 BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.UCB1  # Bandit to be used for qualities.
 BANDIT_TYPE_FOR_ACTIVATIONS = BanditTypeEnum.UCB1  # Bandit to be used for activations.
 USE_NON_STATIONARY_ADVERTISERS = False  # True to use Non-Stationary Stochastic Advertisers, False to use Stationary Stochastic Advertisers.
-SLIDING_WINDOW_SIZE = 50  # The size of the sliding window for bandit algorithms that have this parameter.
+SLIDING_WINDOW_SIZE = 100  # The size of the sliding window for bandit algorithms that have this parameter.
 ABRUPT_CHANGE_INTERVAL = 100  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
 
 
@@ -44,7 +44,7 @@ for stochastic_advertiser in stochastic_advertisers:
 if USE_GREEDY_ADVERTISER:
     greedy_learner = GreedyLearningAdvertiser(network=network_instance, use_estimated_activations=LEARN_ACTIVATIONS,
                                               ad_real_qualities=[random.random() for _ in range(constants.CATEGORIES)],
-                                              ad_value=1, averaging_factor=AVERAGING_FACTOR)
+                                              ad_value=1, averaging_factor=GREEDY_AVERAGING_FACTOR)
     advertisers.append(greedy_learner)
 
 

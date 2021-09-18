@@ -16,7 +16,7 @@ from src.type_definitions import SlateType, ActivationProbabilitiesType
 class GreedyLearningAdvertiser(Advertiser):
 
     def __init__(self, network: Network, use_estimated_activations: bool, ad_real_qualities: List[float] = None,
-                 ad_value: float = 0.5, averaging_factor: int = 4):
+                 ad_value: float = 0.5, averaging_factor: int = 1):
         super().__init__(ad_real_qualities=ad_real_qualities, ad_value=ad_value)
         self.stop_improving = False
         self.already_increased = [False for _ in range(constants.CATEGORIES)]  # This list will keep track of which bid has already been increased
@@ -33,7 +33,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.simulation_activated_nodes_history = []
         self.use_estimated_activations = use_estimated_activations
         self.estimated_activations = None
-        self.averaging_factor = averaging_factor
+        self.averaging_factor = averaging_factor  # Iterations of each step of the greedy algorithm to reduce the variance. If 1 do not average.
 
     def participate_real_auction(self) -> Ad:
         # Reset learner
