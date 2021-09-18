@@ -14,14 +14,15 @@ from src.publisher import Publisher
 
 
 # ################ Constants. ################ #
-NUMBER_OF_DAYS = 1000  # Days for the run.
+NUMBER_OF_DAYS = 150  # Days for the run.
 NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 1
 LEARN_QUALITIES = True  # True to learn qualities, False to use real qualities.
 LEARN_ACTIVATIONS = False  # True to learn activation probabilities, False to use real activation probabilities.
-USE_GREEDY_ADVERTISER = False  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
-LEARN_FROM_FIRST_SLOT_ONLY = False  # True to learn only from first slot of slate, False to learn from all slots.
-BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for qualities.
-BANDIT_TYPE_FOR_ACTIVATIONS = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for activations.
+USE_GREEDY_ADVERTISER = True  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
+AVERAGING_FACTOR = 1
+LEARN_FROM_FIRST_SLOT_ONLY = True  # True to learn only from first slot of slate, False to learn from all slots.
+BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.UCB1  # Bandit to be used for qualities.
+BANDIT_TYPE_FOR_ACTIVATIONS = BanditTypeEnum.UCB1  # Bandit to be used for activations.
 USE_NON_STATIONARY_ADVERTISERS = False  # True to use Non-Stationary Stochastic Advertisers, False to use Stationary Stochastic Advertisers.
 SLIDING_WINDOW_SIZE = 50  # The size of the sliding window for bandit algorithms that have this parameter.
 ABRUPT_CHANGE_INTERVAL = 100  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
@@ -41,7 +42,9 @@ advertisers = []
 for stochastic_advertiser in stochastic_advertisers:
     advertisers.append(stochastic_advertiser)
 if USE_GREEDY_ADVERTISER:
-    greedy_learner = GreedyLearningAdvertiser(network=network_instance, use_estimated_activations=LEARN_ACTIVATIONS, ad_real_qualities=[1 for _ in range(constants.CATEGORIES)], ad_value=1,)
+    greedy_learner = GreedyLearningAdvertiser(network=network_instance, use_estimated_activations=LEARN_ACTIVATIONS,
+                                              ad_real_qualities=[random.random() for _ in range(constants.CATEGORIES)],
+                                              ad_value=1, averaging_factor=AVERAGING_FACTOR)
     advertisers.append(greedy_learner)
 
 
@@ -240,7 +243,7 @@ if LEARN_ACTIVATIONS:
             plt.figure(fig)
             fig += 1
             plt.xlabel("t")
-            plt.ylabel(f"Reward from category {from_category}, to cat {to_category}")
+            plt.ylabel(f"Activation Reward from category {from_category}, to cat {to_category}")
             plt.plot(np.cumsum(plot_rewards_bandit_activation[from_category][to_category]), 'r')
             plt.plot(np.cumsum(plot_rewards_random_activation[from_category][to_category]), 'g')
             plt.legend(["Bandit", "Random"])
@@ -249,7 +252,7 @@ if LEARN_ACTIVATIONS:
             plt.figure(fig)
             fig += 1
             plt.xlabel("t")
-            plt.ylabel(f"Regret from category {from_category}, to cat {to_category}")
+            plt.ylabel(f"Activation Regret from category {from_category}, to cat {to_category}")
             plt.plot(np.cumsum(plot_regret_bandit_activation[from_category][to_category]), 'r')
             plt.plot(np.cumsum(plot_regret_random_activation[from_category][to_category]), 'g')
             plt.legend(["Bandit", "Random"])
@@ -269,7 +272,7 @@ if LEARN_QUALITIES:
             plt.figure(fig)
             fig += 1
             plt.xlabel("t")
-            plt.ylabel(f"Cumulative Reward ad {ad_id}, cat {category}")
+            plt.ylabel(f"Cumulative Quality Reward ad {ad_id}, cat {category}")
             plt.plot(np.cumsum(plot_rewards_bandit_quality[ad_id][category]), 'g')
             plt.plot(np.cumsum(plot_rewards_random_quality[ad_id][category]), 'r')
             plt.legend(["Bandit", "Random"])
@@ -278,7 +281,7 @@ if LEARN_QUALITIES:
             plt.figure(fig)
             fig += 1
             plt.xlabel("t")
-            plt.ylabel(f"Cumulative Regret ad {ad_id}, cat {category}")
+            plt.ylabel(f"Cumulative Quality Regret ad {ad_id}, cat {category}")
             plt.plot(np.cumsum(plot_regret_bandit_quality[ad_id][category]), 'g')
             plt.plot(np.cumsum(plot_regret_random_quality[ad_id][category]), 'r')
             #if USE_NON_STATIONARY_ADVERTISERS:

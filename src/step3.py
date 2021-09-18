@@ -5,7 +5,8 @@ from src.utils import Utils
 
 
 # ################ Constants. ################ #
-NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 5
+NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 1
+GREEDY_AVERAGING_FACTOR = 3
 
 # ################ Prepare context: Network. ################ #
 network_instance = network.Network(constants.number_of_nodes, False)
@@ -19,7 +20,9 @@ for slate in constants.slates:
 
 # ################ Prepare context: Advertisers. ################ #
 advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
-greedy_learner = GreedyLearningAdvertiser(network=network_instance, use_estimated_activations=False, ad_real_qualities=[0.8 for _ in range(constants.CATEGORIES)], ad_value=1)
+greedy_learner = GreedyLearningAdvertiser(network=network_instance, use_estimated_activations=False,
+                                          ad_real_qualities=[0.8 for _ in range(constants.CATEGORIES)], ad_value=1,
+                                          averaging_factor=GREEDY_AVERAGING_FACTOR)
 greedy_learner.set_rival_ads(rival_ads=[advertiser.ad for advertiser in advertisers])
 greedy_learner.set_slates(slates=constants.slates)
 advertisers.append(greedy_learner)
@@ -34,7 +37,9 @@ for advertiser in advertisers:
 
 
 # ################ Run experiment. ################ #
+print('starting experiment')
 greedy_ad = greedy_learner.participate_real_auction()
+print('experiment over')
 
 
 # ################ Plot result. ################ #

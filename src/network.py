@@ -55,6 +55,7 @@ class Network:
             self.nodes_by_category[category] = []
         for i in range(self.n):
             sample = random.random()
+            # todo perchè con diverse proporzioni le varie categorie e non rand(1,5) ?
             for category in constants.categories:
                 if sample < constants.category_proportions[category]:
                     chosen_category = category
@@ -109,11 +110,11 @@ class Network:
         for i in range(len(constants.categories)):
             for ii in range(len(constants.categories)):
                 if i == ii:
-                    activation_probability = random.uniform(constants.edge_activation_p_close / 2, constants.edge_activation_p_same)
+                    activation_probability = random.uniform(constants.edge_activation_p_close, constants.edge_activation_p_same)
                 elif abs(i-ii) == 1:
-                    activation_probability = random.uniform(constants.edge_activation_p_far / 2, constants.edge_activation_p_close)
+                    activation_probability = random.uniform(constants.edge_activation_p_far, constants.edge_activation_p_close)
                 else:
-                    activation_probability = random.uniform(0.01, constants.edge_activation_p_far)
+                    activation_probability = random.uniform(0.025, constants.edge_activation_p_far)
                 self.weight_matrix[i][ii] = activation_probability
         print(f'network created in {datetime.now() - start_time}')
 

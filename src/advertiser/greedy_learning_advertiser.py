@@ -15,7 +15,8 @@ from src.type_definitions import SlateType, ActivationProbabilitiesType
 
 class GreedyLearningAdvertiser(Advertiser):
 
-    def __init__(self, network: Network, use_estimated_activations: bool, ad_real_qualities: List[float] = None, ad_value: float = 0.5,):
+    def __init__(self, network: Network, use_estimated_activations: bool, ad_real_qualities: List[float] = None,
+                 ad_value: float = 0.5, averaging_factor: int = 4):
         super().__init__(ad_real_qualities=ad_real_qualities, ad_value=ad_value)
         self.stop_improving = False
         self.already_increased = [False for _ in range(constants.CATEGORIES)]  # This list will keep track of which bid has already been increased
@@ -32,6 +33,7 @@ class GreedyLearningAdvertiser(Advertiser):
         self.simulation_activated_nodes_history = []
         self.use_estimated_activations = use_estimated_activations
         self.estimated_activations = None
+        self.averaging_factor = averaging_factor
 
     def participate_real_auction(self) -> Ad:
         # Reset learner
@@ -91,19 +93,27 @@ class GreedyLearningAdvertiser(Advertiser):
                     copy_ad.set_bids(self.improved_bids)
                     ads.append(copy_ad)
 
-                    social_influence = AdPlacementSimulator.simulate_ad_placement(
-                        network=self.network,
-                        ads=ads,
-                        slates=self.slates,
-                        iterations=constants.greedy_simulation_iterations,
-                        use_estimated_qualities=True,
-                        use_estimated_activations=self.use_estimated_activations,
-                        estimated_activations=self.estimated_activations
-                    )
-                    gain, total_value, total_price = self.compute_gain_from_social_influence(social_influence=social_influence)
-                    self.category_gain[i] = gain
-                    self.category_total_value[i] = total_value
-                    self.category_price[i] = total_price
+                    social_influence = []
+                    avg_gain = []
+                    avg_total_value = []
+                    avg_total_price = []
+                    for t in range(self.averaging_factor):
+                        social_influence.append(AdPlacementSimulator.simulate_ad_placement(
+                            network=self.network,
+                            ads=ads,
+                            slates=self.slates,
+                            iterations=constants.greedy_simulation_iterations,
+                            use_estimated_qualities=True,
+                            use_estimated_activations=self.use_estimated_activations,
+                            estimated_activations=self.estimated_activations
+                        ))
+                        gain, total_value, total_price = self.compute_gain_from_social_influence(social_influence=social_influence[-1])
+                        avg_gain.append(gain)
+                        avg_total_price.append(total_price)
+                        avg_total_value.append(total_value)
+                    self.category_gain[i] = sum(avg_gain)/len(avg_gain)
+                    self.category_total_value[i] = sum(avg_total_value)/len(avg_total_value)
+                    self.category_price[i] = sum(avg_total_price)/len(avg_total_price)
                     self.already_increased[i] = True
 
             # Here all the bids have been improved one time and the gain is noted.
