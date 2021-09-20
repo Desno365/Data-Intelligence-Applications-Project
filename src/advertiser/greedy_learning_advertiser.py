@@ -126,11 +126,9 @@ class GreedyLearningAdvertiser(Advertiser):
         marginal_gains = [elem - self.previous_gain for elem in self.category_gain]
 
         if all(marg < 0 for marg in marginal_gains):
-            print("\n")
-            print(f"ALL MARGINAL GAINS ARE NEGATIVE. Marginal gains: {marginal_gains}")
-            print(f"Previous gain is {self.previous_gain}")
-            print(f"Bids are {self.bids}")
-            print("\n")
+            #print("\n")
+            print(f"ALL MARGINAL GAINS ARE NEGATIVE.\nBids are {self.bids}")
+            #print("\n")
             self.stop_improving = True
 
         else:
@@ -149,8 +147,8 @@ class GreedyLearningAdvertiser(Advertiser):
             self.bids[best_arm] = self.bids[best_arm].next_elem()
             self.previous_gain = self.category_gain[best_arm]
 
-            print(f"Greedy improvement: marginal gains are {marginal_gains}, the best is {best_arm} with gain {self.previous_gain}.")
-            print(f"Now bids are: {self.bids}")
+            #print(f"Greedy improvement: marginal gains are {marginal_gains}, the best is {best_arm} with gain {self.previous_gain}.")
+            #print(f"Now bids are: {self.bids}")
 
         self.category_gain = [0.0 for _ in range(constants.CATEGORIES)]
         self.already_increased = [False for _ in range(constants.CATEGORIES)]

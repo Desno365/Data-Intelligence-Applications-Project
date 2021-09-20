@@ -33,7 +33,8 @@ class Network:
         for ad in social_influence.keys():
             print('ad id: ', ad)
             for category in social_influence[ad].keys():
-                print('category: ', category, 'seeds: ', social_influence[ad][category]['seeds'], ' activatedNodes: ', social_influence[ad][category]['activatedNodes'])
+                pass
+                #print('category: ', category, 'seeds: ', social_influence[ad][category]['seeds'], ' activatedNodes: ', social_influence[ad][category]['activatedNodes'])
         print('### end ###')
 
     def __init__(self, n: int, fc: bool):

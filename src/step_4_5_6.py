@@ -12,14 +12,13 @@ from src.advertiser.stochastic_stationary_advertiser import StochasticStationary
 from src.bandit_algorithms.bandit_type_enum import BanditTypeEnum
 from src.publisher import Publisher
 
-
 # ################ Constants. ################ #
 NUMBER_OF_ITERATIONS = 1  # Run of 'NUMBER_OF_DAYS' days
-NUMBER_OF_DAYS = 20  # Days for the run.
+NUMBER_OF_DAYS = 40  # Days for the run.
 NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 1
 LEARN_QUALITIES = True  # True to learn qualities, False to use real qualities.
-LEARN_ACTIVATIONS = False  # True to learn activation probabilities, False to use real activation probabilities.
-USE_GREEDY_ADVERTISER = False  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
+LEARN_ACTIVATIONS = True  # True to learn activation probabilities, False to use real activation probabilities.
+USE_GREEDY_ADVERTISER = True  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
 LEARN_FROM_FIRST_SLOT_ONLY = False  # True to learn only from first slot of slate, False to learn from all slots.
 BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for qualities.
 BANDIT_TYPE_FOR_ACTIVATIONS = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for activations.
@@ -28,18 +27,19 @@ SLIDING_WINDOW_SIZE = 1000  # The size of the sliding window for bandit algorith
 ABRUPT_CHANGE_INTERVAL = 1000  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
 
 # ################ Graph printing. ################ #
-PRINT_QUALITY_REGRETS = True
+PRINT_QUALITY_REGRETS = False
 PRINT_ACTIVATION_REGRETS = False
-PRINT_GREEDY_HISTORY = False
+PRINT_GREEDY_HISTORY = True
+PRINT_COMPARISON = True
 
 # ################ Prepare context: Network. ################ #
 network_instance = network.Network(constants.number_of_nodes, False)
 nodes_per_category = network_instance.network_report()
 
-
 # ################ Prepare context: Advertisers. ################ #
 if USE_NON_STATIONARY_ADVERTISERS:
-    stochastic_advertisers = [StochasticNonStationaryAdvertiser(n=ABRUPT_CHANGE_INTERVAL) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
+    stochastic_advertisers = [StochasticNonStationaryAdvertiser(n=ABRUPT_CHANGE_INTERVAL) for _ in
+                              range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
 else:
     stochastic_advertisers = [StochasticStationaryAdvertiser() for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
 advertisers = []
@@ -50,7 +50,6 @@ if USE_GREEDY_ADVERTISER:
                                               ad_real_qualities=[random.random() for _ in range(constants.CATEGORIES)],
                                               ad_value=0.7)
     advertisers.append(greedy_learner)
-
 
 # ################ Prepare context: Publisher. ################ #
 publisher = Publisher(
@@ -120,8 +119,11 @@ for iter in range(NUMBER_OF_ITERATIONS):
         # get current quality estimates
         bandit_estimated_qualities = publisher.get_bandit_qualities()
         bandit_estimated_activations = publisher.get_bandit_activations()
-        for from_category in range(len(bandit_estimated_activations)):
-            print('from cat: ', from_category, 'bandit estimated activations: ', bandit_estimated_activations[from_category])
+        if LEARN_ACTIVATIONS:
+            print(f'Activation estimation:')
+            for from_category in range(len(bandit_estimated_activations)):
+                print('\t From cat: ', from_category, 'bandit estimated activations: ',
+                      bandit_estimated_activations[from_category])
 
         # pass quality estimations to ads
         for advertiser in advertisers:
@@ -161,9 +163,11 @@ for iter in range(NUMBER_OF_ITERATIONS):
                 if ad_id in social_influence.keys():
                     for category in range(constants.CATEGORIES):
                         ad_category_info = social_influence[ad_id][category].copy()
-                        gain += advertiser.ad_value * ad_category_info["activatedNodes"] - ad_category_info["price"] * ad_category_info["seeds"]
+                        gain += advertiser.ad_value * ad_category_info["activatedNodes"] - ad_category_info["price"] * \
+                                ad_category_info["seeds"]
                         if ad_id == greedy_learner.id:
-                            print(f'\t Seeds: {ad_category_info["seeds"]} - Activations: {ad_category_info["activatedNodes"]} - PPC: {ad_category_info["price"]}')
+                            print(
+                                f'\t Seeds: {ad_category_info["seeds"]} - Activations: {ad_category_info["activatedNodes"]} - PPC: {ad_category_info["price"]}')
                 if ad_id == greedy_learner.id:
                     gain_history_greedy[iter].append(gain)
                 else:
@@ -217,16 +221,21 @@ for iter in range(NUMBER_OF_ITERATIONS):
                 for advertiser in advertisers:
                     random_estimated_quality = random.choice(constants.bandit_quality_values)
                     random_regret = abs(advertiser.ad.real_qualities[category] - random_estimated_quality)
-                    plot_regret_random_quality[iter][advertiser.id][category] = np.append(plot_regret_random_quality[iter][advertiser.id][category],
-                                                                                    random_regret)
+                    plot_regret_random_quality[iter][advertiser.id][category] = np.append(
+                        plot_regret_random_quality[iter][advertiser.id][category],
+                        random_regret)
                     # plot_rewards_random_quality[ad.ad_id][category] = np.append(plot_rewards_random_quality[ad.ad_id][category], 1 - random_regret)
 
                     if advertiser.id in slotted_ads:
-                        real_error = abs(advertiser.ad.real_qualities[category] - bandit_estimated_qualities[advertiser.id][category])
-                        plot_regret_bandit_quality[iter][advertiser.id][category] = np.append(plot_regret_bandit_quality[iter][advertiser.id][category], real_error)
+                        real_error = abs(
+                            advertiser.ad.real_qualities[category] - bandit_estimated_qualities[advertiser.id][
+                                category])
+                        plot_regret_bandit_quality[iter][advertiser.id][category] = np.append(
+                            plot_regret_bandit_quality[iter][advertiser.id][category], real_error)
                         # plot_rewards_bandit_quality[ad.ad_id][category] = np.append(plot_rewards_bandit_quality[ad.ad_id][category], 1 - real_error)
                     else:
-                        plot_regret_bandit_quality[iter][advertiser.id][category] = np.append(plot_regret_bandit_quality[iter][advertiser.id][category], random_regret)
+                        plot_regret_bandit_quality[iter][advertiser.id][category] = np.append(
+                            plot_regret_bandit_quality[iter][advertiser.id][category], random_regret)
 
             # update bandits with rewards
             publisher.update_bandits_quality(rewards=rewards_qualities)
@@ -251,7 +260,8 @@ for iter in range(NUMBER_OF_ITERATIONS):
                     #     f'n{network_instance.activation_realization[from_category][to_category]}, '
                     #     f'tot{network_instance.cross_category_edges[from_category][to_category]}, '
                     #     f'act{measured_activation}')
-                    error_activation = abs(measured_activation - bandit_estimated_activations[from_category][to_category])
+                    error_activation = abs(
+                        measured_activation - bandit_estimated_activations[from_category][to_category])
 
                     if error_activation <= constants.bandit_activation_values[0]:  # Range of activations is NOT [0, 1]!
                         rewards_activations[from_category][to_category] = 1
@@ -259,19 +269,22 @@ for iter in range(NUMBER_OF_ITERATIONS):
                         rewards_activations[from_category][to_category] = 0
 
                     random_estimated_activation = random.choice(constants.bandit_activation_values)
-                    random_regret_activation = abs(network_instance.weight_matrix[from_category][to_category] - random_estimated_activation)
-                    plot_regret_random_activation[iter][from_category][to_category] = np.append(plot_regret_random_activation[iter][from_category][to_category], random_regret_activation)
-                    #plot_rewards_random_activation[from_category][to_category] = np.append(plot_rewards_random_activation[from_category][to_category], 1 - (random_regret_activation / constants.bandit_activation_values[-1]))
+                    random_regret_activation = abs(
+                        network_instance.weight_matrix[from_category][to_category] - random_estimated_activation)
+                    plot_regret_random_activation[iter][from_category][to_category] = np.append(
+                        plot_regret_random_activation[iter][from_category][to_category], random_regret_activation)
+                    # plot_rewards_random_activation[from_category][to_category] = np.append(plot_rewards_random_activation[from_category][to_category], 1 - (random_regret_activation / constants.bandit_activation_values[-1]))
                     if network_instance.cross_category_edges[from_category][to_category] != 0:
-                        real_error_activation = abs(network_instance.weight_matrix[from_category][to_category] - bandit_estimated_activations[from_category][to_category])
+                        real_error_activation = abs(network_instance.weight_matrix[from_category][to_category] -
+                                                    bandit_estimated_activations[from_category][to_category])
                     else:
                         real_error_activation = random_regret_activation
-                    plot_regret_bandit_activation[iter][from_category][to_category] = np.append(plot_regret_bandit_activation[iter][from_category][to_category], real_error_activation)
-                    #plot_rewards_bandit_activation[from_category][to_category] = np.append(plot_rewards_bandit_activation[from_category][to_category], 1 - (real_error_activation / constants.bandit_activation_values[-1]))
+                    plot_regret_bandit_activation[iter][from_category][to_category] = np.append(
+                        plot_regret_bandit_activation[iter][from_category][to_category], real_error_activation)
+                    # plot_rewards_bandit_activation[from_category][to_category] = np.append(plot_rewards_bandit_activation[from_category][to_category], 1 - (real_error_activation / constants.bandit_activation_values[-1]))
 
             # update bandits with rewards
             publisher.update_bandits_activations(rewards=rewards_activations)
-
 
 fig = 0
 
@@ -292,8 +305,10 @@ if PRINT_QUALITY_REGRETS:
             for advertiser in advertisers:
                 for category in range(constants.CATEGORIES):
                     for day in range(NUMBER_OF_DAYS):
-                        avg_bandit_regret[advertiser.id][category][day] += plot_regret_bandit_quality[i][advertiser.id][category][day] / NUMBER_OF_ITERATIONS
-                        avg_random_regret[advertiser.id][category][day] += plot_regret_random_quality[i][advertiser.id][category][day] / NUMBER_OF_ITERATIONS
+                        avg_bandit_regret[advertiser.id][category][day] += \
+                        plot_regret_bandit_quality[i][advertiser.id][category][day] / NUMBER_OF_ITERATIONS
+                        avg_random_regret[advertiser.id][category][day] += \
+                        plot_regret_random_quality[i][advertiser.id][category][day] / NUMBER_OF_ITERATIONS
 
         for advertiser in advertisers:
             ad_id = advertiser.id
@@ -313,7 +328,7 @@ if PRINT_QUALITY_REGRETS:
                 plt.ylabel(f"Cumulative Quality Regret ad {ad_id}, cat {category}")
                 plt.plot(np.cumsum(avg_random_regret[ad_id][category]), 'r', linewidth=2, ls='--')
                 plt.plot(np.cumsum(avg_bandit_regret[ad_id][category]), 'g')
-                #if USE_NON_STATIONARY_ADVERTISERS:
+                # if USE_NON_STATIONARY_ADVERTISERS:
                 #    for i in range(NUMBER_OF_DAYS):
                 #        i = i + 1
                 #        if i % ABRUPT_CHANGE_INTERVAL == 0:
@@ -341,8 +356,10 @@ if PRINT_ACTIVATION_REGRETS:
             for from_category in range(constants.CATEGORIES):
                 for to_category in range(constants.CATEGORIES):
                     for day in range(NUMBER_OF_DAYS):
-                        avg_bandit_regret[from_category][to_category][day] += plot_regret_bandit_activation[i][from_category][to_category][day] / NUMBER_OF_ITERATIONS
-                        avg_random_regret[from_category][to_category][day] += plot_regret_random_activation[i][from_category][to_category][day] / NUMBER_OF_ITERATIONS
+                        avg_bandit_regret[from_category][to_category][day] += \
+                        plot_regret_bandit_activation[i][from_category][to_category][day] / NUMBER_OF_ITERATIONS
+                        avg_random_regret[from_category][to_category][day] += \
+                        plot_regret_random_activation[i][from_category][to_category][day] / NUMBER_OF_ITERATIONS
 
         # # Create plot for activations
         # # Note: one experiment = one bandit (one bandit for each category and for each advertiser)
@@ -369,25 +386,24 @@ if PRINT_ACTIVATION_REGRETS:
         # print('true activation values:')
         # for from_category in range(constants.CATEGORIES):
         #     print(network_instance.weight_matrix[from_category][:])
+if USE_GREEDY_ADVERTISER:
+    if PRINT_COMPARISON:
+        gain_of_greedy = greedy_learner.daily_gain_history
+        gains_of_stochastic = []
+        for stochastic_advertiser in stochastic_advertisers:
+            gains_of_stochastic.append(stochastic_advertiser.daily_gain_history)
+        mean_gain_of_stochastic = np.mean(gains_of_stochastic, axis=0)
+        plt.figure(fig)
+        fig += 1
+        plt.xlabel("t")
+        plt.ylabel("Cumulative Gain")
+        plt.plot(np.cumsum(gain_of_greedy), 'r')
+        plt.plot(np.cumsum(mean_gain_of_stochastic), 'g')
+        plt.legend(["Greedy cumulative gain", "Stochastic advs mean cumulative gain"])
+        plt.show()
 
-# Print gain of advertisers.
-if PRINT_GREEDY_HISTORY:
-    if USE_GREEDY_ADVERTISER:
-        # gain_of_greedy = greedy_learner.daily_gain_history
-        # gains_of_stochastic = []
-        # for stochastic_advertiser in stochastic_advertisers:
-        #     gains_of_stochastic.append(stochastic_advertiser.daily_gain_history)
-        #
-        # mean_gain_of_stochastic = np.mean(gains_of_stochastic, axis=0)
-        #
-        # plt.figure(fig)
-        # fig += 1
-        # plt.xlabel("t")
-        # plt.ylabel("Cumulative Gain")
-        # plt.plot(np.cumsum(gain_of_greedy), 'r')
-        # plt.plot(np.cumsum(mean_gain_of_stochastic), 'g')
-        # plt.legend(["Greedy", "Mean Gain of Stochastic advs"])
-        # plt.show()
+    # Print gain of advertisers.
+    if PRINT_GREEDY_HISTORY:
 
         avg_greedy_gain = np.zeros(NUMBER_OF_DAYS)
         avg_stochastics_gain = {}
@@ -399,7 +415,8 @@ if PRINT_GREEDY_HISTORY:
                 avg_greedy_gain[day] += gain_history_greedy[i][day] / NUMBER_OF_ITERATIONS
                 for advertiser in advertisers:
                     if advertiser.id != greedy_learner.id:
-                        avg_stochastics_gain[advertiser.id][day] += gain_history_stochastics[i][advertiser.id][day] / NUMBER_OF_ITERATIONS
+                        avg_stochastics_gain[advertiser.id][day] += gain_history_stochastics[i][advertiser.id][
+                                                                        day] / NUMBER_OF_ITERATIONS
 
         plt.figure(fig)
         fig += 1

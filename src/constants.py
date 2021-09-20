@@ -15,7 +15,7 @@ settings = {
 # the number of node categories in the network, each node is assigned a random category at creation
 CATEGORIES = 5
 categories = [0, 1, 2, 3, 4]
-number_of_nodes = 500
+number_of_nodes = 100
 average_number_neighbours = 2 * math.log(number_of_nodes)
 sigma_neighbours = math.log(number_of_nodes)
 connection_p_far = 0.05
