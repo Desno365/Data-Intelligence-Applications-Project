@@ -1,3 +1,4 @@
+import math
 import random
 from typing import List
 
@@ -25,8 +26,8 @@ class StochasticNonStationaryAdvertiser(Advertiser):
         self.k += 1
         if self.k >= self.n:
             print(f"Advertiser with id {self.id} is making an abrupt change.")
-            self.change_bids()
             self.change_qualities()
+            self.change_bids()
             self.k = 0
         return super().participate_real_auction()
 
