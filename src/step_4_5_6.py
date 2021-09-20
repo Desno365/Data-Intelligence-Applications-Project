@@ -115,9 +115,15 @@ for iter in range(NUMBER_OF_ITERATIONS):
 
     for day in range(NUMBER_OF_DAYS):
 
+        print('###################################################')
         print('Running day', day, '- iteration', iter)
         # get current quality estimates
         bandit_estimated_qualities = publisher.get_bandit_qualities()
+        if LEARN_QUALITIES:
+            print(f'Quality estimation:')
+            for advertiser in advertisers:
+                print(f'\t Advertiser {advertiser.id} {bandit_estimated_qualities[advertiser.id]}')
+
         bandit_estimated_activations = publisher.get_bandit_activations()
         if LEARN_ACTIVATIONS:
             print(f'Activation estimation:')
@@ -161,6 +167,7 @@ for iter in range(NUMBER_OF_ITERATIONS):
                 ad_id = advertiser.id
                 gain = 0
                 if ad_id in social_influence.keys():
+                    print(f'Greedy advertiser info:')
                     for category in range(constants.CATEGORIES):
                         ad_category_info = social_influence[ad_id][category].copy()
                         gain += advertiser.ad_value * ad_category_info["activatedNodes"] - ad_category_info["price"] * \
@@ -205,11 +212,8 @@ for iter in range(NUMBER_OF_ITERATIONS):
 
                     susceptible_nodes -= number_of_seeds
                     if susceptible_nodes <= constants.number_of_bandit_arms_qualities:
-                        print("Not enough samples.")
                         break
                     valid_slots += 1
-
-                    print(f'\tcategory {category}, advertiser {slot.assigned_ad}')
 
                     if LEARN_FROM_FIRST_SLOT_ONLY:
                         break
@@ -423,6 +427,7 @@ if USE_GREEDY_ADVERTISER:
         plt.title('Gain History')
         plt.xlabel("Day")
         plt.ylabel("Gain history")
+        plt.plot(avg_greedy_gain, 'g', linewidth=3)
         for advertiser in advertisers:
             rgb = (random.random(), random.random(), random.random())
             if advertiser.id != greedy_learner.id:
