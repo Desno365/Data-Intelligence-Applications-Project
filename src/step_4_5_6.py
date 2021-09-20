@@ -12,6 +12,7 @@ from src.advertiser.stochastic_stationary_advertiser import StochasticStationary
 from src.bandit_algorithms.bandit_type_enum import BanditTypeEnum
 from src.publisher import Publisher
 
+
 # ################ Constants. ################ #
 NUMBER_OF_ITERATIONS = 1  # Run of 'NUMBER_OF_DAYS' days
 NUMBER_OF_DAYS = 40  # Days for the run.
@@ -26,15 +27,18 @@ USE_NON_STATIONARY_ADVERTISERS = False  # True to use Non-Stationary Stochastic 
 SLIDING_WINDOW_SIZE = 1000  # The size of the sliding window for bandit algorithms that have this parameter.
 ABRUPT_CHANGE_INTERVAL = 1000  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
 
+
 # ################ Graph printing. ################ #
 PRINT_QUALITY_REGRETS = False
 PRINT_ACTIVATION_REGRETS = False
 PRINT_GREEDY_HISTORY = True
 PRINT_COMPARISON = True
 
+
 # ################ Prepare context: Network. ################ #
 network_instance = network.Network(constants.number_of_nodes, False)
 nodes_per_category = network_instance.network_report()
+
 
 # ################ Prepare context: Advertisers. ################ #
 if USE_NON_STATIONARY_ADVERTISERS:
@@ -50,6 +54,7 @@ if USE_GREEDY_ADVERTISER:
                                               ad_real_qualities=[random.random() for _ in range(constants.CATEGORIES)],
                                               ad_value=0.7)
     advertisers.append(greedy_learner)
+
 
 # ################ Prepare context: Publisher. ################ #
 publisher = Publisher(
@@ -74,7 +79,6 @@ gain_history_greedy = []
 gain_history_stochastics = []
 
 for iter in range(NUMBER_OF_ITERATIONS):
-
     # ################ Prepare variables for plotting. ################ #
     if LEARN_ACTIVATIONS:
         plot_rewards_bandit_activation.append({})

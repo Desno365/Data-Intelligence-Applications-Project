@@ -23,9 +23,11 @@ network_instance = network.Network(constants.number_of_nodes, False)
 _ = network_instance.generate_live_edge_graph()
 network_instance.depth_first_search([random.randint(0, constants.number_of_nodes-1) for i in range(3)])
 
+
 # ################ Prepare context: Network. ################ #
 advertisers = [StochasticStationaryAdvertiser(ad_real_qualities=None) for _ in range(NUMBER_OF_STOCHASTIC_ADVERTISERS)]
 advertisements = [adv.participate_real_auction() for adv in advertisers]
+
 
 # ################ Prepare variables for the experiment. ################ #
 activated_nodes_per_iterations_per_experiment = []
