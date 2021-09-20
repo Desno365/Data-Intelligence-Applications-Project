@@ -7,6 +7,7 @@ from src.utils import Utils
 # ################ Constants. ################ #
 NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 1
 
+
 # ################ Prepare context: Network. ################ #
 network_instance = network.Network(constants.number_of_nodes, False)
 
