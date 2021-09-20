@@ -14,15 +14,15 @@ from src.publisher import Publisher
 
 
 # ################ Constants. ################ #
-NUMBER_OF_DAYS = 1600  # Days for the run.
+NUMBER_OF_DAYS = 50  # Days for the run.
 NUMBER_OF_STOCHASTIC_ADVERTISERS = constants.SLATE_DIMENSION + 1
 LEARN_QUALITIES = True  # True to learn qualities, False to use real qualities.
 LEARN_ACTIVATIONS = False  # True to learn activation probabilities, False to use real activation probabilities.
 USE_GREEDY_ADVERTISER = False  # True to enable the Greedy Advertiser, False to only use Stochastic Advertisers.
-LEARN_FROM_FIRST_SLOT_ONLY = False  # True to learn only from first slot of slate, False to learn from all slots.
-BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.SLIDING_WINDOW_UCB1  # Bandit to be used for qualities.
-BANDIT_TYPE_FOR_ACTIVATIONS = BanditTypeEnum.THOMPSON_SAMPLING  # Bandit to be used for activations.
-USE_NON_STATIONARY_ADVERTISERS = True  # True to use Non-Stationary Stochastic Advertisers, False to use Stationary Stochastic Advertisers.
+LEARN_FROM_FIRST_SLOT_ONLY = True  # True to learn only from first slot of slate, False to learn from all slots.
+BANDIT_TYPE_FOR_QUALITIES = BanditTypeEnum.UCB1  # Bandit to be used for qualities.
+BANDIT_TYPE_FOR_ACTIVATIONS = BanditTypeEnum.UCB1  # Bandit to be used for activations.
+USE_NON_STATIONARY_ADVERTISERS = False  # True to use Non-Stationary Stochastic Advertisers, False to use Stationary Stochastic Advertisers.
 SLIDING_WINDOW_SIZE = 400  # The size of the sliding window for bandit algorithms that have this parameter.
 ABRUPT_CHANGE_INTERVAL = 800  # Abrupt change interval for Non-Stationary Stochastic Advertisers.
 
@@ -179,9 +179,7 @@ for day in range(NUMBER_OF_DAYS):
                 measured_quality = (number_of_seeds / susceptible_nodes) / constants.SLOT_VISIBILITY
                 # measured_quality = (number_of_seeds / nodes_per_category[category]) / slot.slot_prominence
                 susceptible_nodes -= number_of_seeds
-                if susceptible_nodes <= constants.number_of_bandit_arms_qualities:
-                    # print("Not enough samples.")
-                    break
+
                 error = abs(measured_quality - bandit_estimated_qualities[ad.ad_id][category])
                 if error <= 1 / constants.number_of_bandit_arms_qualities:
                     rewards_qualities[ad.ad_id][category] = 1
@@ -194,6 +192,9 @@ for day in range(NUMBER_OF_DAYS):
                 random_regret = abs(slot.assigned_ad.real_quality - random_estimated_quality)
                 plot_regret_random_quality[ad.ad_id][category] = np.append(plot_regret_random_quality[ad.ad_id][category], random_regret)
                 plot_rewards_random_quality[ad.ad_id][category] = np.append(plot_rewards_random_quality[ad.ad_id][category], 1 - random_regret)
+                if susceptible_nodes <= constants.number_of_bandit_arms_qualities:
+                    # print("Not enough samples.")
+                    break
                 if LEARN_FROM_FIRST_SLOT_ONLY:
                     break
 
@@ -240,7 +241,7 @@ for day in range(NUMBER_OF_DAYS):
 
 
 fig = 0
-'''
+
 if LEARN_ACTIVATIONS:
     # # Create plot for activations
     # # Note: one experiment = one bandit (one bandit for each category and for each advertiser)
@@ -265,7 +266,7 @@ if LEARN_ACTIVATIONS:
     print('true activation values:')
     for from_category in range(constants.CATEGORIES):
         print(network_instance.weight_matrix[from_category][:])
-'''
+
 
 if LEARN_QUALITIES:
     # Create plot for qualities
