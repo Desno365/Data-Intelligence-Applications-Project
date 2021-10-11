@@ -1,0 +1,71 @@
+creating nodes
+done
+creating edges
+done
+network created in 0:00:00.005878
+Slates:
+[ Slot{id=0;prominence=0.5;ad=None;price=None;}, Slot{id=1;prominence=0.25;ad=None;price=None;}, Slot{id=2;prominence=0.125;ad=None;price=None;}, Slot{id=3;prominence=0.0625;ad=None;price=None;}, Slot{id=4;prominence=0.03125;ad=None;price=None;}, Slot{id=5;prominence=0.015625;ad=None;price=None;},  ]
+[ Slot{id=0;prominence=0.5;ad=None;price=None;}, Slot{id=1;prominence=0.25;ad=None;price=None;}, Slot{id=2;prominence=0.125;ad=None;price=None;}, Slot{id=3;prominence=0.0625;ad=None;price=None;}, Slot{id=4;prominence=0.03125;ad=None;price=None;}, Slot{id=5;prominence=0.015625;ad=None;price=None;},  ]
+[ Slot{id=0;prominence=0.5;ad=None;price=None;}, Slot{id=1;prominence=0.25;ad=None;price=None;}, Slot{id=2;prominence=0.125;ad=None;price=None;}, Slot{id=3;prominence=0.0625;ad=None;price=None;}, Slot{id=4;prominence=0.03125;ad=None;price=None;}, Slot{id=5;prominence=0.015625;ad=None;price=None;},  ]
+[ Slot{id=0;prominence=0.5;ad=None;price=None;}, Slot{id=1;prominence=0.25;ad=None;price=None;}, Slot{id=2;prominence=0.125;ad=None;price=None;}, Slot{id=3;prominence=0.0625;ad=None;price=None;}, Slot{id=4;prominence=0.03125;ad=None;price=None;}, Slot{id=5;prominence=0.015625;ad=None;price=None;},  ]
+[ Slot{id=0;prominence=0.5;ad=None;price=None;}, Slot{id=1;prominence=0.25;ad=None;price=None;}, Slot{id=2;prominence=0.125;ad=None;price=None;}, Slot{id=3;prominence=0.0625;ad=None;price=None;}, Slot{id=4;prominence=0.03125;ad=None;price=None;}, Slot{id=5;prominence=0.015625;ad=None;price=None;},  ]
+Ads:
+ad id 3128 bids [<BidsEnum.SMALL: 0.33>, <BidsEnum.SMALL: 0.33>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.VERY_SMALL: 0.2>]
+ad id 8503 bids [<BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MAX: 0.75>, <BidsEnum.SMALL: 0.33>, <BidsEnum.SMALL: 0.33>, <BidsEnum.VERY_SMALL: 0.2>]
+ad id 1014 bids [<BidsEnum.SMALL: 0.33>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.OFF: 0>, <BidsEnum.SMALL: 0.33>]
+ad id 2658 bids [<BidsEnum.MAX: 0.75>, <BidsEnum.SMALL: 0.33>, <BidsEnum.MAX: 0.75>, <BidsEnum.MAX: 0.75>, <BidsEnum.OFF: 0>]
+ad id 1247 bids [<BidsEnum.MAX: 0.75>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.VERY_SMALL: 0.2>]
+ad id 4512 bids [<BidsEnum.SMALL: 0.33>, <BidsEnum.OFF: 0>, <BidsEnum.MAX: 0.75>, <BidsEnum.OFF: 0>, <BidsEnum.SMALL: 0.33>]
+ad id 793 bids [<BidsEnum.MAX: 0.75>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.OFF: 0>, <BidsEnum.MAX: 0.75>, <BidsEnum.MAX: 0.75>]
+ad id 9054 bids [<BidsEnum.MEDIUM: 0.5>, <BidsEnum.MAX: 0.75>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.MAX: 0.75>, <BidsEnum.MAX: 0.75>]
+ad id 6478 bids [<BidsEnum.OFF: 0>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.SMALL: 0.33>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.MAX: 0.75>]
+ad id 8747 bids [<BidsEnum.SMALL: 0.33>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.MAX: 0.75>, <BidsEnum.VERY_SMALL: 0.2>]
+ad id 6307 bids [<BidsEnum.MAX: 0.75>, <BidsEnum.SMALL: 0.33>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.SMALL: 0.33>, <BidsEnum.MAX: 0.75>]
+ad id 5004 bids [<BidsEnum.OFF: 0>, <BidsEnum.OFF: 0>, <BidsEnum.OFF: 0>, <BidsEnum.OFF: 0>, <BidsEnum.OFF: 0>]
+ad id 3128 qualities [0.5060542401735009, 0.4615172748004855, 0.06869433085383418, 0.5995424837229185, 0.2748804054921801]
+ad id 8503 qualities [0.2984679513762243, 0.2517800138504327, 0.46892969530451084, 0.6246929220277334, 0.891879926275113]
+ad id 1014 qualities [0.5039429997049356, 0.06037980767705478, 0.28409606897069306, 0.6649769966481386, 0.29727739211147003]
+ad id 2658 qualities [0.18249610677348993, 0.19335353352511364, 0.4491978875094668, 0.0768917337727244, 0.3845488174233766]
+ad id 1247 qualities [0.6841334098863504, 0.0807943484241623, 0.6871834834883246, 0.5351218086712974, 0.5369021509419525]
+ad id 4512 qualities [0.9041700132467395, 0.4966788161413077, 0.568573574593615, 0.8056056578480302, 0.9184222612378845]
+ad id 793 qualities [0.07554609966601185, 0.5135908227604719, 0.17864890297313324, 0.2152393398632098, 0.3566448136838399]
+ad id 9054 qualities [0.9818947878896613, 0.11063418388067603, 0.3936298667027176, 0.728464562565969, 0.8028007986417686]
+ad id 6478 qualities [0.9694125169428023, 0.6876627890501774, 0.41744623429280375, 0.5779556545564188, 0.29518522900267447]
+ad id 8747 qualities [0.875496690277451, 0.14255945239716133, 0.7029738992714748, 0.8540109847315291, 0.05435496153480665]
+ad id 6307 qualities [0.1408136870902157, 0.49273747292681214, 0.10213209244440165, 0.42282170203220354, 0.9059329490574952]
+ad id 5004 qualities [0.8, 0.8, 0.8, 0.8, 0.8]
+Greedy improvement: marginal gains are [0, 3.9847198833567004, 6.65276108649179, 6.0718673509093435, 0], the best is 2 with gain 6.65276108649179.
+Now bids are: [<BidsEnum.OFF: 0>, <BidsEnum.OFF: 0>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.OFF: 0>, <BidsEnum.OFF: 0>]
+Greedy improvement: marginal gains are [-0.7698903460972595, 1.8214627983147356, 0.2298285372961919, 5.013657221490316, -0.13720294751643802], the best is 3 with gain 11.666418307982106.
+Now bids are: [<BidsEnum.OFF: 0>, <BidsEnum.OFF: 0>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.OFF: 0>]
+Greedy improvement: marginal gains are [-0.035942206562250334, 3.298006579507758, 1.366366563646178, 1.2788218672391896, 0.0978428879369897], the best is 1 with gain 14.964424887489864.
+Now bids are: [<BidsEnum.OFF: 0>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.OFF: 0>]
+Greedy improvement: marginal gains are [-0.6857058383034715, 0.13248330665169483, -0.5129511169776002, 2.530178450494846, -3.361495026379373], the best is 3 with gain 17.49460333798471.
+Now bids are: [<BidsEnum.OFF: 0>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.SMALL: 0.33>, <BidsEnum.OFF: 0>]
+Greedy improvement: marginal gains are [1.3697055495433972, -0.04078308355207483, -0.0459793944615825, 1.1161936603255391, -1.2081075162201422], the best is 0 with gain 18.864308887528107.
+Now bids are: [<BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.SMALL: 0.33>, <BidsEnum.OFF: 0>]
+Greedy improvement: marginal gains are [-1.0778032352716735, 0.05659300082941954, -0.7264874959059178, -0.12963336390938807, -3.244777665286504], the best is 1 with gain 18.920901888357527.
+Now bids are: [<BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.SMALL: 0.33>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.SMALL: 0.33>, <BidsEnum.OFF: 0>]
+Greedy improvement: marginal gains are [0.023961023176468643, 1.1784536352366857, 0.1844351575549652, 1.497334219277782, -0.07756205036553965], the best is 3 with gain 20.41823610763531.
+Now bids are: [<BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.SMALL: 0.33>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.OFF: 0>]
+Greedy improvement: marginal gains are [0.7145375601652049, 2.7008540077818246, 2.1277469303385494, 2.7469147247096615, 0.07097724275090656], the best is 3 with gain 23.16515083234497.
+Now bids are: [<BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.SMALL: 0.33>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MAX: 0.75>, <BidsEnum.OFF: 0>]
+Greedy improvement: marginal gains are [-2.0985927184554427, 0.4855461121395024, 0.15926204639590935, -23.16515083234497, -1.4785177093120367], the best is 1 with gain 23.650696944484473.
+Now bids are: [<BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MAX: 0.75>, <BidsEnum.OFF: 0>]
+Greedy improvement: marginal gains are [-0.07457687315591954, -0.24964936924178005, 1.6463806456617291, -23.650696944484473, 2.8814479499859935], the best is 4 with gain 26.532144894470466.
+Now bids are: [<BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MAX: 0.75>, <BidsEnum.VERY_SMALL: 0.2>]
+Greedy improvement: marginal gains are [-2.913959510006716, -1.4171845477237959, -1.0206919358281645, -26.532144894470466, 6.72503533026747], the best is 4 with gain 33.25718022473794.
+Now bids are: [<BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MAX: 0.75>, <BidsEnum.SMALL: 0.33>]
+Greedy improvement: marginal gains are [-1.8918914996928358, -2.3782638961638156, -0.2655890605745199, -33.25718022473794, 2.5895043786699503], the best is 4 with gain 35.84668460340789.
+Now bids are: [<BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MEDIUM: 0.5>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MAX: 0.75>, <BidsEnum.MEDIUM: 0.5>]
+Greedy improvement: marginal gains are [-0.23785140472713096, 2.0862829900773576, 0.6298302403540745, -35.84668460340789, -0.06894141440393042], the best is 1 with gain 37.932967593485245.
+Now bids are: [<BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MAX: 0.75>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MAX: 0.75>, <BidsEnum.MEDIUM: 0.5>]
+
+
+ALL MARGINAL GAINS ARE NEGATIVE. Marginal gains: [-1.4112216025055062, -37.932967593485245, -1.7367724962364832, -37.932967593485245, -0.8691063150759746]
+Previous gain is 37.932967593485245
+Bids are [<BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MAX: 0.75>, <BidsEnum.VERY_SMALL: 0.2>, <BidsEnum.MAX: 0.75>, <BidsEnum.MEDIUM: 0.5>]
+
+
+
+Process finished with exit code 0
